@@ -26,7 +26,7 @@
         <functionAppName>user-account-service-function</functionAppName>
         <functionAppRegion>uksouth</functionAppRegion>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
-        <functionResourceGroup>my-resource-group</functionResourceGroup>
+        <functionResourceGroup>math-dojo-hzprod-user-account-service</functionResourceGroup>
         <start-class>io.mathdojo.HelloFunction</start-class>
         <wrapper.version>1.0.22.RELEASE</wrapper.version>
     </properties>
