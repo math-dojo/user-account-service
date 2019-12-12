@@ -1,0 +1,24 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-2019'
+
+steps:
+- script: |
+    mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) clean package
+  displayName: Build package
+
+- task: AzureCLI@2
+  displayName: 'Deploy app'
+  inputs:
+    azureSubscription: user-account-service-hzprod-rg-access
+    scriptType: ps
+    scriptLocation: inlineScript
+    inlineScript: |
+        mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
