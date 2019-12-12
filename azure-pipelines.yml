@@ -21,4 +21,4 @@ steps:
     scriptType: ps
     scriptLocation: inlineScript
     inlineScript: |
-        mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
+        .\mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
