@@ -115,6 +115,10 @@
                             <value>io.mathdojo.HelloFunction</value>
                         </property>
                     </appSettings>
+                    <authentication>
+                        <serverId>azure-auth</serverId>
+                     </authentication>
+                     <subscriptionId>5594cd6c-b674-4323-8517-5e859a399468</subscriptionId>
                 </configuration>
                 <executions>
                     <execution>
