@@ -24,5 +24,5 @@ steps:
     scriptLocation: inlineScript
     inlineScript: |
         az login --service-principal -u $env:servicePrincipalId -p $env:servicePrincipalKey --tenant $env:tenantId
-        New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd"><servers><server><id>azure-auth</id><configuration><client>$env:servicePrincipalId</client><tenant>$env:tenantId</tenant><key>$env:servicePrincipalKey</key><environment>AZURE</environment></configuration></server></servers></settings>'
+        New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd"><servers><server><id>azure-auth</id><configuration><client>$(env:servicePrincipalId)</client><tenant>$(env:tenantId)</tenant><key>$(env:servicePrincipalKey)</key><environment>AZURE</environment></configuration></server></servers></settings>'
         .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
