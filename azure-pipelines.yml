@@ -5,6 +5,8 @@
 
 trigger:
 - master
+- develop
+- ft*
 
 pool:
   vmImage: 'windows-2019'
