@@ -19,6 +19,9 @@ public class HelloHandler extends AzureSpringBootRequestHandler<User, Greeting> 
             HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<User>> request,
             ExecutionContext context) {
 
+        context.getLogger().info("Got headers: ");
+        request.getHeaders().forEach((eachKey, eachValue) -> context.getLogger()
+                .info("Got header " + eachKey + " with value: " + eachValue));
         context.getLogger().info("Greeting user name: " + request.getBody().get().getName());
         return handleRequest(request.getBody().get(), context);
     }
