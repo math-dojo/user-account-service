@@ -3,7 +3,6 @@ package io.mathdojo;
 import io.mathdojo.model.Greeting;
 import io.mathdojo.model.User;
 
-import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
 import com.microsoft.azure.functions.HttpRequestMessage;
@@ -11,22 +10,17 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.function.adapter.azure.AzureSpringBootRequestHandler;
 
 import java.util.Optional;
 
 public class HelloHandler extends AzureSpringBootRequestHandler<User, Greeting> {
 
-    @Autowired
-    TelemetryClient telemetryClient;
-
     @FunctionName("hello")
     public Greeting execute(@HttpTrigger(name = "request", methods = { HttpMethod.GET,
             HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<User>> request,
             ExecutionContext context) {
 
-        telemetryClient.trackEvent("hello endpoint called");
         context.getLogger().info("Got headers: ");
         request.getHeaders().forEach((eachKey, eachValue) -> context.getLogger()
                 .info("Got header " + eachKey + " with value: " + eachValue));
