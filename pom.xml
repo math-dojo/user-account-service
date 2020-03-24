@@ -42,11 +42,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>applicationinsights-web-auto</artifactId>
-            <!-- or applicationinsights-web for manual web filter registration -->
-            <!-- or applicationinsights-core for bare API -->
-            <version>2.5.0</version>
+        <groupId>com.microsoft.azure</groupId>
+        <artifactId>applicationinsights-spring-boot-starter</artifactId>
+        <version>2.5.1</version>
         </dependency>
 
         <!-- Test -->
