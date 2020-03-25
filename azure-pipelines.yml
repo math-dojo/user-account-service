@@ -2,6 +2,8 @@
 # Build your Java project and run tests with Apache Maven.
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
+variables:
+  appInsightsKey: 847d7f9e-408c-44ec-9bb5-e1f99872d8f2
 
 trigger:
 - master
@@ -30,3 +32,14 @@ steps:
         New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
         cat .\.mvn\settings.xml
         .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
+
+- task: AzureCLI@2
+  displayName: 'Set app insights key'
+  inputs:
+    addSpnToEnvironment: true
+    failOnStandardError: true
+    azureSubscription: user-account-service-hzprod-rg-access
+    scriptType: ps
+    scriptLocation: inlineScript
+    inlineScript: |
+      az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)"
