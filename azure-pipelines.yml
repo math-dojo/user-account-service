@@ -42,4 +42,4 @@ steps:
     scriptType: ps
     scriptLocation: inlineScript
     inlineScript: |
-      az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)" "APPLICATIONINSIGHTS_CONNECTION_STRING='InstrumentationKey=$(appInsightsKey)'"
+      az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(appInsightsKey)"
