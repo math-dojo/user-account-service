@@ -8,8 +8,11 @@ public class HTTPRequestSignatureVerifier {
         
     }
 
-	public boolean verifySignatureHeader(Map<String, String> testHeaders) {
-		return false;
+	public boolean verifySignatureHeader(Map<String, String> suppliedHeaders) {
+		if(suppliedHeaders.get("signature") == null) {
+			return false;
+		}
+		return true;
 	}
 
 }
