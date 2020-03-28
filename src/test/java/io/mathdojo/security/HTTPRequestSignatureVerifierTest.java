@@ -2,7 +2,6 @@ package io.mathdojo.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -33,11 +32,33 @@ public class HTTPRequestSignatureVerifierTest {
     }
 
     @Test
-    public void testExtractsSignatureStringFromSignatureHeader() {
+    public void testExtractsSignatureStringFromSignatureHeader() throws HTTPRequestSignatureVerificationException {
         List<String> testHeaderList = Arrays.asList("header1", "header2");
         String testSignatureString = "somethingSignedAndB64Encoded";
         String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
         testSignatureString);
+
+        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
+
+        String extractedSignatureString = verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
+        assertEquals(testSignatureString, extractedSignatureString);
+    }
+
+    @Test(expected = HTTPRequestSignatureVerificationException.class)
+    public void exceptionThrownIfNoSignatureParamInHeaderValue() throws HTTPRequestSignatureVerificationException {
+        String testSignatureString = "";
+        String testSignatureHeaderValue = "badformat=2";
+
+        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
+
+        String extractedSignatureString = verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
+        assertEquals(testSignatureString, extractedSignatureString);
+    }
+
+    @Test(expected = HTTPRequestSignatureVerificationException.class)
+    public void exceptionThrownIfHeaderValueHasNoParams() throws HTTPRequestSignatureVerificationException {
+        String testSignatureString = "";
+        String testSignatureHeaderValue = "iAmAHeaderWithoutParams";
 
         HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
 

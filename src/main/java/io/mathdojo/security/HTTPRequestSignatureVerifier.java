@@ -17,19 +17,27 @@ public class HTTPRequestSignatureVerifier {
 		return true;
 	}
 
-	public String extractSignatureStringFromSignatureHeader(String signatureHeaderValue) {
+	public String extractSignatureStringFromSignatureHeader(String signatureHeaderValue) throws HTTPRequestSignatureVerificationException {
 		String headerValueWithoutSignaturePrefix = signatureHeaderValue.replaceAll("Signature ", "");
 		String[] listOfSignatureValues = headerValueWithoutSignaturePrefix.split(",");
 		Map<String, String> signatureValueContents =  new HashMap<>();
 
-		Arrays.stream(listOfSignatureValues).forEach(each -> {
-			String[] arrayOfSplitContents = each.split("=");
-			String signatureFieldName = arrayOfSplitContents[0];
-			String signatureValueWithQuotes = arrayOfSplitContents[1].replace("\"", "");
-			signatureValueContents.put(signatureFieldName, signatureValueWithQuotes);
-		});
+		try {
+			Arrays.stream(listOfSignatureValues).forEach(each -> {
+				String[] arrayOfSplitContents = each.split("=");
+				String signatureFieldName = arrayOfSplitContents[0];
+				String signatureValueWithQuotes = arrayOfSplitContents[1].replace("\"", "");
+				signatureValueContents.put(signatureFieldName, signatureValueWithQuotes);
+			});			
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new HTTPRequestSignatureVerificationException("no parameters found in value of signature header");
+		}
 
-		return signatureValueContents.get("signature");
+		String signatureString = signatureValueContents.get("signature");
+		if(signatureString == null) {
+			throw new HTTPRequestSignatureVerificationException("no signature field found in value of signature header");
+		}
+		return signatureString;
 	}
 
 }
