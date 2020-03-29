@@ -13,7 +13,7 @@ public class HTTPRequestSignatureVerifier {
 	private static final String REQUEST_TARGET_SIGNATURE_PARAM_KEY = "(request-target)";
 	private static final String SIGNATURE_HEADER_KEY = "signature";
 
-	public HTTPRequestSignatureVerifier(String b64RepresentationOfKey1) {
+	public HTTPRequestSignatureVerifier(String b64RepresentationOfPublicKey) {
 
 	}
 

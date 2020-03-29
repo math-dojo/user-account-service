@@ -4,9 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -16,7 +20,6 @@ import java.util.Map;
 import com.microsoft.azure.functions.HttpMethod;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class HTTPRequestSignatureVerifierTest {
@@ -31,8 +34,7 @@ public class HTTPRequestSignatureVerifierTest {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         KEYPAIR1_KEY_PAIR = keyGen.generateKeyPair();
         KEYPAIR2_KEY_PAIR = keyGen.generateKeyPair();
-        b64RepresentationOfKey1 = Base64.getEncoder().encodeToString(
-            KEYPAIR1_KEY_PAIR.getPublic().getEncoded());
+        b64RepresentationOfKey1 = Base64.getEncoder().encodeToString(KEYPAIR1_KEY_PAIR.getPublic().getEncoded());
         verifier = new HTTPRequestSignatureVerifier(b64RepresentationOfKey1);
     }
 
@@ -59,7 +61,6 @@ public class HTTPRequestSignatureVerifierTest {
         String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
                 testSignatureString);
 
-
         String extractedSignatureString = verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
         assertEquals(testSignatureString, extractedSignatureString);
     }
@@ -83,8 +84,8 @@ public class HTTPRequestSignatureVerifierTest {
     }
 
     @Test
-    public void testSigningStringRecreatedCorrectlyFromSignatureInfoIfOneParam() throws 
-            HTTPRequestSignatureVerificationException {
+    public void testSigningStringRecreatedCorrectlyFromSignatureInfoIfOneParam()
+            throws HTTPRequestSignatureVerificationException {
 
         List<String> testHeaderList = Arrays.asList("authorization");
         String testSignatureString = "somethingSignedAndB64Encoded";
@@ -106,8 +107,8 @@ public class HTTPRequestSignatureVerifierTest {
     }
 
     @Test
-    public void testSigningStringRecreatedCorrectlyFromSignatureInfoIfMultipleParams() throws 
-            HTTPRequestSignatureVerificationException {
+    public void testSigningStringRecreatedCorrectlyFromSignatureInfoIfMultipleParams()
+            throws HTTPRequestSignatureVerificationException {
 
         List<String> testHeaderList = Arrays.asList("content-type", "date");
         String testSignatureString = "somethingSignedAndB64Encoded";
@@ -124,14 +125,13 @@ public class HTTPRequestSignatureVerifierTest {
         HttpMethod method = HttpMethod.GET;
 
         String recreatedSigningString = verifier.recreateSigningString(testHeaders, requestTarget, method);
-        String expectedRecreatedSigningString = ("content-type: application/json"
-            +"\n"+"date: "+dateString);
+        String expectedRecreatedSigningString = ("content-type: application/json" + "\n" + "date: " + dateString);
         assertEquals(expectedRecreatedSigningString, recreatedSigningString);
     }
 
     @Test
-    public void testSigningStringRecreatedCorrectlyIfParamListContainsRequestTarget() throws 
-            HTTPRequestSignatureVerificationException {
+    public void testSigningStringRecreatedCorrectlyIfParamListContainsRequestTarget()
+            throws HTTPRequestSignatureVerificationException {
 
         List<String> testHeaderList = Arrays.asList("(request-target)", "date");
         String testSignatureString = "somethingSignedAndB64Encoded";
@@ -148,15 +148,67 @@ public class HTTPRequestSignatureVerifierTest {
         HttpMethod method = HttpMethod.GET;
 
         String recreatedSigningString = verifier.recreateSigningString(testHeaders, requestTarget, method);
-        String expectedRecreatedSigningString = ("(request-target): "
-        + method.toString().toLowerCase() + " " + requestTarget +"\n" 
-        + "date: " + dateString);
+        String expectedRecreatedSigningString = ("(request-target): " + method.toString().toLowerCase() + " "
+                + requestTarget + "\n" + "date: " + dateString);
         assertEquals(expectedRecreatedSigningString, recreatedSigningString);
     }
 
-    @Ignore
-    public void testSignatureCanBeVerifiedCorrectly() {
+    @Test
+    public void testSignatureCanBeVerifiedCorrectlyWithMatchingPublicKey()
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException {
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(KEYPAIR1_KEY_PAIR.getPrivate());
 
+        String requestTarget = "/some/path";
+        HttpMethod method = HttpMethod.GET;
+        String dateString = "Fri, 27 Mar 2020 07:49:21 UTC";
+
+        List<String> testHeaderList = Arrays.asList("(request-target)", "date");
+        String testSigningString = ("(request-target): " + method.toString().toLowerCase() + " "
+                + requestTarget + "\n" + "date: " + dateString);
+        
+        signature.update(testSigningString.getBytes());
+        byte[] actualHttpRequestSignatureBytes = signature.sign();
+        String actualHttpRequestSignature = new String(actualHttpRequestSignatureBytes, "UTF-8");
+
+        String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
+            actualHttpRequestSignature);
+
+        Map<String, String> testHeaders = new HashMap<String, String>();
+        testHeaders.put("content-type", "application/json");
+        testHeaders.put("date", dateString);
+        testHeaders.put("signature", testSignatureHeaderValue);
+
+        assertTrue(verifier.verifySignatureHeader(testHeaders));
+    }
+
+    @Test
+    public void testSignatureFailsVerificationWithIncorrectPublicKey()
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException {
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(KEYPAIR2_KEY_PAIR.getPrivate());
+
+        String requestTarget = "/some/path";
+        HttpMethod method = HttpMethod.GET;
+        String dateString = "Fri, 27 Mar 2020 07:49:21 UTC";
+
+        List<String> testHeaderList = Arrays.asList("(request-target)", "date");
+        String testSigningString = ("(request-target): " + method.toString().toLowerCase() + " "
+                + requestTarget + "\n" + "date: " + dateString);
+        
+        signature.update(testSigningString.getBytes());
+        byte[] actualHttpRequestSignatureBytes = signature.sign();
+        String actualHttpRequestSignature = new String(actualHttpRequestSignatureBytes, "UTF-8");
+
+        String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
+            actualHttpRequestSignature);
+
+        Map<String, String> testHeaders = new HashMap<String, String>();
+        testHeaders.put("content-type", "application/json");
+        testHeaders.put("date", dateString);
+        testHeaders.put("signature", testSignatureHeaderValue);
+
+        assertFalse(verifier.verifySignatureHeader(testHeaders));
     }
 
     private String createSignatureString(String keyId, String algorithm, List<String> headerKeysUsedInSignature,
