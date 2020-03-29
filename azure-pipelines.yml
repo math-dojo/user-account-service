@@ -41,7 +41,7 @@ stages:
     - task: DownloadPipelineArtifact@2
       inputs:
         artifact: target
-        path: $(System.DefaultWorkingDirectory)
+        path: $(System.DefaultWorkingDirectory))/target
     - task: AzureCLI@2
       displayName: 'Deploy app'
       inputs:
