@@ -50,4 +50,9 @@ steps:
     scriptType: ps
     scriptLocation: inlineScript
     inlineScript: |
-      az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(appInsightsKey)"
+      az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service \ 
+        --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)" \
+                   "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(appInsightsKey)" \
+                   "MATH_DOJO_ENV_NAME=${{variables.MATH_DOJO_ENV_NAME}}" \
+                   "MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID=${{variables.MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID}}" \
+                   "MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY=${{variables.MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY}}"
