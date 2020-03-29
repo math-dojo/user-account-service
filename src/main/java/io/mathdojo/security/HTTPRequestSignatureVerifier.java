@@ -25,9 +25,9 @@ public class HTTPRequestSignatureVerifier {
 	private static final String SIGNATURE_HEADER_KEY = "signature";
 	private final PublicKey PUBLIC_KEY;
 
-	public HTTPRequestSignatureVerifier(String b64RepresentationOfPublicKey)
+	public HTTPRequestSignatureVerifier(String b64RepresentationOfPublicKeyDer)
 			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		byte[] publicKeyBytes = Base64.getDecoder().decode(b64RepresentationOfPublicKey);
+		byte[] publicKeyBytes = Base64.getDecoder().decode(b64RepresentationOfPublicKeyDer);
 		KeyFactory kf = KeyFactory.getInstance("RSA");
 		KeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
 		PUBLIC_KEY = kf.generatePublic(keySpec);

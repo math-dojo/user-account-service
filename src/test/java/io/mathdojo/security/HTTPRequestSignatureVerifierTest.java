@@ -180,6 +180,33 @@ public class HTTPRequestSignatureVerifierTest {
     }
 
     @Test
+    public void testSignatureCanBeVerifiedCorrectlyWithMatchingPublicKeyFromExternalSrc()
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException,
+            HTTPRequestSignatureVerificationException, InvalidKeySpecException {
+
+        String requestTarget = "/api/hello";
+        HttpMethod method = HttpMethod.POST;
+        String dateString = "Sun, 29 Mar 2020 00:58:21 UTC";
+
+        List<String> testHeaderList = Arrays.asList("(request-target)", "date");
+        
+        String actualHttpRequestSignature = "c+U/UaZioownKIj3XwotU0YIh399fpkqpuIn4V+fmNiQtMBbK/d+beP9GM7VjUNsC+idM9wnljj4FsrkmKvDmvte+YCH5F7wJzZwcMeBFNA0eWtXIE6glJ4CzfLWt4t6kVJU/j9bMJG89wqNT29f6+Cq0QFtUtPtmMkGGxGRMFfo9NiEWFIDp1bwlCS+M5fQApmB1gqGkEFOFh2zmy5XY0ah+2F99KBmBB88rNf1gf+JLEbMXxIhvBkM0bNpwZjd88J5/ihryeNkxRq9gGMFNzyNLhWzbfKguHcdwlK8NRAglVEysmm7ntSTH5KCMIjZ4ue71fJJTIzew2R5ainD9g==";
+
+        String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
+            actualHttpRequestSignature);
+
+        String base64RepOfCustomKeyDer = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvwNtsvihhKJW/LBFLsXOBoQ60utFaa0dlUSBGRsaAl1nuirAzm7HmBfDqmb53/MR+S2MCovH9wraE0Fbj3Ukb6iK5bdY4hfs+LP6XaB+mdmlgddbR8GRFsfSeoY5U/M01jNPwnhcq5J+l2wMnoMqdQ7XM6Yc4pqp3kLc35Hr5zHjFQ/L1w7G50ug/kJWVezFw+oOizEZOES+BFj1d+A0ueJCEZ/Xc/iNO1881vfCAo3wjDDUp+EJB1k9E29rcUmKxEI/+nC5+uPPzwK6qv6+5DXbObZdBP5vocD7xMdZWGde6/pEaYc8Kn3Rjap1PWaR1e0iJI1AWIoxqNsXVxthsQIDAQAB";
+        HTTPRequestSignatureVerifier customVerifier = new HTTPRequestSignatureVerifier(base64RepOfCustomKeyDer);
+
+        Map<String, String> testHeaders = new HashMap<String, String>();
+        testHeaders.put("content-type", "application/json");
+        testHeaders.put("date", dateString);
+        testHeaders.put("signature", testSignatureHeaderValue);
+
+        assertTrue(customVerifier.verifySignatureHeader(testHeaders, requestTarget, method));
+    }
+
+    @Test
     public void testSignatureFailsVerificationWithIncorrectPublicKey()
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException,
             HTTPRequestSignatureVerificationException {
