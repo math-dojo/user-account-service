@@ -67,3 +67,19 @@ stages:
         scriptLocation: inlineScript
         inlineScript: |
           az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(appInsightsKey)"
+
+- stage: Configure_App
+  jobs:
+  - job: Configure_Function_Parameters 
+    steps:
+    - ${{ each pair in variables }}:
+      - task: AzureCLI@2
+        displayName: 'Set app param: ${{ pair.key }}'
+        inputs:
+          addSpnToEnvironment: true
+          failOnStandardError: true
+          azureSubscription: user-account-service-hzprod-rg-access
+          scriptType: ps
+          scriptLocation: inlineScript
+          inlineScript: |
+            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ pair.key }}=${{ pair.value }}"
