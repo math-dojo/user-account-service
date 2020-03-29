@@ -4,14 +4,6 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 variables:
   appInsightsKey: 847d7f9e-408c-44ec-9bb5-e1f99872d8f2
-  ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
-    template: environments/pre-production.yml
-  ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
-    template: environments/non-production.yml
-  ${{ if contains(variables['Build.SourceBranchName'], 'ft') }}: # only works if you have a feature branch
-    template: environments/non-production.yml
-  ${{ if contains(variables['Build.SourceBranchName'], 'rl') }}: # only works if you have a release branch
-    template: environments/production.yml
 
 trigger:
 - master
