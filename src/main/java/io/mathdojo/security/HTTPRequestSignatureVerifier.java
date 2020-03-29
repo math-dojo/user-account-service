@@ -49,7 +49,7 @@ public class HTTPRequestSignatureVerifier {
 		String signatureHeaderValue = suppliedHeaders.get(SIGNATURE_HEADER_KEY);
 		String extractedHTTPRequestSignature = extractSignatureStringFromSignatureHeader(signatureHeaderValue);
 
-		boolean verificationStatus = signature.verify(extractedHTTPRequestSignature.getBytes("UTF-8"));
+		boolean verificationStatus = signature.verify(Base64.getDecoder().decode(extractedHTTPRequestSignature));
 
 		return verificationStatus;
 	}

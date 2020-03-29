@@ -166,7 +166,7 @@ public class HTTPRequestSignatureVerifierTest {
         
         signature.update(testSigningString.getBytes());
         byte[] actualHttpRequestSignatureBytes = signature.sign();
-        String actualHttpRequestSignature = new String(actualHttpRequestSignatureBytes, "UTF-8");
+        String actualHttpRequestSignature = Base64.getEncoder().encodeToString(actualHttpRequestSignatureBytes);
 
         String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
             actualHttpRequestSignature);
@@ -196,7 +196,7 @@ public class HTTPRequestSignatureVerifierTest {
         
         signature.update(testSigningString.getBytes());
         byte[] actualHttpRequestSignatureBytes = signature.sign();
-        String actualHttpRequestSignature = new String(actualHttpRequestSignatureBytes, "UTF-8");
+        String actualHttpRequestSignature = Base64.getEncoder().encodeToString(actualHttpRequestSignatureBytes);
 
         String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
             actualHttpRequestSignature);
