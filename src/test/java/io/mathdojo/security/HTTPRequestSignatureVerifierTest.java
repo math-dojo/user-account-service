@@ -117,6 +117,31 @@ public class HTTPRequestSignatureVerifierTest {
         assertEquals(expectedRecreatedSigningString, recreatedSigningString);
     }
 
+    @Test
+    public void testSigningStringRecreatedCorrectlyIfParamListContainsRequestTarget() throws 
+            HTTPRequestSignatureVerificationException {
+
+        List<String> testHeaderList = Arrays.asList("(request-target)", "date");
+        String testSignatureString = "somethingSignedAndB64Encoded";
+        String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
+                testSignatureString);
+
+        Map<String, String> testHeaders = new HashMap<String, String>();
+        testHeaders.put("content-type", "application/json");
+        String dateString = "Fri, 27 Mar 2020 07:49:21 UTC";
+        testHeaders.put("date", dateString);
+        testHeaders.put("signature", testSignatureHeaderValue);
+
+        String requestTarget = "/some/path";
+        HttpMethod method = HttpMethod.GET;
+
+        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
+        String recreatedSigningString = verifier.recreateSigningString(testHeaders, requestTarget, method);
+        String expectedRecreatedSigningString = ("(request-target): "
+        + method.toString().toLowerCase() + " " + requestTarget +"\n" 
+        + "date: " + dateString);
+        assertEquals(expectedRecreatedSigningString, recreatedSigningString);
+    }
 
     private String createSignatureString(String keyId, String algorithm, List<String> headerKeysUsedInSignature,
             String signatureString) {

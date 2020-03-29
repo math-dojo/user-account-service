@@ -10,12 +10,15 @@ import com.microsoft.azure.functions.HttpMethod;
 
 public class HTTPRequestSignatureVerifier {
 
+	private static final String REQUEST_TARGET_SIGNATURE_PARAM_KEY = "(request-target)";
+	private static final String SIGNATURE_HEADER_KEY = "signature";
+
 	public HTTPRequestSignatureVerifier() {
 
 	}
 
 	public boolean verifySignatureHeader(Map<String, String> suppliedHeaders) {
-		if (suppliedHeaders.get("signature") == null) {
+		if (suppliedHeaders.get(SIGNATURE_HEADER_KEY) == null) {
 			return false;
 		}
 		return true;
@@ -25,7 +28,7 @@ public class HTTPRequestSignatureVerifier {
 			throws HTTPRequestSignatureVerificationException {
 		Map<String, String> signatureValueContents = createMapOfSignatureParams(signatureHeaderValue);
 
-		String signatureString = signatureValueContents.get("signature");
+		String signatureString = signatureValueContents.get(SIGNATURE_HEADER_KEY);
 		if (signatureString == null) {
 			throw new HTTPRequestSignatureVerificationException(
 					"no signature field found in value of signature header");
@@ -54,14 +57,20 @@ public class HTTPRequestSignatureVerifier {
 
 	public String recreateSigningString(Map<String, String> headers, String requestPath, HttpMethod requestMethod)
 			throws HTTPRequestSignatureVerificationException {
-		String signatureHeaderValue = headers.get("signature");
+		String signatureHeaderValue = headers.get(SIGNATURE_HEADER_KEY);
 		Map<String, String> signatureValueContents = createMapOfSignatureParams(signatureHeaderValue);
 
 		String[] headerKeysForSigningString = signatureValueContents.get("headers").split(" ");
 
 		List<String> listOfSigningStringContents = Arrays.stream(headerKeysForSigningString)
-			.map(each -> each + ": " + headers.get(each))
-			.collect(Collectors.toList());
+		.map(eachHeaderKey -> {
+			if (REQUEST_TARGET_SIGNATURE_PARAM_KEY.equals(eachHeaderKey)) {
+				return (eachHeaderKey + ": " + requestMethod.toString().toLowerCase()
+				 + " " + requestPath);
+			}
+			return eachHeaderKey + ": " + headers.get(eachHeaderKey);
+		})
+		.collect(Collectors.toList());
 		String recreatedSigningString = String.join("\n", listOfSigningStringContents);
 
 		return recreatedSigningString;
