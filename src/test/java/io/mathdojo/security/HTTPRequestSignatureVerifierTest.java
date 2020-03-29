@@ -11,6 +11,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class HTTPRequestSignatureVerifierTest {
     private static HTTPRequestSignatureVerifier verifier;
 
     @BeforeClass
-    public static void setUp() throws NoSuchAlgorithmException {
+    public static void setUp() throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         KEYPAIR1_KEY_PAIR = keyGen.generateKeyPair();
         KEYPAIR2_KEY_PAIR = keyGen.generateKeyPair();
@@ -39,19 +40,14 @@ public class HTTPRequestSignatureVerifierTest {
     }
 
     @Test
-    public void testReturnsFalseIfNoSignatureHeader() {
+    public void testReturnsFalseIfNoSignatureHeader() throws InvalidKeyException, NoSuchAlgorithmException,
+            SignatureException, UnsupportedEncodingException, HTTPRequestSignatureVerificationException {
         Map<String, String> testHeaders = new HashMap<String, String>();
         testHeaders.put("content-type", "application/json");
 
-        assertFalse(verifier.verifySignatureHeader(testHeaders));
-    }
-
-    @Test
-    public void testReturnsTrueIfSignatureHeader() {
-        Map<String, String> testHeaders = new HashMap<String, String>();
-        testHeaders.put("signature", "some-sig");
-
-        assertTrue(verifier.verifySignatureHeader(testHeaders));
+        String requestTarget = "/some/path";
+        HttpMethod method = HttpMethod.GET;
+        assertFalse(verifier.verifySignatureHeader(testHeaders, requestTarget, method));
     }
 
     @Test
@@ -155,7 +151,8 @@ public class HTTPRequestSignatureVerifierTest {
 
     @Test
     public void testSignatureCanBeVerifiedCorrectlyWithMatchingPublicKey()
-            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException {
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException,
+            HTTPRequestSignatureVerificationException {
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(KEYPAIR1_KEY_PAIR.getPrivate());
 
@@ -179,12 +176,13 @@ public class HTTPRequestSignatureVerifierTest {
         testHeaders.put("date", dateString);
         testHeaders.put("signature", testSignatureHeaderValue);
 
-        assertTrue(verifier.verifySignatureHeader(testHeaders));
+        assertTrue(verifier.verifySignatureHeader(testHeaders, requestTarget, method));
     }
 
     @Test
     public void testSignatureFailsVerificationWithIncorrectPublicKey()
-            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException {
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException,
+            HTTPRequestSignatureVerificationException {
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(KEYPAIR2_KEY_PAIR.getPrivate());
 
@@ -208,7 +206,7 @@ public class HTTPRequestSignatureVerifierTest {
         testHeaders.put("date", dateString);
         testHeaders.put("signature", testSignatureHeaderValue);
 
-        assertFalse(verifier.verifySignatureHeader(testHeaders));
+        assertFalse(verifier.verifySignatureHeader(testHeaders, requestTarget, method));
     }
 
     private String createSignatureString(String keyId, String algorithm, List<String> headerKeysUsedInSignature,

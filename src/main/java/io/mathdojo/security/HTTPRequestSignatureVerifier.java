@@ -1,6 +1,17 @@
 package io.mathdojo.security;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,16 +23,35 @@ public class HTTPRequestSignatureVerifier {
 
 	private static final String REQUEST_TARGET_SIGNATURE_PARAM_KEY = "(request-target)";
 	private static final String SIGNATURE_HEADER_KEY = "signature";
+	private final PublicKey PUBLIC_KEY;
 
-	public HTTPRequestSignatureVerifier(String b64RepresentationOfPublicKey) {
+	public HTTPRequestSignatureVerifier(String b64RepresentationOfPublicKey)
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		byte[] publicKeyBytes = Base64.getDecoder().decode(b64RepresentationOfPublicKey);
+		KeyFactory kf = KeyFactory.getInstance("RSA");
+		KeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+		PUBLIC_KEY = kf.generatePublic(keySpec);
 
 	}
 
-	public boolean verifySignatureHeader(Map<String, String> suppliedHeaders) {
+	public boolean verifySignatureHeader(Map<String, String> suppliedHeaders, String requestPath,
+			HttpMethod requestMethod) throws NoSuchAlgorithmException, InvalidKeyException,
+			HTTPRequestSignatureVerificationException, SignatureException, UnsupportedEncodingException {
 		if (suppliedHeaders.get(SIGNATURE_HEADER_KEY) == null) {
 			return false;
 		}
-		return true;
+		String recreatedSigningString = recreateSigningString(suppliedHeaders, requestPath, requestMethod);
+
+		Signature signature = Signature.getInstance("SHA256withRSA");
+		signature.initVerify(PUBLIC_KEY);
+		signature.update(recreatedSigningString.getBytes("ASCII"));
+
+		String signatureHeaderValue = suppliedHeaders.get(SIGNATURE_HEADER_KEY);
+		String extractedHTTPRequestSignature = extractSignatureStringFromSignatureHeader(signatureHeaderValue);
+
+		boolean verificationStatus = signature.verify(extractedHTTPRequestSignature.getBytes("UTF-8"));
+
+		return verificationStatus;
 	}
 
 	public String extractSignatureStringFromSignatureHeader(String signatureHeaderValue)
@@ -62,15 +92,12 @@ public class HTTPRequestSignatureVerifier {
 
 		String[] headerKeysForSigningString = signatureValueContents.get("headers").split(" ");
 
-		List<String> listOfSigningStringContents = Arrays.stream(headerKeysForSigningString)
-		.map(eachHeaderKey -> {
+		List<String> listOfSigningStringContents = Arrays.stream(headerKeysForSigningString).map(eachHeaderKey -> {
 			if (REQUEST_TARGET_SIGNATURE_PARAM_KEY.equals(eachHeaderKey)) {
-				return (eachHeaderKey + ": " + requestMethod.toString().toLowerCase()
-				 + " " + requestPath);
+				return (eachHeaderKey + ": " + requestMethod.toString().toLowerCase() + " " + requestPath);
 			}
 			return eachHeaderKey + ": " + headers.get(eachHeaderKey);
-		})
-		.collect(Collectors.toList());
+		}).collect(Collectors.toList());
 		String recreatedSigningString = String.join("\n", listOfSigningStringContents);
 
 		return recreatedSigningString;
