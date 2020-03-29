@@ -21,33 +21,41 @@ trigger:
 pool:
   vmImage: 'windows-2019'
 
-steps:
-- script: |
-    mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) clean package
-  displayName: Build package
+stages:
+- stage: Build
+  jobs:
+  - job: Build_and_Exec_Unit_Tests
+    steps:
+    - script: |
+        mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) clean package
+      displayName: Build package
 
-- task: AzureCLI@2
-  displayName: 'Deploy app'
-  inputs:
-    addSpnToEnvironment: true
-    failOnStandardError: true
-    azureSubscription: user-account-service-hzprod-rg-access
-    scriptType: ps
-    scriptLocation: inlineScript
-    inlineScript: |
-        $xmlcontent = ("<settings xmlns=`"http://maven.apache.org/SETTINGS/1.0.0`" xmlns:xsi=`"http://www.w3.org/2001/XMLSchema-instance`" xsi:schemaLocation=`"http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd`"><servers><server><id>azure-auth</id><configuration><client>$env:servicePrincipalId</client><tenant>$env:tenantId</tenant><key>$env:servicePrincipalKey</key><environment>AZURE</environment></configuration></server></servers></settings>")
-        $xmlcontent
-        New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
-        cat .\.mvn\settings.xml
-        .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
+- stage: Deploy
+  jobs:
+  - job: Deploy_App_and_Setup_Monitoring 
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Deploy app'
+      inputs:
+        addSpnToEnvironment: true
+        failOnStandardError: true
+        azureSubscription: user-account-service-hzprod-rg-access
+        scriptType: ps
+        scriptLocation: inlineScript
+        inlineScript: |
+            $xmlcontent = ("<settings xmlns=`"http://maven.apache.org/SETTINGS/1.0.0`" xmlns:xsi=`"http://www.w3.org/2001/XMLSchema-instance`" xsi:schemaLocation=`"http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd`"><servers><server><id>azure-auth</id><configuration><client>$env:servicePrincipalId</client><tenant>$env:tenantId</tenant><key>$env:servicePrincipalKey</key><environment>AZURE</environment></configuration></server></servers></settings>")
+            $xmlcontent
+            New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
+            cat .\.mvn\settings.xml
+            .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
 
-- task: AzureCLI@2
-  displayName: 'Set app insights key'
-  inputs:
-    addSpnToEnvironment: true
-    failOnStandardError: true
-    azureSubscription: user-account-service-hzprod-rg-access
-    scriptType: ps
-    scriptLocation: inlineScript
-    inlineScript: |
-      az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(appInsightsKey)"
+    - task: AzureCLI@2
+      displayName: 'Set app insights key'
+      inputs:
+        addSpnToEnvironment: true
+        failOnStandardError: true
+        azureSubscription: user-account-service-hzprod-rg-access
+        scriptType: ps
+        scriptLocation: inlineScript
+        inlineScript: |
+          az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(appInsightsKey)"
