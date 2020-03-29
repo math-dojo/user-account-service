@@ -38,6 +38,9 @@ stages:
   jobs:
   - job: Deploy_App_and_Setup_Monitoring 
     steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: target
     - task: AzureCLI@2
       displayName: 'Deploy app'
       inputs:
