@@ -4,23 +4,43 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.microsoft.azure.functions.HttpMethod;
 
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class HTTPRequestSignatureVerifierTest {
+
+    private static KeyPair KEYPAIR1_KEY_PAIR;
+    private static KeyPair KEYPAIR2_KEY_PAIR;
+    private static String b64RepresentationOfKey1;
+    private static HTTPRequestSignatureVerifier verifier;
+
+    @BeforeClass
+    public static void setUp() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        KEYPAIR1_KEY_PAIR = keyGen.generateKeyPair();
+        KEYPAIR2_KEY_PAIR = keyGen.generateKeyPair();
+        b64RepresentationOfKey1 = Base64.getEncoder().encodeToString(
+            KEYPAIR1_KEY_PAIR.getPublic().getEncoded());
+        verifier = new HTTPRequestSignatureVerifier(b64RepresentationOfKey1);
+    }
 
     @Test
     public void testReturnsFalseIfNoSignatureHeader() {
         Map<String, String> testHeaders = new HashMap<String, String>();
         testHeaders.put("content-type", "application/json");
 
-        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
         assertFalse(verifier.verifySignatureHeader(testHeaders));
     }
 
@@ -29,7 +49,6 @@ public class HTTPRequestSignatureVerifierTest {
         Map<String, String> testHeaders = new HashMap<String, String>();
         testHeaders.put("signature", "some-sig");
 
-        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
         assertTrue(verifier.verifySignatureHeader(testHeaders));
     }
 
@@ -40,7 +59,6 @@ public class HTTPRequestSignatureVerifierTest {
         String testSignatureHeaderValue = createSignatureString("someKeyId", "someAlg", testHeaderList,
                 testSignatureString);
 
-        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
 
         String extractedSignatureString = verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
         assertEquals(testSignatureString, extractedSignatureString);
@@ -51,8 +69,6 @@ public class HTTPRequestSignatureVerifierTest {
         String testSignatureString = "";
         String testSignatureHeaderValue = "badformat=2";
 
-        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
-
         String extractedSignatureString = verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
         assertEquals(testSignatureString, extractedSignatureString);
     }
@@ -61,8 +77,6 @@ public class HTTPRequestSignatureVerifierTest {
     public void exceptionThrownIfHeaderValueHasNoParams() throws HTTPRequestSignatureVerificationException {
         String testSignatureString = "";
         String testSignatureHeaderValue = "iAmAHeaderWithoutParams";
-
-        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
 
         String extractedSignatureString = verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
         assertEquals(testSignatureString, extractedSignatureString);
@@ -86,7 +100,6 @@ public class HTTPRequestSignatureVerifierTest {
         String requestTarget = "/some/path";
         HttpMethod method = HttpMethod.GET;
 
-        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
         String recreatedSigningString = verifier.recreateSigningString(testHeaders, requestTarget, method);
         String expectedRecreatedSigningString = "authorization: garbages";
         assertEquals(expectedRecreatedSigningString, recreatedSigningString);
@@ -110,7 +123,6 @@ public class HTTPRequestSignatureVerifierTest {
         String requestTarget = "/some/path";
         HttpMethod method = HttpMethod.GET;
 
-        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
         String recreatedSigningString = verifier.recreateSigningString(testHeaders, requestTarget, method);
         String expectedRecreatedSigningString = ("content-type: application/json"
             +"\n"+"date: "+dateString);
@@ -135,12 +147,16 @@ public class HTTPRequestSignatureVerifierTest {
         String requestTarget = "/some/path";
         HttpMethod method = HttpMethod.GET;
 
-        HTTPRequestSignatureVerifier verifier = new HTTPRequestSignatureVerifier();
         String recreatedSigningString = verifier.recreateSigningString(testHeaders, requestTarget, method);
         String expectedRecreatedSigningString = ("(request-target): "
         + method.toString().toLowerCase() + " " + requestTarget +"\n" 
         + "date: " + dateString);
         assertEquals(expectedRecreatedSigningString, recreatedSigningString);
+    }
+
+    @Ignore
+    public void testSignatureCanBeVerifiedCorrectly() {
+
     }
 
     private String createSignatureString(String keyId, String algorithm, List<String> headerKeysUsedInSignature,
