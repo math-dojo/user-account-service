@@ -29,6 +29,10 @@ stages:
     - script: |
         mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) clean package
       displayName: Build package
+    - task: PublishPipelineArtifact@1
+      inputs:
+        path: $(System.DefaultWorkingDirectory)/target
+        artifact: target
 
 - stage: Deploy
   jobs:
