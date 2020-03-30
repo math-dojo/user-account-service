@@ -2,6 +2,14 @@
 # Build your Java project and run tests with Apache Maven.
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
+parameters:
+- name: MATH_DOJO_ENV_NAME
+  default: 'MATH_DOJO_ENV_NAME'
+  type: string
+- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
+  default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID'
+  type: string
+
 trigger:
 - master
 - develop
