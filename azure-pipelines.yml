@@ -2,8 +2,12 @@
 # Build your Java project and run tests with Apache Maven.
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
-variables:
-  appInsightsKey: 847d7f9e-408c-44ec-9bb5-e1f99872d8f2
+trigger:
+- master
+- develop
+- ft*
+
+extends:
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
     template: environments/pre-production.yml
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
@@ -12,11 +16,6 @@ variables:
     template: environments/non-production.yml
   ${{ if contains(variables['Build.SourceBranchName'], 'rl') }}: # only works if you have a release branch
     template: environments/production.yml
-
-trigger:
-- master
-- develop
-- ft*
 
 pool:
   vmImage: 'windows-2019'
@@ -66,20 +65,21 @@ stages:
         scriptType: ps
         scriptLocation: inlineScript
         inlineScript: |
-          az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(appInsightsKey)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(appInsightsKey)"
+          az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=${{ parameters.APPINSIGHTS_INSTRUMENTATIONKEY }}" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=${{ parameters.APPINSIGHTS_INSTRUMENTATIONKEY }}"
 
-- stage: Configure_App
-  jobs:
-  - job: Configure_Function_Parameters 
-    steps:
-    - ${{ each pair in variables }}:
-      - task: AzureCLI@2
-        displayName: 'Set app param: ${{ pair.key }}'
-        inputs:
-          addSpnToEnvironment: true
-          failOnStandardError: true
-          azureSubscription: user-account-service-hzprod-rg-access
-          scriptType: ps
-          scriptLocation: inlineScript
-          inlineScript: |
-            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ pair.key }}=${{ pair.value }}"
+####
+#- stage: Configure_App
+#  jobs:
+#  - job: Configure_Function_Parameters 
+#    steps:
+#    - ${{ each pair in variables }}:
+#      - task: AzureCLI@2
+#        displayName: 'Set app param: ${{ pair.key }}'
+#        inputs:
+#          addSpnToEnvironment: true
+#          failOnStandardError: true
+#          azureSubscription: user-account-service-hzprod-rg-access
+#          scriptType: ps
+#          scriptLocation: inlineScript
+#          inlineScript: |
+#            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ pair.key }}=${{ pair.value }}"
