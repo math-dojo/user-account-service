@@ -7,7 +7,7 @@ trigger:
 - develop
 - ft*
 
-extends:
+variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
     template: environments/pre-production.yml
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
@@ -65,7 +65,7 @@ stages:
         scriptType: ps
         scriptLocation: inlineScript
         inlineScript: |
-          az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=${{ parameters.APPINSIGHTS_INSTRUMENTATIONKEY }}" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=${{ parameters.APPINSIGHTS_INSTRUMENTATIONKEY }}"
+          az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=${{ variables.APPINSIGHTS_INSTRUMENTATIONKEY }}" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=${{ variables.APPINSIGHTS_INSTRUMENTATIONKEY }}"
 
 ####
 #- stage: Configure_App
