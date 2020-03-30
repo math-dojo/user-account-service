@@ -1,19 +1,19 @@
-parameters:
+variables:
 - name: MATH_DOJO_ENV_NAME
-  default: 'non-production'
-  type: string
+  value: 'non-production'
+  valuereadonly: true
 - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
-  default: '38236dcac2645402f74c9688e5206fb0d88e83305073e02971d07d0c5f3a9227'
-  type: string
+  value: '38236dcac2645402f74c9688e5206fb0d88e83305073e02971d07d0c5f3a9227'
+  valuereadonly: true
 - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
-  default: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvwNtsvihhKJW/LBFLsXOBoQ60utFaa0dlUSBGRsaAl1nuirAzm7HmBfDqmb53/MR+S2MCovH9wraE0Fbj3Ukb6iK5bdY4hfs+LP6XaB+mdmlgddbR8GRFsfSeoY5U/M01jNPwnhcq5J+l2wMnoMqdQ7XM6Yc4pqp3kLc35Hr5zHjFQ/L1w7G50ug/kJWVezFw+oOizEZOES+BFj1d+A0ueJCEZ/Xc/iNO1881vfCAo3wjDDUp+EJB1k9E29rcUmKxEI/+nC5+uPPzwK6qv6+5DXbObZdBP5vocD7xMdZWGde6/pEaYc8Kn3Rjap1PWaR1e0iJI1AWIoxqNsXVxthsQIDAQAB'
-  type: string
+  value: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvwNtsvihhKJW/LBFLsXOBoQ60utFaa0dlUSBGRsaAl1nuirAzm7HmBfDqmb53/MR+S2MCovH9wraE0Fbj3Ukb6iK5bdY4hfs+LP6XaB+mdmlgddbR8GRFsfSeoY5U/M01jNPwnhcq5J+l2wMnoMqdQ7XM6Yc4pqp3kLc35Hr5zHjFQ/L1w7G50ug/kJWVezFw+oOizEZOES+BFj1d+A0ueJCEZ/Xc/iNO1881vfCAo3wjDDUp+EJB1k9E29rcUmKxEI/+nC5+uPPzwK6qv6+5DXbObZdBP5vocD7xMdZWGde6/pEaYc8Kn3Rjap1PWaR1e0iJI1AWIoxqNsXVxthsQIDAQAB'
+  valuereadonly: true
 - name: appInsightsKey
-  default: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
-  type: string
+  value: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
+  valuereadonly: true
 - name: APPINSIGHTS_INSTRUMENTATIONKEY
-  default: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
-  type: string
+  value: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
+  valuereadonly: true
 - name: appInsightsKey
-  default: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
-  type: string
+  value: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
+  valuereadonly: true
