@@ -64,35 +64,33 @@ public class HTTPRequestSignatureVerifierTest {
     }
 
     @Test
-    public void exceptionThrownIfNoSignatureParamInHeaderValue() {
-        String testSignatureString = "";
+    public void exceptionThrownIfNoSignatureParamInSignatureHeaderValue() {
         String testSignatureHeaderValue = "badformat=2";
 
         Exception exception = assertThrows(HTTPRequestSignatureVerificationException.class,() -> {
             verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
         });
 
-        assertEquals("no parameters found in value of signature header", 
+        assertEquals("no signature field found in value of signature header", 
             exception.getMessage());
 
     }
 
     @Test
     public void exceptionThrownIfSignatureHeaderValueHasNoParams() {
-        String testSignatureString = "";
         String testSignatureHeaderValue = "iAmAHeaderWithoutParams";
 
         Exception exception = assertThrows(HTTPRequestSignatureVerificationException.class,() -> {
             verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
         });
         
-        assertEquals("no signature field found in value of signature header", 
+        assertEquals("no parameters found in value of signature header",  
             exception.getMessage());
     }
 
     @Test
     public void exceptionThrownIfAlgorithmInSignatureIsUnsupported() {
-        String testSignatureString = "someStuff";
+        String testSignatureString = "some-header";
         List<String> testHeaderList = Arrays.asList("authorization");
 
         String testSignatureHeaderValue = createSignatureString("someKeyId", "some-unsupportedAlg",
