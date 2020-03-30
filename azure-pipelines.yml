@@ -38,8 +38,8 @@ stages:
       displayName: Build package
     - task: PublishPipelineArtifact@1
       inputs:
-        path: $(System.DefaultWorkingDirectory)/target
-        artifact: target
+        path: $(System.DefaultWorkingDirectory)
+        artifact: workingDir
 
 - stage: Deploy
   jobs:
@@ -47,8 +47,8 @@ stages:
     steps:
     - task: DownloadPipelineArtifact@2
       inputs:
-        artifact: target
-        path: $(System.DefaultWorkingDirectory)/target
+        artifact: workingDir
+        path: $(System.DefaultWorkingDirectory)
     - task: AzureCLI@2
       displayName: 'Deploy app'
       inputs:
