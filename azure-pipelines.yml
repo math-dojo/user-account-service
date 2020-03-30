@@ -7,7 +7,7 @@ trigger:
 - develop
 - ft*
 
-extends:
+parameters:
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
     template: environments/pre-production.yml
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
