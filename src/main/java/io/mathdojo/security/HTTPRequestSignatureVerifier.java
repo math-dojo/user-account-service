@@ -12,6 +12,7 @@ import java.security.spec.KeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,9 @@ public class HTTPRequestSignatureVerifier {
 
 	private static final String REQUEST_TARGET_SIGNATURE_PARAM_KEY = "(request-target)";
 	private static final String SIGNATURE_HEADER_KEY = "signature";
+	private static final String ALGORITHM_SIGNATURE_PARAM_KEY = "algorithm";
+	private static final Map<String, String> SUPPORTED_MAP_OF_ALGORITHMS = Collections
+		.singletonMap("rsa-sha256", "SHA256withRSA");
 	private final PublicKey PUBLIC_KEY;
 
 	public HTTPRequestSignatureVerifier(String b64RepresentationOfPublicKeyDer)
@@ -40,14 +44,24 @@ public class HTTPRequestSignatureVerifier {
 		if (suppliedHeaders.get(SIGNATURE_HEADER_KEY) == null) {
 			return false;
 		}
-		String recreatedSigningString = recreateSigningString(suppliedHeaders, requestPath, requestMethod);
-
-		Signature signature = Signature.getInstance("SHA256withRSA");
-		signature.initVerify(PUBLIC_KEY);
-		signature.update(recreatedSigningString.getBytes("ASCII"));
 
 		String signatureHeaderValue = suppliedHeaders.get(SIGNATURE_HEADER_KEY);
+		String signatureAlgorithm = createMapOfSignatureParams(signatureHeaderValue).get(ALGORITHM_SIGNATURE_PARAM_KEY);
+
+		if (signatureAlgorithm == null) {
+			throw new HTTPRequestSignatureVerificationException("no algorithm was included in the signature header");
+		} else if(!SUPPORTED_MAP_OF_ALGORITHMS.containsKey(signatureAlgorithm)) {
+			throw new HTTPRequestSignatureVerificationException("algorithm in signature header is not supported by the verifier");
+		}
+
 		String extractedHTTPRequestSignature = extractSignatureStringFromSignatureHeader(signatureHeaderValue);
+
+		String recreatedSigningString = recreateSigningString(suppliedHeaders, requestPath, requestMethod);
+
+		Signature signature = Signature.getInstance(SUPPORTED_MAP_OF_ALGORITHMS.get(
+			signatureAlgorithm));
+		signature.initVerify(PUBLIC_KEY);
+		signature.update(recreatedSigningString.getBytes("ASCII"));
 
 		boolean verificationStatus = signature.verify(Base64.getDecoder().decode(extractedHTTPRequestSignature));
 
