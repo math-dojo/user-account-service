@@ -23,6 +23,7 @@ import java.util.Map;
 import com.microsoft.azure.functions.HttpMethod;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class HTTPRequestSignatureVerifierTest {
@@ -39,8 +40,10 @@ public class HTTPRequestSignatureVerifierTest {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         KEYPAIR1_KEY_PAIR = keyGen.generateKeyPair();
         KEYPAIR2_KEY_PAIR = keyGen.generateKeyPair();
-        B64_REPRESENTATION_OF_KEY_1 = Base64.getEncoder().encodeToString(KEYPAIR1_KEY_PAIR.getPublic().getEncoded());
-        verifier = new HTTPRequestSignatureVerifier(B64_REPRESENTATION_OF_KEY_1);
+        B64_REPRESENTATION_OF_KEY_1 = Base64.getEncoder()
+            .encodeToString(KEYPAIR1_KEY_PAIR.getPublic().getEncoded());
+        Map<String, String> mapOfKeyIdAndKey = Collections.singletonMap(KNOWN_KEY_ID, B64_REPRESENTATION_OF_KEY_1);
+        verifier = new HTTPRequestSignatureVerifier(mapOfKeyIdAndKey);
     }
 
     @Test
@@ -79,6 +82,19 @@ public class HTTPRequestSignatureVerifierTest {
     }
 
     @Test
+    public void exceptionThrownIfNoKeyIdParamInSignatureHeaderValue() {
+        String testSignatureHeaderValue = "signature=fizzbuzz";
+
+        Exception exception = assertThrows(HTTPRequestSignatureVerificationException.class,() -> {
+            verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
+        });
+
+        assertEquals("no keyId field found in value of signature header", 
+            exception.getMessage());
+
+    }
+
+    @Test
     public void exceptionThrownIfSignatureHeaderValueHasNoParams() {
         String testSignatureHeaderValue = "iAmAHeaderWithoutParams";
 
@@ -107,8 +123,8 @@ public class HTTPRequestSignatureVerifierTest {
             exception.getMessage());
     }
 
-    @Test
-    public void exceptionThrownIfKeyIdInSignatureIsUnknown() {
+    @Ignore
+    public void runtimeExceptionThrownIfKeyIdInSignatureIsUnknown() {
         String testSignatureString = "some-header";
         List<String> testHeaderList = Arrays.asList("authorization");
 
@@ -116,11 +132,11 @@ public class HTTPRequestSignatureVerifierTest {
             testHeaderList, testSignatureString);
         Map<String, String> headers = Collections.singletonMap("signature", testSignatureHeaderValue);
 
-        Exception exception = assertThrows(HTTPRequestSignatureVerificationException.class,() -> {
+        Exception exception = assertThrows(RuntimeException.class,() -> {
             verifier.verifySignatureHeader(headers, "/somepath", HttpMethod.GET);
         });
 
-        assertEquals("algorithm in signature header is not supported by the verifier", 
+        assertEquals("keyId in signature header is unknown by the verifier", 
             exception.getMessage());
     }
 
@@ -237,11 +253,13 @@ public class HTTPRequestSignatureVerifierTest {
         
         String actualHttpRequestSignature = "c+U/UaZioownKIj3XwotU0YIh399fpkqpuIn4V+fmNiQtMBbK/d+beP9GM7VjUNsC+idM9wnljj4FsrkmKvDmvte+YCH5F7wJzZwcMeBFNA0eWtXIE6glJ4CzfLWt4t6kVJU/j9bMJG89wqNT29f6+Cq0QFtUtPtmMkGGxGRMFfo9NiEWFIDp1bwlCS+M5fQApmB1gqGkEFOFh2zmy5XY0ah+2F99KBmBB88rNf1gf+JLEbMXxIhvBkM0bNpwZjd88J5/ihryeNkxRq9gGMFNzyNLhWzbfKguHcdwlK8NRAglVEysmm7ntSTH5KCMIjZ4ue71fJJTIzew2R5ainD9g==";
 
-        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
+        String testSignatureHeaderValue = createSignatureString("someOtherKnownKeyId", "rsa-sha256", testHeaderList,
             actualHttpRequestSignature);
 
         String base64RepOfCustomKeyDer = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvwNtsvihhKJW/LBFLsXOBoQ60utFaa0dlUSBGRsaAl1nuirAzm7HmBfDqmb53/MR+S2MCovH9wraE0Fbj3Ukb6iK5bdY4hfs+LP6XaB+mdmlgddbR8GRFsfSeoY5U/M01jNPwnhcq5J+l2wMnoMqdQ7XM6Yc4pqp3kLc35Hr5zHjFQ/L1w7G50ug/kJWVezFw+oOizEZOES+BFj1d+A0ueJCEZ/Xc/iNO1881vfCAo3wjDDUp+EJB1k9E29rcUmKxEI/+nC5+uPPzwK6qv6+5DXbObZdBP5vocD7xMdZWGde6/pEaYc8Kn3Rjap1PWaR1e0iJI1AWIoxqNsXVxthsQIDAQAB";
-        HTTPRequestSignatureVerifier customVerifier = new HTTPRequestSignatureVerifier(base64RepOfCustomKeyDer);
+        Map<String, String> mapOfKeyIdAndKey = Collections.singletonMap("someOtherKnownKeyId", base64RepOfCustomKeyDer);
+
+        HTTPRequestSignatureVerifier customVerifier = new HTTPRequestSignatureVerifier(mapOfKeyIdAndKey);
 
         Map<String, String> testHeaders = new HashMap<String, String>();
         testHeaders.put("content-type", "application/json");
