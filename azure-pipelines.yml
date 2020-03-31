@@ -3,12 +3,16 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 parameters:
-- name: MATH_DOJO_ENV_NAME
-  default: 'MATH_DOJO_ENV_NAME'
-  type: string
-- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
-  default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID'
-  type: string
+  envParamsToSet:
+  - name: MATH_DOJO_ENV_NAME
+    default: 'MATH_DOJO_ENV_NAME'
+    type: string
+  - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
+    default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID'
+    type: string
+  - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
+    default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY'
+    type: string
 
 trigger:
 - master
@@ -75,19 +79,19 @@ stages:
         inlineScript: |
           az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=${{ variables.APPINSIGHTS_INSTRUMENTATIONKEY }}" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=${{ variables.APPINSIGHTS_INSTRUMENTATIONKEY }}"
 
-####
-#- stage: Configure_App
-#  jobs:
-#  - job: Configure_Function_Parameters 
-#    steps:
-#    - ${{ each pair in variables }}:
-#      - task: AzureCLI@2
-#        displayName: 'Set app param: ${{ pair.key }}'
-#        inputs:
-#          addSpnToEnvironment: true
-#          failOnStandardError: true
-#          azureSubscription: user-account-service-hzprod-rg-access
-#          scriptType: ps
-#          scriptLocation: inlineScript
-#          inlineScript: |
-#            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ pair.key }}=${{ pair.value }}"
+
+- stage: Configure_App
+  jobs:
+  - job: Configure_Function_Parameters 
+    steps:
+    - ${{ each item in parameters.envParamsToSet }}:
+      - task: AzureCLI@2
+        displayName: 'Set app param: ${{ item.name }}'
+        inputs:
+          addSpnToEnvironment: true
+          failOnStandardError: true
+          azureSubscription: user-account-service-hzprod-rg-access
+          scriptType: ps
+          scriptLocation: inlineScript
+          inlineScript: |
+            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.name }}=${{ variables.${{ item.value }} }}"
