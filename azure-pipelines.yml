@@ -3,94 +3,93 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 parameters:
-- name: MATH_DOJO_ENV_NAME
-  default: 'MATH_DOJO_ENV_NAME'
-  type: string
-- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
-  default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID'
-  type: string
-- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
-  default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY'
-  type: string
+  - name: MATH_DOJO_ENV_NAME
+    default: "MATH_DOJO_ENV_NAME"
+    type: string
+  - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
+    default: "MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID"
+    type: string
+  - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
+    default: "MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY"
+    type: string
 
 trigger:
-- master
-- develop
-- ft*
+  - master
+  - develop
+  - ft*
 
 variables:
-  ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
-    - template: environments/pre-production.yml
-  ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
-    - template: environments/non-production.yml
-  ${{ if contains(variables['Build.SourceBranchName'], 'ft') }}: # only works if you have a feature branch
-    - template: environments/non-production.yml
-  ${{ if contains(variables['Build.SourceBranchName'], 'rl') }}: # only works if you have a release branch
-    - template: environments/production.yml
+  - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
+      - template: environments/pre-production.yml
+  - ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
+      - template: environments/non-production.yml
+  - ${{ if contains(variables['Build.SourceBranchName'], 'ft') }}: # only works if you have a feature branch
+      - template: environments/non-production.yml
+  - ${{ if contains(variables['Build.SourceBranchName'], 'rl') }}: # only works if you have a release branch
+      - template: environments/production.yml
 
 pool:
-  vmImage: 'windows-2019'
+  vmImage: "windows-2019"
 
 stages:
-- stage: Build
-  jobs:
-  - job: Build_and_Exec_Unit_Tests
-    steps:
-    - script: |
-        mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) clean package
-      displayName: Build package
-    - task: PublishPipelineArtifact@1
-      inputs:
-        path: $(System.DefaultWorkingDirectory)
-        artifact: workingDir
+  - stage: Build
+    jobs:
+      - job: Build_and_Exec_Unit_Tests
+        steps:
+          - script: |
+              mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) clean package
+            displayName: Build package
+          - task: PublishPipelineArtifact@1
+            inputs:
+              path: $(System.DefaultWorkingDirectory)
+              artifact: workingDir
 
-- stage: Deploy
-  jobs:
-  - job: Deploy_App_and_Setup_Monitoring 
-    steps:
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        artifact: workingDir
-        path: $(System.DefaultWorkingDirectory)
-    - task: AzureCLI@2
-      displayName: 'Deploy app'
-      inputs:
-        addSpnToEnvironment: true
-        failOnStandardError: true
-        azureSubscription: user-account-service-hzprod-rg-access
-        scriptType: ps
-        scriptLocation: inlineScript
-        inlineScript: |
-            $xmlcontent = ("<settings xmlns=`"http://maven.apache.org/SETTINGS/1.0.0`" xmlns:xsi=`"http://www.w3.org/2001/XMLSchema-instance`" xsi:schemaLocation=`"http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd`"><servers><server><id>azure-auth</id><configuration><client>$env:servicePrincipalId</client><tenant>$env:tenantId</tenant><key>$env:servicePrincipalKey</key><environment>AZURE</environment></configuration></server></servers></settings>")
-            $xmlcontent
-            New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
-            cat .\.mvn\settings.xml
-            .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
+  - stage: Deploy
+    jobs:
+      - job: Deploy_App_and_Setup_Monitoring
+        steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: workingDir
+              path: $(System.DefaultWorkingDirectory)
+          - task: AzureCLI@2
+            displayName: "Deploy app"
+            inputs:
+              addSpnToEnvironment: true
+              failOnStandardError: true
+              azureSubscription: user-account-service-hzprod-rg-access
+              scriptType: ps
+              scriptLocation: inlineScript
+              inlineScript: |
+                $xmlcontent = ("<settings xmlns=`"http://maven.apache.org/SETTINGS/1.0.0`" xmlns:xsi=`"http://www.w3.org/2001/XMLSchema-instance`" xsi:schemaLocation=`"http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd`"><servers><server><id>azure-auth</id><configuration><client>$env:servicePrincipalId</client><tenant>$env:tenantId</tenant><key>$env:servicePrincipalKey</key><environment>AZURE</environment></configuration></server></servers></settings>")
+                $xmlcontent
+                New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
+                cat .\.mvn\settings.xml
+                .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
 
-    - task: AzureCLI@2
-      displayName: 'Set app insights key'
-      inputs:
-        addSpnToEnvironment: true
-        failOnStandardError: true
-        azureSubscription: user-account-service-hzprod-rg-access
-        scriptType: ps
-        scriptLocation: inlineScript
-        inlineScript: |
-          az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(APPINSIGHTS_INSTRUMENTATIONKEY)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
+          - task: AzureCLI@2
+            displayName: "Set app insights key"
+            inputs:
+              addSpnToEnvironment: true
+              failOnStandardError: true
+              azureSubscription: user-account-service-hzprod-rg-access
+              scriptType: ps
+              scriptLocation: inlineScript
+              inlineScript: |
+                az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(APPINSIGHTS_INSTRUMENTATIONKEY)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
 
-
-- stage: Configure_App
-  jobs:
-  - job: Configure_Function_Parameters 
-    steps:
-    - ${{ each item in parameters }}:
-      - task: AzureCLI@2
-        displayName: 'Set app param: ${{ item.value }}'
-        inputs:
-          addSpnToEnvironment: true
-          failOnStandardError: true
-          azureSubscription: user-account-service-hzprod-rg-access
-          scriptType: ps
-          scriptLocation: inlineScript
-          inlineScript: |
-            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.value }}=$(${{ item.value }})"
+  - stage: Configure_App
+    jobs:
+      - job: Configure_Function_Parameters
+        steps:
+          - ${{ each item in parameters }}:
+              - task: AzureCLI@2
+                displayName: "Set app param: ${{ item.value }}"
+                inputs:
+                  addSpnToEnvironment: true
+                  failOnStandardError: true
+                  azureSubscription: user-account-service-hzprod-rg-access
+                  scriptType: ps
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.value }}=$(${{ item.value }})"
