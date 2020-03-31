@@ -25,16 +25,29 @@ public class HTTPRequestSignatureVerifier {
 	private static final String REQUEST_TARGET_SIGNATURE_PARAM_KEY = "(request-target)";
 	private static final String SIGNATURE_HEADER_KEY = "signature";
 	private static final String ALGORITHM_SIGNATURE_PARAM_KEY = "algorithm";
+	private static final String KEYID_SIGNATURE_PARAM_KEY = "keyId";
 	private static final Map<String, String> SUPPORTED_MAP_OF_ALGORITHMS = Collections
 		.singletonMap("rsa-sha256", "SHA256withRSA");
-	private final PublicKey PUBLIC_KEY;
+	private final KeyFactory RSA_KEY_FACTORY;
 
-	public HTTPRequestSignatureVerifier(String b64RepresentationOfPublicKeyDer)
-			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		byte[] publicKeyBytes = Base64.getDecoder().decode(b64RepresentationOfPublicKeyDer);
-		KeyFactory kf = KeyFactory.getInstance("RSA");
-		KeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
-		PUBLIC_KEY = kf.generatePublic(keySpec);
+	private final Map<String, PublicKey> mapOfKeyIdAndPubKey;
+
+	public HTTPRequestSignatureVerifier(Map<String, String> mapOfKeyIdAndB64EncDerPubKey)
+			throws NoSuchAlgorithmException {
+		RSA_KEY_FACTORY = KeyFactory.getInstance("RSA");
+		this.mapOfKeyIdAndPubKey = new HashMap<>();
+		mapOfKeyIdAndB64EncDerPubKey.forEach((eachKeyId, eachB64EncDerPubKey) -> {
+			byte[] publicKeyBytes = Base64.getDecoder().decode(eachB64EncDerPubKey);
+			KeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+			PublicKey publicKey;
+			try {
+				publicKey = RSA_KEY_FACTORY.generatePublic(keySpec);
+				this.mapOfKeyIdAndPubKey.put(eachKeyId, publicKey);
+			} catch (InvalidKeySpecException e) {
+				String message = "An invalid key was supplied in the creation of the HTTPRequestSignatureVerifier";
+				throw new RuntimeException(message, e);
+			}
+		});
 
 	}
 
@@ -46,12 +59,20 @@ public class HTTPRequestSignatureVerifier {
 		}
 
 		String signatureHeaderValue = suppliedHeaders.get(SIGNATURE_HEADER_KEY);
-		String signatureAlgorithm = createMapOfSignatureParams(signatureHeaderValue).get(ALGORITHM_SIGNATURE_PARAM_KEY);
+		Map<String, String> mapOfSignatureParams = createMapOfSignatureParams(signatureHeaderValue);
+		String signatureAlgorithm = mapOfSignatureParams.get(ALGORITHM_SIGNATURE_PARAM_KEY);
+		String keyIdToUse = mapOfSignatureParams.get(KEYID_SIGNATURE_PARAM_KEY);
 
 		if (signatureAlgorithm == null) {
 			throw new HTTPRequestSignatureVerificationException("no algorithm was included in the signature header");
 		} else if(!SUPPORTED_MAP_OF_ALGORITHMS.containsKey(signatureAlgorithm)) {
 			throw new HTTPRequestSignatureVerificationException("algorithm in signature header is not supported by the verifier");
+		}
+
+		if (keyIdToUse == null) {
+			throw new HTTPRequestSignatureVerificationException("no keyId field found in value of signature header");
+		} else if(mapOfKeyIdAndPubKey.get(keyIdToUse) == null) {
+			throw new HTTPRequestSignatureVerificationException("keyId in signature header is unknown by the verifier");
 		}
 
 		String extractedHTTPRequestSignature = extractSignatureStringFromSignatureHeader(signatureHeaderValue);
@@ -60,7 +81,9 @@ public class HTTPRequestSignatureVerifier {
 
 		Signature signature = Signature.getInstance(SUPPORTED_MAP_OF_ALGORITHMS.get(
 			signatureAlgorithm));
-		signature.initVerify(PUBLIC_KEY);
+
+		PublicKey pubKeyToUse = mapOfKeyIdAndPubKey.get(keyIdToUse);
+		signature.initVerify(pubKeyToUse);
 		signature.update(recreatedSigningString.getBytes("ASCII"));
 
 		boolean verificationStatus = signature.verify(Base64.getDecoder().decode(extractedHTTPRequestSignature));
