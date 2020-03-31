@@ -45,4 +45,6 @@ public class HelloFunctionTest {
         handler.close();
         assertThat(result.getMessage()).isEqualTo("Welcome, foo");
     }
+
+    // TODO #5: Write automated integration to check that unauthorized is returned if no signature added
 }
