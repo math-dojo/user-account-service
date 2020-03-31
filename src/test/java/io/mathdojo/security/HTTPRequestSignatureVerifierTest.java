@@ -27,6 +27,8 @@ import org.junit.Test;
 
 public class HTTPRequestSignatureVerifierTest {
 
+    private static final String KNOWN_KEY_ID = "someKeyId";
+
     private static KeyPair KEYPAIR1_KEY_PAIR;
     private static KeyPair KEYPAIR2_KEY_PAIR;
     private static String B64_REPRESENTATION_OF_KEY_1;
@@ -56,7 +58,7 @@ public class HTTPRequestSignatureVerifierTest {
     public void testExtractsSignatureStringFromSignatureHeader() throws HTTPRequestSignatureVerificationException {
         List<String> testHeaderList = Arrays.asList("header1", "header2");
         String testSignatureString = "somethingSignedAndB64Encoded";
-        String testSignatureHeaderValue = createSignatureString("someKeyId", "rsa-sha256", testHeaderList,
+        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
                 testSignatureString);
 
         String extractedSignatureString = verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
@@ -93,7 +95,24 @@ public class HTTPRequestSignatureVerifierTest {
         String testSignatureString = "some-header";
         List<String> testHeaderList = Arrays.asList("authorization");
 
-        String testSignatureHeaderValue = createSignatureString("someKeyId", "some-unsupportedAlg",
+        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "some-unsupportedAlg",
+            testHeaderList, testSignatureString);
+        Map<String, String> headers = Collections.singletonMap("signature", testSignatureHeaderValue);
+
+        Exception exception = assertThrows(HTTPRequestSignatureVerificationException.class,() -> {
+            verifier.verifySignatureHeader(headers, "/somepath", HttpMethod.GET);
+        });
+
+        assertEquals("algorithm in signature header is not supported by the verifier", 
+            exception.getMessage());
+    }
+
+    @Test
+    public void exceptionThrownIfKeyIdInSignatureIsUnknown() {
+        String testSignatureString = "some-header";
+        List<String> testHeaderList = Arrays.asList("authorization");
+
+        String testSignatureHeaderValue = createSignatureString("someUnknownKeyId", "rsa-sha256",
             testHeaderList, testSignatureString);
         Map<String, String> headers = Collections.singletonMap("signature", testSignatureHeaderValue);
 
@@ -111,7 +130,7 @@ public class HTTPRequestSignatureVerifierTest {
 
         List<String> testHeaderList = Arrays.asList("authorization");
         String testSignatureString = "somethingSignedAndB64Encoded";
-        String testSignatureHeaderValue = createSignatureString("someKeyId", "rsa-sha256", testHeaderList,
+        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
                 testSignatureString);
 
         Map<String, String> testHeaders = new HashMap<String, String>();
@@ -134,7 +153,7 @@ public class HTTPRequestSignatureVerifierTest {
 
         List<String> testHeaderList = Arrays.asList("content-type", "date");
         String testSignatureString = "somethingSignedAndB64Encoded";
-        String testSignatureHeaderValue = createSignatureString("someKeyId", "rsa-sha256", testHeaderList,
+        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
                 testSignatureString);
 
         Map<String, String> testHeaders = new HashMap<String, String>();
@@ -157,7 +176,7 @@ public class HTTPRequestSignatureVerifierTest {
 
         List<String> testHeaderList = Arrays.asList("(request-target)", "date");
         String testSignatureString = "somethingSignedAndB64Encoded";
-        String testSignatureHeaderValue = createSignatureString("someKeyId", "rsa-sha256", testHeaderList,
+        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
                 testSignatureString);
 
         Map<String, String> testHeaders = new HashMap<String, String>();
@@ -194,7 +213,7 @@ public class HTTPRequestSignatureVerifierTest {
         byte[] actualHttpRequestSignatureBytes = signature.sign();
         String actualHttpRequestSignature = Base64.getEncoder().encodeToString(actualHttpRequestSignatureBytes);
 
-        String testSignatureHeaderValue = createSignatureString("someKeyId", "rsa-sha256", testHeaderList,
+        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
             actualHttpRequestSignature);
 
         Map<String, String> testHeaders = new HashMap<String, String>();
@@ -218,7 +237,7 @@ public class HTTPRequestSignatureVerifierTest {
         
         String actualHttpRequestSignature = "c+U/UaZioownKIj3XwotU0YIh399fpkqpuIn4V+fmNiQtMBbK/d+beP9GM7VjUNsC+idM9wnljj4FsrkmKvDmvte+YCH5F7wJzZwcMeBFNA0eWtXIE6glJ4CzfLWt4t6kVJU/j9bMJG89wqNT29f6+Cq0QFtUtPtmMkGGxGRMFfo9NiEWFIDp1bwlCS+M5fQApmB1gqGkEFOFh2zmy5XY0ah+2F99KBmBB88rNf1gf+JLEbMXxIhvBkM0bNpwZjd88J5/ihryeNkxRq9gGMFNzyNLhWzbfKguHcdwlK8NRAglVEysmm7ntSTH5KCMIjZ4ue71fJJTIzew2R5ainD9g==";
 
-        String testSignatureHeaderValue = createSignatureString("someKeyId", "rsa-sha256", testHeaderList,
+        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
             actualHttpRequestSignature);
 
         String base64RepOfCustomKeyDer = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvwNtsvihhKJW/LBFLsXOBoQ60utFaa0dlUSBGRsaAl1nuirAzm7HmBfDqmb53/MR+S2MCovH9wraE0Fbj3Ukb6iK5bdY4hfs+LP6XaB+mdmlgddbR8GRFsfSeoY5U/M01jNPwnhcq5J+l2wMnoMqdQ7XM6Yc4pqp3kLc35Hr5zHjFQ/L1w7G50ug/kJWVezFw+oOizEZOES+BFj1d+A0ueJCEZ/Xc/iNO1881vfCAo3wjDDUp+EJB1k9E29rcUmKxEI/+nC5+uPPzwK6qv6+5DXbObZdBP5vocD7xMdZWGde6/pEaYc8Kn3Rjap1PWaR1e0iJI1AWIoxqNsXVxthsQIDAQAB";
@@ -251,7 +270,7 @@ public class HTTPRequestSignatureVerifierTest {
         byte[] actualHttpRequestSignatureBytes = signature.sign();
         String actualHttpRequestSignature = Base64.getEncoder().encodeToString(actualHttpRequestSignatureBytes);
 
-        String testSignatureHeaderValue = createSignatureString("someKeyId", "rsa-sha256", testHeaderList,
+        String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
             actualHttpRequestSignature);
 
         Map<String, String> testHeaders = new HashMap<String, String>();
