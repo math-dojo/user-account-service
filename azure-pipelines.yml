@@ -85,7 +85,7 @@ stages:
     steps:
     - ${{ each item in parameters }}:
       - task: AzureCLI@2
-        displayName: 'Set app param: ${{ item.name }}'
+        displayName: 'Set app param: ${{ item.value }}'
         inputs:
           addSpnToEnvironment: true
           failOnStandardError: true
@@ -93,4 +93,4 @@ stages:
           scriptType: ps
           scriptLocation: inlineScript
           inlineScript: |
-            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.name }}=$(${{ item.value }})"
+            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.value }}=$(${{ item.value }})"
