@@ -64,16 +64,18 @@ public class HTTPRequestSignatureVerifierTest {
         String testSignatureHeaderValue = createSignatureString(KNOWN_KEY_ID, "rsa-sha256", testHeaderList,
                 testSignatureString);
 
-        String extractedSignatureString = verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
+        String extractedSignatureString = verifier.createMapOfSignatureParams(testSignatureHeaderValue)
+            .get("signature");
         assertEquals(testSignatureString, extractedSignatureString);
     }
 
     @Test
     public void exceptionThrownIfNoSignatureParamInSignatureHeaderValue() {
-        String testSignatureHeaderValue = "badformat=2";
+        String testSignatureHeaderValue = String.format(
+            "keyId=\"%s\",algorithm=\"%s\"", KNOWN_KEY_ID, "rsa-sha256");
 
         Exception exception = assertThrows(HTTPRequestSignatureVerificationException.class,() -> {
-            verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
+            verifier.createMapOfSignatureParams(testSignatureHeaderValue);
         });
 
         assertEquals("no signature field found in value of signature header", 
@@ -83,10 +85,11 @@ public class HTTPRequestSignatureVerifierTest {
 
     @Test
     public void exceptionThrownIfNoKeyIdParamInSignatureHeaderValue() {
-        String testSignatureHeaderValue = "signature=fizzbuzz";
+        String testSignatureHeaderValue = String.format(
+            "signature=\"%s\",algorithm=\"%s\"", "some_sig", "rsa-sha256");
 
         Exception exception = assertThrows(HTTPRequestSignatureVerificationException.class,() -> {
-            verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
+            verifier.createMapOfSignatureParams(testSignatureHeaderValue);
         });
 
         assertEquals("no keyId field found in value of signature header", 
@@ -99,7 +102,7 @@ public class HTTPRequestSignatureVerifierTest {
         String testSignatureHeaderValue = "iAmAHeaderWithoutParams";
 
         Exception exception = assertThrows(HTTPRequestSignatureVerificationException.class,() -> {
-            verifier.extractSignatureStringFromSignatureHeader(testSignatureHeaderValue);
+            verifier.createMapOfSignatureParams(testSignatureHeaderValue);
         });
         
         assertEquals("no parameters found in value of signature header",  

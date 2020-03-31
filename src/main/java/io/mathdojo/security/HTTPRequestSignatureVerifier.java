@@ -62,20 +62,7 @@ public class HTTPRequestSignatureVerifier {
 		Map<String, String> mapOfSignatureParams = createMapOfSignatureParams(signatureHeaderValue);
 		String signatureAlgorithm = mapOfSignatureParams.get(ALGORITHM_SIGNATURE_PARAM_KEY);
 		String keyIdToUse = mapOfSignatureParams.get(KEYID_SIGNATURE_PARAM_KEY);
-
-		if (signatureAlgorithm == null) {
-			throw new HTTPRequestSignatureVerificationException("no algorithm was included in the signature header");
-		} else if(!SUPPORTED_MAP_OF_ALGORITHMS.containsKey(signatureAlgorithm)) {
-			throw new HTTPRequestSignatureVerificationException("algorithm in signature header is not supported by the verifier");
-		}
-
-		if (keyIdToUse == null) {
-			throw new HTTPRequestSignatureVerificationException("no keyId field found in value of signature header");
-		} else if(mapOfKeyIdAndPubKey.get(keyIdToUse) == null) {
-			throw new HTTPRequestSignatureVerificationException("keyId in signature header is unknown by the verifier");
-		}
-
-		String extractedHTTPRequestSignature = extractSignatureStringFromSignatureHeader(signatureHeaderValue);
+		String extractedHTTPRequestSignature = mapOfSignatureParams.get(SIGNATURE_HEADER_KEY);
 
 		String recreatedSigningString = recreateSigningString(suppliedHeaders, requestPath, requestMethod);
 
@@ -91,19 +78,31 @@ public class HTTPRequestSignatureVerifier {
 		return verificationStatus;
 	}
 
-	public String extractSignatureStringFromSignatureHeader(String signatureHeaderValue)
+	private void verifySignatureHeaderParams(String signatureAlgorithm, String keyIdToUse, String extractedHTTPRequestSignature)
 			throws HTTPRequestSignatureVerificationException {
-		Map<String, String> signatureValueContents = createMapOfSignatureParams(signatureHeaderValue);
+		if (signatureAlgorithm == null) {
+			throw new HTTPRequestSignatureVerificationException(
+				"no algorithm was included in the signature header");
+		} else if(!SUPPORTED_MAP_OF_ALGORITHMS.containsKey(signatureAlgorithm)) {
+			throw new HTTPRequestSignatureVerificationException(
+				"algorithm in signature header is not supported by the verifier");
+		}
 
-		String signatureString = signatureValueContents.get(SIGNATURE_HEADER_KEY);
-		if (signatureString == null) {
+		if (keyIdToUse == null) {
+			throw new HTTPRequestSignatureVerificationException(
+				"no keyId field found in value of signature header");
+		} else if(mapOfKeyIdAndPubKey.get(keyIdToUse) == null) {
+			throw new HTTPRequestSignatureVerificationException(
+				"keyId in signature header is unknown by the verifier");
+		}
+
+		if (extractedHTTPRequestSignature == null) {
 			throw new HTTPRequestSignatureVerificationException(
 					"no signature field found in value of signature header");
 		}
-		return signatureString;
 	}
 
-	private Map<String, String> createMapOfSignatureParams(String signatureHeaderValue)
+	public Map<String, String> createMapOfSignatureParams(String signatureHeaderValue)
 			throws HTTPRequestSignatureVerificationException {
 		String headerValueWithoutSignaturePrefix = signatureHeaderValue.replaceAll("Signature ", "");
 		String[] listOfSignatureValues = headerValueWithoutSignaturePrefix.split(",");
@@ -119,6 +118,10 @@ public class HTTPRequestSignatureVerifier {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new HTTPRequestSignatureVerificationException("no parameters found in value of signature header");
 		}
+		String signatureAlgorithm = signatureValueContents.get(ALGORITHM_SIGNATURE_PARAM_KEY);
+		String keyIdToUse = signatureValueContents.get(KEYID_SIGNATURE_PARAM_KEY);
+		String extractedHTTPRequestSignature = signatureValueContents.get(SIGNATURE_HEADER_KEY);
+		verifySignatureHeaderParams(signatureAlgorithm, keyIdToUse, extractedHTTPRequestSignature);
 		return signatureValueContents;
 	}
 
