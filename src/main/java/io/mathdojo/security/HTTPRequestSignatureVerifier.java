@@ -19,7 +19,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.microsoft.azure.functions.HttpMethod;
-
+/**
+ * This class is an implementation of the verification of Signed HTTP Messages as detailed by
+ * the RFC draft: https://tools.ietf.org/html/draft-cavage-http-signatures-12
+ */
 public class HTTPRequestSignatureVerifier {
 
 	private static final String REQUEST_TARGET_SIGNATURE_PARAM_KEY = "(request-target)";
@@ -32,6 +35,15 @@ public class HTTPRequestSignatureVerifier {
 
 	private final Map<String, PublicKey> mapOfKeyIdAndPubKey;
 
+	/** 
+	 * Creates an instance of the HTTPRequestSignatureVerifier class
+	 * <p>
+	 * Must be initialised with a map of keyIds and associated base-64 encoded DER formatted public
+	 * keys. At present this only supports RSA formatted keys
+	 * @param mapOfKeyIdAndB64EncDerPubKey must contain at least one keyId string and a base-64 encoded
+	 * DER formatted public key
+	 * @throws NoSuchAlgorithmException
+	 */
 	public HTTPRequestSignatureVerifier(Map<String, String> mapOfKeyIdAndB64EncDerPubKey)
 			throws NoSuchAlgorithmException {
 		RSA_KEY_FACTORY = KeyFactory.getInstance("RSA");
@@ -51,6 +63,23 @@ public class HTTPRequestSignatureVerifier {
 
 	}
 
+	
+	/** 
+	 * Verfies the signature found in the <code>signature</code> header of a request
+	 * <p>
+	 * Currently only supports verification of signed header contents. Will be unable
+	 * to perform verification against signatures that include a digest of the HTTP 
+	 * request body 
+	 * @param suppliedHeaders Key-value map of headers in the request
+	 * @param requestPath Path of the request
+	 * @param requestMethod Method of the request
+	 * @return boolean
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeyException
+	 * @throws HTTPRequestSignatureVerificationException
+	 * @throws SignatureException
+	 * @throws UnsupportedEncodingException
+	 */
 	public boolean verifySignatureHeader(Map<String, String> suppliedHeaders, String requestPath,
 			HttpMethod requestMethod) throws NoSuchAlgorithmException, InvalidKeyException,
 			HTTPRequestSignatureVerificationException, SignatureException, UnsupportedEncodingException {
@@ -78,8 +107,18 @@ public class HTTPRequestSignatureVerifier {
 		return verificationStatus;
 	}
 
+	
+	/** 
+	 * Verfies that the parameters found in the signature header meet certain criteria as described
+	 * by: https://tools.ietf.org/html/draft-cavage-http-signatures-12#section-2.1
+	 * @param signatureAlgorithm
+	 * @param keyIdToUse
+	 * @param extractedHTTPRequestSignature
+	 * @throws HTTPRequestSignatureVerificationException
+	 */
 	private void verifySignatureHeaderParams(String signatureAlgorithm, String keyIdToUse, String extractedHTTPRequestSignature)
 			throws HTTPRequestSignatureVerificationException {
+		// TODO #3: Allow Algorithms to be null but validate against algorithm of keyId's key otherwise
 		if (signatureAlgorithm == null) {
 			throw new HTTPRequestSignatureVerificationException(
 				"no algorithm was included in the signature header");
@@ -102,6 +141,16 @@ public class HTTPRequestSignatureVerifier {
 		}
 	}
 
+	
+	/** 
+	 * Creates a map of parameters found in the signature header. 
+	 * <p>
+	 * Deconstruction follows spec:
+	 * https://tools.ietf.org/html/draft-cavage-http-signatures-12#section-2.3
+	 * @param signatureHeaderValue
+	 * @return Map<String, String>
+	 * @throws HTTPRequestSignatureVerificationException
+	 */
 	public Map<String, String> createMapOfSignatureParams(String signatureHeaderValue)
 			throws HTTPRequestSignatureVerificationException {
 		String headerValueWithoutSignaturePrefix = signatureHeaderValue.replaceAll("Signature ", "");
@@ -125,6 +174,18 @@ public class HTTPRequestSignatureVerifier {
 		return signatureValueContents;
 	}
 
+	
+	/** 
+	 * Reconstructs the signing string from the requests headers, method and path
+	 * <p>
+	 * Construction follows spec:
+	 * https://tools.ietf.org/html/draft-cavage-http-signatures-12#section-2.3
+	 * @param headers
+	 * @param requestPath
+	 * @param requestMethod
+	 * @return String
+	 * @throws HTTPRequestSignatureVerificationException
+	 */
 	public String recreateSigningString(Map<String, String> headers, String requestPath, HttpMethod requestMethod)
 			throws HTTPRequestSignatureVerificationException {
 		String signatureHeaderValue = headers.get(SIGNATURE_HEADER_KEY);
