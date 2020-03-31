@@ -29,7 +29,7 @@ public class HTTPRequestSignatureVerifierTest {
 
     private static KeyPair KEYPAIR1_KEY_PAIR;
     private static KeyPair KEYPAIR2_KEY_PAIR;
-    private static String b64RepresentationOfKey1;
+    private static String B64_REPRESENTATION_OF_KEY_1;
     private static HTTPRequestSignatureVerifier verifier;
 
     @BeforeClass
@@ -37,8 +37,8 @@ public class HTTPRequestSignatureVerifierTest {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         KEYPAIR1_KEY_PAIR = keyGen.generateKeyPair();
         KEYPAIR2_KEY_PAIR = keyGen.generateKeyPair();
-        b64RepresentationOfKey1 = Base64.getEncoder().encodeToString(KEYPAIR1_KEY_PAIR.getPublic().getEncoded());
-        verifier = new HTTPRequestSignatureVerifier(b64RepresentationOfKey1);
+        B64_REPRESENTATION_OF_KEY_1 = Base64.getEncoder().encodeToString(KEYPAIR1_KEY_PAIR.getPublic().getEncoded());
+        verifier = new HTTPRequestSignatureVerifier(B64_REPRESENTATION_OF_KEY_1);
     }
 
     @Test
