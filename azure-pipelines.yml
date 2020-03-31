@@ -76,7 +76,7 @@ stages:
         scriptType: ps
         scriptLocation: inlineScript
         inlineScript: |
-          az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=${{ variables.APPINSIGHTS_INSTRUMENTATIONKEY }}" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=${{ variables.APPINSIGHTS_INSTRUMENTATIONKEY }}"
+          az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(APPINSIGHTS_INSTRUMENTATIONKEY)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
 
 
 - stage: Configure_App
