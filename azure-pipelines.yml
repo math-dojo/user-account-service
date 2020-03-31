@@ -3,16 +3,15 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 parameters:
-  envParamsToSet:
-  - name: MATH_DOJO_ENV_NAME
-    default: 'MATH_DOJO_ENV_NAME'
-    type: string
-  - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
-    default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID'
-    type: string
-  - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
-    default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY'
-    type: string
+- name: MATH_DOJO_ENV_NAME
+  default: 'MATH_DOJO_ENV_NAME'
+  type: string
+- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
+  default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID'
+  type: string
+- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
+  default: 'MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY'
+  type: string
 
 trigger:
 - master
@@ -84,7 +83,7 @@ stages:
   jobs:
   - job: Configure_Function_Parameters 
     steps:
-    - ${{ each item in parameters.envParamsToSet }}:
+    - ${{ each item in parameters }}:
       - task: AzureCLI@2
         displayName: 'Set app param: ${{ item.name }}'
         inputs:
