@@ -25,6 +25,8 @@ variables:
       - template: environments/non-production.yml
   - ${{ if contains(variables['Build.SourceBranchName'], 'ft') }}: # only works if you have a feature branch
       - template: environments/non-production.yml
+  - ${{ if contains(variables['Build.SourceBranchName'], 'merge') }}: # only works if you have a PR branch
+      - template: environments/non-production.yml
   - ${{ if contains(variables['Build.SourceBranchName'], 'rl') }}: # only works if you have a release branch
       - template: environments/production.yml
 
