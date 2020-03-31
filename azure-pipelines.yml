@@ -94,4 +94,4 @@ stages:
           scriptType: ps
           scriptLocation: inlineScript
           inlineScript: |
-            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.name }}=${{ variables.${{ item.value }} }}"
+            az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.name }}=$(${{ item.value }})"
