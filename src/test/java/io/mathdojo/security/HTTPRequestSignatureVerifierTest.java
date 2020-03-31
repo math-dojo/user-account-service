@@ -23,7 +23,6 @@ import java.util.Map;
 import com.microsoft.azure.functions.HttpMethod;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class HTTPRequestSignatureVerifierTest {
