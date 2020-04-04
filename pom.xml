@@ -41,6 +41,11 @@
             <artifactId>spring-cloud-starter-function-web</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+        <groupId>com.microsoft.azure</groupId>
+        <artifactId>applicationinsights-spring-boot-starter</artifactId>
+        <version>2.5.1</version>
+        </dependency>
 
         <!-- Test -->
         <dependency>
