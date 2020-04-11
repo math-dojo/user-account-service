@@ -1,3 +1,4 @@
 {
+    "debug.internalConsoleOptions": "neverOpen",
     "java.configuration.updateBuildConfiguration": "automatic"
 }
