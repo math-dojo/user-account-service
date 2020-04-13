@@ -49,12 +49,7 @@ components:
             permissions:
               type: array
               items:
-                type: string
-                enum:
-                  - "consumer"
-                  - "creator"
-                  - "org-admin"
-                  - "global-admin" 
+                $ref: '#/components/schemas/UserPermissions' 
             belongsToOrgWithId:
               type: string
               description: "The id of the organisation to which the user belongs."
@@ -84,10 +79,7 @@ components:
         profileImageLink:
           type: string
         accountType:
-          type: string
-          enum:
-            - "user"
-            - "organisation"
+          $ref: '#/components/schemas/AccountTypes'
     PracticeQuestionAttemptRecord:
       type: object
       properties:
@@ -96,5 +88,16 @@ components:
         numberOfAttempts:
           type: integer
           format: int32
-
+    AccountTypes:
+      type: string
+      enum:
+        - "user"
+        - "organisation"
+    UserPermissions:
+      type: string
+      enum:
+        - "consumer"
+        - "creator"
+        - "org-admin"
+        - "global-admin"
     
