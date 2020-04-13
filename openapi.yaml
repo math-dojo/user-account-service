@@ -84,9 +84,9 @@ components:
                 billingAccountType:
                   type: string
                   enum:
-                    - "free"
-                    - "educator"
                     - "corporate"
+                    - "educator"
+                    - "free"
                 paymentProcessor:
                   type: string
                   enum:
