@@ -10,6 +10,58 @@ servers:
   description: Staging server
 - url: https://mathdojoio.cloud.tyk.io/user-account-service-pr
   description: Production server
+paths:
+  /organisation/{organisationId}:
+    parameters:
+      - name: "organisationId"
+        in: "path"
+        description: "id of organisation to be found."
+        required: true
+        schema:
+          type: string
+    get:
+      summary: "returns an organisation with the matching id"
+      responses: 
+        '200':
+          description: the returned question
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+        '404':
+          description: An organisation with the specified ID was not found
+    put:
+      summary: "updates the organisation with the specific id"
+      description: Updates the non-protected properties of an existing organisation
+      requestBody:
+        $ref: '#/components/requestBodies/OrganisationRequestBody'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                bad-request-body:
+                  summary: Error response if one or more properties are illegal
+                  value: "Bad request: One or more parameters and their types are not present in a question"
+                update-error:
+                  summary: Error response if one or more properties cannot be updated
+                  value: "Bad request: One or more parameters could not be updated"
+        '403':
+          description: Forbidden
+    delete:
+      summary: "deletes an organisation with the matching id"
+      responses: 
+        '204':
+          description: The organisation was successfully deleted
+        '403':
+          description: Forbidden
+        '404':
+          description: A question with the specified ID was not found  
 components:
   schemas:
     Organisation:
@@ -100,4 +152,19 @@ components:
         - "creator"
         - "org-admin"
         - "global-admin"
+  requestBodies:
+    OrganisationRequestBody:
+      description: A JSON object containing pet information
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accountVerified:
+                type: boolean
+              name:
+                type: string
+              profileImageLink:
+                type: string
     
