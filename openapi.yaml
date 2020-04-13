@@ -54,7 +54,19 @@ components:
                   - "consumer"
                   - "creator"
                   - "org-admin"
-                  - "global-admin"      
+                  - "global-admin" 
+            belongsToOrgWithId:
+              type: string
+              description: "The id of the organisation to which the user belongs."
+            activityHistory:
+              type: object
+              required:
+                - practiceHistory
+              properties:
+                practiceHistory:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/PracticeQuestionAttemptRecord'           
     AccountHolder:
       type: object
       required:
@@ -76,5 +88,13 @@ components:
           enum:
             - "user"
             - "organisation"
+    PracticeQuestionAttemptRecord:
+      type: object
+      properties:
+        solved:
+          type: boolean
+        numberOfAttempts:
+          type: integer
+          format: int32
 
     
