@@ -88,7 +88,34 @@ paths:
                   summary: Error response for incorrectly specifying the organisation to create 
                   value: "Bad request: Bad parameters in request body"
         '403':
-          description: Forbidden 
+          description: Forbidden
+  /organisations/{organisationId}/users:
+    post:
+      summary: "creates a new user in an organisation"
+      requestBody:
+        $ref: '#/components/requestBodies/UserRequestBody'
+      responses: 
+        '201':
+          description: the created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                duplicate-user-creation-attempt:
+                  summary: Error response for attempting to duplicate an existing user 
+                  value: "Bad request: This user already exists"
+                bad-request-body:
+                  summary: Error response for incorrectly specifying the user to create 
+                  value: "Bad request: Bad parameters in request body"
+        '403':
+          description: Forbidden  
 components:
   schemas:
     Organisation:
@@ -194,4 +221,22 @@ components:
                 type: string
               profileImageLink:
                 type: string
+    UserRequestBody:
+      description: A JSON object containing pet information
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accountVerified:
+                type: boolean
+              name:
+                type: string
+              profileImageLink:
+                type: string
+              permissions:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPermissions'
     
