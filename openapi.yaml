@@ -62,6 +62,33 @@ paths:
           description: Forbidden
         '404':
           description: A question with the specified ID was not found  
+  /organisations:
+    post:
+      summary: "creates a new organisation"
+      requestBody:
+        $ref: '#/components/requestBodies/OrganisationRequestBody'
+      responses: 
+        '201':
+          description: the created question
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                duplicate-organisation-creation-attempt:
+                  summary: Error response for attempting to duplicate an existing organisation 
+                  value: "Bad request: Organisation with this name already exists"
+                bad-request-body:
+                  summary: Error response for incorrectly specifying the organisation to create 
+                  value: "Bad request: Bad parameters in request body"
+        '403':
+          description: Forbidden 
 components:
   schemas:
     Organisation:
