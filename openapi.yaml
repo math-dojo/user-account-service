@@ -11,7 +11,7 @@ servers:
 - url: https://mathdojoio.cloud.tyk.io/user-account-service-pr
   description: Production server
 paths:
-  /organisation/{organisationId}:
+  /organisations/{organisationId}:
     parameters:
       - name: "organisationId"
         in: "path"
