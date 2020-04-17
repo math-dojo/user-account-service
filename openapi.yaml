@@ -23,7 +23,7 @@ paths:
       summary: "returns an organisation with the matching id"
       responses: 
         '200':
-          description: the returned question
+          description: the returned organisation
           content: 
             application/json:
               schema:
@@ -47,7 +47,7 @@ paths:
               examples:
                 bad-request-body:
                   summary: Error response if one or more properties are illegal
-                  value: "Bad request: One or more parameters and their types are not present in a question"
+                  value: "Bad request: One or more parameters and their types are not permitted in a organisation"
                 update-error:
                   summary: Error response if one or more properties cannot be updated
                   value: "Bad request: One or more parameters could not be updated"
@@ -61,7 +61,7 @@ paths:
         '403':
           description: Forbidden
         '404':
-          description: A question with the specified ID was not found  
+          description: A organisation with the specified ID was not found
   /organisations:
     post:
       summary: "creates a new organisation"
@@ -69,7 +69,7 @@ paths:
         $ref: '#/components/requestBodies/OrganisationRequestBody'
       responses: 
         '201':
-          description: the created question
+          description: the created organisation
           content:
             application/json:
               schema:
