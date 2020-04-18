@@ -257,7 +257,7 @@ components:
         - "global-admin"
   requestBodies:
     OrganisationRequestBody:
-      description: A JSON object containing pet information
+      description: A JSON object containing organisation information
       required: true
       content:
         application/json:
@@ -271,7 +271,7 @@ components:
               profileImageLink:
                 type: string
     UserRequestBody:
-      description: A JSON object containing pet information
+      description: A JSON object containing user information
       required: true
       content:
         application/json:
