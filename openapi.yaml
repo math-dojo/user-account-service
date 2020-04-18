@@ -13,12 +13,7 @@ servers:
 paths:
   /organisations/{organisationId}:
     parameters:
-      - name: "organisationId"
-        in: "path"
-        description: "id of organisation to be found."
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/organisationIdUrlParam'
     get:
       summary: "returns an organisation with the matching id"
       responses: 
@@ -90,6 +85,8 @@ paths:
         '403':
           description: Forbidden
   /organisations/{organisationId}/users:
+    parameters:
+      - $ref: '#/components/parameters/organisationIdUrlParam'
     post:
       summary: "creates a new user in an organisation"
       requestBody:
@@ -239,4 +236,18 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserPermissions'
-    
+  parameters:
+    organisationIdUrlParam:
+      name: organisationId
+      in: "path"
+      description: "Id of organisation to be found."
+      required: true
+      schema:
+        type: string
+    userIdUrlParam:
+      name: userId
+      in: "path"
+      description: "Id of the user to be found."
+      required: true
+      schema:
+        type: string 
