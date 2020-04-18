@@ -162,6 +162,32 @@ paths:
           description: Forbidden
         '404':
           description: A user with the specified ID was not found in the organisation
+  /organisations/{organisationId}/users/{userId}/permissions:
+    parameters:
+      - $ref: '#/components/parameters/organisationIdUrlParam'
+      - $ref: '#/components/parameters/userIdUrlParam'
+    put:
+      summary: "modifies the permissions for the user with the matching id"
+      requestBody:
+        $ref: '#/components/requestBodies/UserPermissionsRequestBody'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                bad-request-body:
+                  summary: Error response if one or more properties are illegal
+                  value: "Bad request: One or more parameters and their types are not permitted in a organisation"
+                update-error:
+                  summary: Error response if one or more properties cannot be updated
+                  value: "Bad request: One or more parameters could not be updated"
+        '403':
+          description: Forbidden
 components:
   #-------------------------------
   # Reusable schemas (data models)
@@ -204,7 +230,7 @@ components:
             permissions:
               type: array
               items:
-                $ref: '#/components/schemas/UserPermissions' 
+                $ref: '#/components/schemas/UserPermission' 
             belongsToOrgWithId:
               type: string
               description: "The id of the organisation to which the user belongs."
@@ -248,7 +274,7 @@ components:
       enum:
         - "user"
         - "organisation"
-    UserPermissions:
+    UserPermission:
       type: string
       enum:
         - "consumer"
@@ -284,10 +310,18 @@ components:
                 type: string
               profileImageLink:
                 type: string
+    UserPermissionsRequestBody:
+      description: A JSON object containing the permissions to set for a user
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
               permissions:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserPermissions'
+                  $ref: '#/components/schemas/UserPermission'
   parameters:
     organisationIdUrlParam:
       name: organisationId
