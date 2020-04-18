@@ -242,7 +242,10 @@ components:
                 practiceHistory:
                   type: object
                   additionalProperties:
-                    $ref: '#/components/schemas/PracticeQuestionAttemptRecord'           
+                    $ref: '#/components/schemas/PracticeQuestionAttemptRecord'
+                  example:
+                    question-id-xyz:
+                      $ref: '#/components/examples/PracticeQuestionAttemptRecordExample'           
     AccountHolder:
       type: object
       required:
@@ -269,6 +272,8 @@ components:
         numberOfAttempts:
           type: integer
           format: int32
+      example:
+        $ref: '#/components/examples/PracticeQuestionAttemptRecordExample'
     AccountTypes:
       type: string
       enum:
@@ -336,4 +341,11 @@ components:
       description: "Id of the user to be found."
       required: true
       schema:
-        type: string 
+        type: string
+  examples:
+    PracticeQuestionAttemptRecordExample:
+      value:
+        solved: true
+        numberOfAttempts: 5
+      summary: 'An example Practice Question Attempt Record'
+
