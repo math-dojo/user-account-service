@@ -113,7 +113,57 @@ paths:
                   value: "Bad request: Bad parameters in request body"
         '403':
           description: Forbidden  
+  /organisations/{organisationId}/users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/organisationIdUrlParam'
+      - $ref: '#/components/parameters/userIdUrlParam'
+    get:
+      summary: "returns a user with the matching id in the specified organisation"
+      responses: 
+        '200':
+          description: the returned user
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: A user with the specified ID was not found
+    put:
+      summary: "updates the details of a user with the matching id in the specified organisation"
+      description: Updates the non-protected properties of an existing user
+      requestBody:
+        $ref: '#/components/requestBodies/UserRequestBody'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                bad-request-body:
+                  summary: Error response if one or more properties are illegal
+                  value: "Bad request: One or more parameters and their types are not permitted in a organisation"
+                update-error:
+                  summary: Error response if one or more properties cannot be updated
+                  value: "Bad request: One or more parameters could not be updated"
+        '403':
+          description: Forbidden
+    delete:
+      summary: "deletes a user with the matching id in the specified organisation"
+      responses: 
+        '204':
+          description: The user was successfully deleted from the organisation
+        '403':
+          description: Forbidden
+        '404':
+          description: A user with the specified ID was not found in the organisation
 components:
+  #-------------------------------
+  # Reusable schemas (data models)
+  #-------------------------------
   schemas:
     Organisation:
       allOf:
