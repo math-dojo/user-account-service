@@ -4,6 +4,8 @@ info:
   description: "This is the API for the User Account Service. It describes the models it employs and data it returns"
   version: "1.0.0"
 servers:
+- url: https://mathdojoio.cloud.tyk.io/user-account-service-test
+  description: Feature Development Server
 - url: https://mathdojoio.cloud.tyk.io/user-account-service-np
   description: Development server
 - url: https://mathdojoio.cloud.tyk.io/user-account-service-pp
