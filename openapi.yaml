@@ -245,7 +245,7 @@ components:
                     $ref: '#/components/schemas/PracticeQuestionAttemptRecord'
                   example:
                     question-id-xyz:
-                      $ref: '#/components/examples/PracticeQuestionAttemptRecordExample'           
+                      $ref: '#/components/schemas/PracticeQuestionAttemptRecord/example'
     AccountHolder:
       type: object
       required:
@@ -273,7 +273,8 @@ components:
           type: integer
           format: int32
       example:
-        $ref: '#/components/examples/PracticeQuestionAttemptRecordExample'
+        solved: true
+        numberOfAttempts: 5
     AccountTypes:
       type: string
       enum:
@@ -342,10 +343,3 @@ components:
       required: true
       schema:
         type: string
-  examples:
-    PracticeQuestionAttemptRecordExample:
-      value:
-        solved: true
-        numberOfAttempts: 5
-      summary: 'An example Practice Question Attempt Record'
-
