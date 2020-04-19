@@ -201,14 +201,19 @@ components:
             accountType:
               example: 'organisation'
             adminUsers:
-              type: array
-              items:
-                type: object
-                properties:
-                  adminUser:
-                    allOf:
-                      - type: object
-                      - $ref: '#/components/schemas/User'
+              type: object
+              additionalProperties:
+                $ref: '#/components/schemas/User'
+              example:
+                user-id-xyz:
+                  id: 'some-user-id'
+                  accountVerified: true
+                  name: 'fizz buzz'
+                  profileImageLink: 'https://secure-domain.com/myimage.png'
+                  accountType: 'user'
+                  permissions: 
+                    - "org-admin"
+                  belongsToOrgWithId: 'this-org-id'
             billingDetails:
               type: object
               properties:
@@ -232,7 +237,7 @@ components:
             permissions:
               type: array
               items:
-                $ref: '#/components/schemas/UserPermission' 
+                $ref: '#/components/schemas/UserPermission'
             belongsToOrgWithId:
               type: string
               description: "The id of the organisation to which the user belongs."
