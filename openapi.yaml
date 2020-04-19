@@ -198,6 +198,8 @@ components:
         - $ref: '#/components/schemas/AccountHolder'
         - type: object
           properties:
+            accountType:
+              example: 'organisation'
             adminUsers:
               type: array
               items:
@@ -234,6 +236,8 @@ components:
             belongsToOrgWithId:
               type: string
               description: "The id of the organisation to which the user belongs."
+            accountType:
+              example: 'user'
             activityHistory:
               type: object
               required:
