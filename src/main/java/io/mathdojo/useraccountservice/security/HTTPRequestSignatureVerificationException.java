@@ -1,4 +1,4 @@
-package io.mathdojo.security;
+package io.mathdojo.useraccountservice.security;
 
 public class HTTPRequestSignatureVerificationException extends Exception {
 

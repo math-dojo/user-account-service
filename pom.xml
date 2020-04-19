@@ -27,7 +27,7 @@
         <functionAppRegion>uksouth</functionAppRegion>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
         <functionResourceGroup>math-dojo-hzprod-user-account-service</functionResourceGroup>
-        <start-class>io.mathdojo.UserAccountServiceApplication</start-class>
+        <start-class>io.mathdojo.useraccountservice.UserAccountServiceApplication</start-class>
         <wrapper.version>1.0.22.RELEASE</wrapper.version>
     </properties>
 
@@ -117,7 +117,7 @@
                         </property>
                         <property>
                             <name>MAIN_CLASS</name>
-                            <value>io.mathdojo.UserAccountServiceApplication</value>
+                            <value>io.mathdojo.useraccountservice.UserAccountServiceApplication</value>
                         </property>
                     </appSettings>
                     <authentication>

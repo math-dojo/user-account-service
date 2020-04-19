@@ -1,4 +1,4 @@
-package io.mathdojo;
+package io.mathdojo.useraccountservice;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -20,10 +20,10 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 import org.springframework.cloud.function.adapter.azure.AzureSpringBootRequestHandler;
 
-import io.mathdojo.model.Greeting;
-import io.mathdojo.model.User;
-import io.mathdojo.security.HTTPRequestSignatureVerificationException;
-import io.mathdojo.security.HTTPRequestSignatureVerifier;
+import io.mathdojo.useraccountservice.model.Greeting;
+import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationException;
+import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerifier;
 
 public class HelloHandler extends AzureSpringBootRequestHandler<User, Greeting> {
 

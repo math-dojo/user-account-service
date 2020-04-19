@@ -1,4 +1,4 @@
-package io.mathdojo;
+package io.mathdojo.useraccountservice;
 
 import java.util.function.Function;
 
@@ -8,8 +8,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import io.mathdojo.model.Greeting;
-import io.mathdojo.model.User;
+import io.mathdojo.useraccountservice.model.Greeting;
+import io.mathdojo.useraccountservice.model.User;
 
 @SpringBootApplication
 public class UserAccountServiceApplication {

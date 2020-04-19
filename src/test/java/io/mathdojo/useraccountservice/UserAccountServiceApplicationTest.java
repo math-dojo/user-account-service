@@ -1,4 +1,4 @@
-package io.mathdojo;
+package io.mathdojo.useraccountservice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -15,8 +15,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.function.adapter.azure.AzureSpringBootRequestHandler;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import io.mathdojo.model.Greeting;
-import io.mathdojo.model.User;
+import io.mathdojo.useraccountservice.model.Greeting;
+import io.mathdojo.useraccountservice.model.User;
 
 @RunWith(SpringRunner.class)
 public class UserAccountServiceApplicationTest {
