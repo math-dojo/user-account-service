@@ -12,10 +12,10 @@ import io.mathdojo.model.Greeting;
 import io.mathdojo.model.User;
 
 @SpringBootApplication
-public class HelloFunction {
+public class UserAccountServiceApplication {
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(HelloFunction.class, args);
+        SpringApplication.run(UserAccountServiceApplication.class, args);
     }
 
     @Bean

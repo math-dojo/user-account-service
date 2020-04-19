@@ -19,7 +19,7 @@ import io.mathdojo.model.Greeting;
 import io.mathdojo.model.User;
 
 @RunWith(SpringRunner.class)
-public class HelloFunctionTest {
+public class UserAccountServiceApplicationTest {
 
     @MockBean
     private ExecutionContext mockExecContext; // = mock(ExecutionContext.class);
@@ -33,14 +33,14 @@ public class HelloFunctionTest {
     
     @Test
     public void test() {
-        Greeting result = new HelloFunction().hello(mockExecContext).apply(new User("foo"));
+        Greeting result = new UserAccountServiceApplication().hello(mockExecContext).apply(new User("foo"));
         assertThat(result.getMessage()).isEqualTo("Welcome, foo");
     }
 
     @Test
     public void start() throws Exception {
         AzureSpringBootRequestHandler<User, Greeting> handler = new AzureSpringBootRequestHandler<>(
-                HelloFunction.class);
+                UserAccountServiceApplication.class);
         Greeting result = handler.handleRequest(new User("foo"), mockExecContext);
         handler.close();
         assertThat(result.getMessage()).isEqualTo("Welcome, foo");

@@ -3,7 +3,7 @@
     "Values": {
         "AzureWebJobsStorage": "",
         "FUNCTIONS_WORKER_RUNTIME": "java",
-        "MAIN_CLASS": "io.mathdojo.HelloFunction",
+        "MAIN_CLASS": "io.mathdojo.UserAccountServiceApplication",
         "JAVA_OPTS": "-Djava.net.preferIPv4Stack=true -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=127.0.0.1:5005",
         "APPINSIGHTS_INSTRUMENTATIONKEY": "847d7f9e-408c-44ec-9bb5-e1f99872d8f2",
         "MATH_DOJO_ENV_NAME": "local",
