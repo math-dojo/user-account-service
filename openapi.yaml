@@ -263,7 +263,7 @@ components:
         profileImageLink:
           type: string
         accountType:
-          $ref: '#/components/schemas/AccountTypes'
+          $ref: '#/components/schemas/AccountType'
     PracticeQuestionAttemptRecord:
       type: object
       properties:
@@ -275,7 +275,7 @@ components:
       example:
         solved: true
         numberOfAttempts: 5
-    AccountTypes:
+    AccountType:
       type: string
       enum:
         - "user"
