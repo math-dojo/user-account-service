@@ -16,7 +16,7 @@ import org.springframework.cloud.function.adapter.azure.AzureSpringBootRequestHa
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.mathdojo.useraccountservice.model.Greeting;
-import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.DummyUser;
 
 @RunWith(SpringRunner.class)
 public class UserAccountServiceApplicationTest {
@@ -33,15 +33,15 @@ public class UserAccountServiceApplicationTest {
     
     @Test
     public void test() {
-        Greeting result = new UserAccountServiceApplication().hello(mockExecContext).apply(new User("foo"));
+        Greeting result = new UserAccountServiceApplication().hello(mockExecContext).apply(new DummyUser("foo"));
         assertThat(result.getMessage()).isEqualTo("Welcome, foo");
     }
 
     @Test
     public void start() throws Exception {
-        AzureSpringBootRequestHandler<User, Greeting> handler = new AzureSpringBootRequestHandler<>(
+        AzureSpringBootRequestHandler<DummyUser, Greeting> handler = new AzureSpringBootRequestHandler<>(
                 UserAccountServiceApplication.class);
-        Greeting result = handler.handleRequest(new User("foo"), mockExecContext);
+        Greeting result = handler.handleRequest(new DummyUser("foo"), mockExecContext);
         handler.close();
         assertThat(result.getMessage()).isEqualTo("Welcome, foo");
     }

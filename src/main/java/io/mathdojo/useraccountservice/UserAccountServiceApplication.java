@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import io.mathdojo.useraccountservice.model.Greeting;
-import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.DummyUser;
 
 @SpringBootApplication
 public class UserAccountServiceApplication {
@@ -19,7 +19,7 @@ public class UserAccountServiceApplication {
     }
 
     @Bean
-    public Function<User, Greeting> hello(ExecutionContext context) {
+    public Function<DummyUser, Greeting> hello(ExecutionContext context) {
         return user -> {
             context.getLogger().info("yo, yo yo in the building homie!!!");
             return new Greeting("Welcome, " + user.getName(), new String[]{"I am some stuff!", "Other Stuff"});

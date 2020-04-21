@@ -21,15 +21,15 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import org.springframework.cloud.function.adapter.azure.AzureSpringBootRequestHandler;
 
 import io.mathdojo.useraccountservice.model.Greeting;
-import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationException;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerifier;
 
-public class HelloHandler extends AzureSpringBootRequestHandler<User, Greeting> {
+public class HelloHandler extends AzureSpringBootRequestHandler<DummyUser, Greeting> {
 
     @FunctionName("hello")
     public HttpResponseMessage execute(@HttpTrigger(name = "request", methods = { HttpMethod.GET,
-            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<User>> request,
+            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<DummyUser>> request,
             ExecutionContext context) throws NoSuchAlgorithmException {
 
         if (!System.getenv("MATH_DOJO_ENV_NAME").equals("local")) {
