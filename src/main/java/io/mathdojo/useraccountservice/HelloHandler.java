@@ -23,7 +23,7 @@ import org.springframework.cloud.function.adapter.azure.AzureSpringBootRequestHa
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationException;
-import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerifier;
+import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerifierSingleton;
 
 public class HelloHandler extends AzureSpringBootRequestHandler<DummyUser, Greeting> {
 
@@ -33,19 +33,17 @@ public class HelloHandler extends AzureSpringBootRequestHandler<DummyUser, Greet
             ExecutionContext context) throws NoSuchAlgorithmException {
 
         if (!System.getenv("MATH_DOJO_ENV_NAME").equals("local")) {
-            HTTPRequestSignatureVerifier verifier = createVerifier(
-                    System.getenv("MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID"),
-                    System.getenv("MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY"));
             try {
-                boolean verificationResult = verifier.verifySignatureHeader(request.getHeaders(),
-                        request.getUri().getPath(), request.getHttpMethod());
+                boolean verificationResult = HTTPRequestSignatureVerifierSingleton
+                    .getInstance().verifySignatureHeader(request.getHeaders(),
+                    request.getUri().getPath(), request.getHttpMethod());
                 if(!verificationResult) {
                     return request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
                         .body("signature verification failed")
                         .build();                    
                 }
             } catch (InvalidKeyException | SignatureException | UnsupportedEncodingException
-                    | HTTPRequestSignatureVerificationException e) {
+                    | NoSuchAlgorithmException | HTTPRequestSignatureVerificationException e) {
                     context.getLogger().log(
                         Level.WARNING, "signature verification threw an exception", e);
                     return request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
@@ -63,12 +61,5 @@ public class HelloHandler extends AzureSpringBootRequestHandler<DummyUser, Greet
         return request.createResponseBuilder(HttpStatus.OK)
                 .body(handleRequest(request.getBody().get(), context))
                 .build();
-    }
-
-    private HTTPRequestSignatureVerifier createVerifier(String expectedKeyId, String b64EncDerOfPublicKey)
-            throws NoSuchAlgorithmException {
-        Map<String, String> mapOfKeyIdAndB64EncDerPubKey = Collections.singletonMap(expectedKeyId,
-                b64EncDerOfPublicKey);
-        return new HTTPRequestSignatureVerifier(mapOfKeyIdAndB64EncDerPubKey);
     }
 }
