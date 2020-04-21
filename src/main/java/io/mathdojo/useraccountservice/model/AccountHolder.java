@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.springframework.validation.annotation.Validated;
 
-import io.mathdojo.useraccountservice.model.interfaces.AccountType;
+import io.mathdojo.useraccountservice.model.primitives.AccountType;
 
 /**
  * This class is a representation of a generic mathdojo 
