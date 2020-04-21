@@ -1,4 +1,4 @@
-package io.mathdojo.useraccountservice.model.interfaces;
+package io.mathdojo.useraccountservice.model.primitives;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
