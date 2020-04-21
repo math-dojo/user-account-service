@@ -5,39 +5,23 @@ import java.util.Objects;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import org.springframework.validation.annotation.Validated;
-
 import io.mathdojo.useraccountservice.model.primitives.AccountType;
+import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 
 /**
  * This class is a representation of a generic mathdojo 
  * AccountHolder
  */
-@Validated
-public abstract class AccountHolder {
-    @JsonProperty("id")
+public abstract class AccountHolder extends AccountRequest {
+
     private String id;
 
-    @JsonProperty("accountVerified")
-    private boolean accountVerified;
-
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("profileImageLink")
-    private String profileImageLink;
-
-    @JsonProperty("accountType")
     private AccountType accountType;
 
     public AccountHolder(String id, boolean accountVerified, String name, String profileImageLink,
             AccountType accountType) {
+        super(accountVerified, name, profileImageLink);
         this.id = id;
-        this.accountVerified = accountVerified;
-        this.name = name;
-        this.profileImageLink = profileImageLink;
         this.accountType = accountType;
     }
 
@@ -54,50 +38,6 @@ public abstract class AccountHolder {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    /**
-     * Get accountVerified
-     * 
-     * @return accountVerified
-     **/
-    @NotNull
-
-    public boolean isAccountVerified() {
-        return accountVerified;
-    }
-
-    public void setAccountVerified(Boolean accountVerified) {
-        this.accountVerified = accountVerified;
-    }
-
-    /**
-     * Get name
-     * 
-     * @return name
-     **/
-    @NotNull
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Get profileImageLink
-     * 
-     * @return profileImageLink
-     **/
-
-    public String getProfileImageLink() {
-        return profileImageLink;
-    }
-
-    public void setProfileImageLink(String profileImageLink) {
-        this.profileImageLink = profileImageLink;
     }
 
     /**
@@ -126,15 +66,15 @@ public abstract class AccountHolder {
         }
         AccountHolder accountHolder = (AccountHolder) o;
         return Objects.equals(this.id, accountHolder.id)
-                && Objects.equals(this.accountVerified, accountHolder.accountVerified)
-                && Objects.equals(this.name, accountHolder.name)
-                && Objects.equals(this.profileImageLink, accountHolder.profileImageLink)
+                && Objects.equals(this.isAccountVerified(), accountHolder.isAccountVerified())
+                && Objects.equals(this.getName(), accountHolder.getName())
+                && Objects.equals(this.getProfileImageLink(), accountHolder.getProfileImageLink())
                 && Objects.equals(this.accountType, accountHolder.accountType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, accountVerified, name, profileImageLink, accountType);
+        return Objects.hash(id, this.isAccountVerified(), this.getName(), this.getProfileImageLink(), accountType);
     }
 
     @Override
@@ -143,9 +83,9 @@ public abstract class AccountHolder {
         sb.append("class AccountHolder {\n");
 
         sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    accountVerified: ").append(toIndentedString(accountVerified)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    profileImageLink: ").append(toIndentedString(profileImageLink)).append("\n");
+        sb.append("    accountVerified: ").append(toIndentedString(this.isAccountVerified())).append("\n");
+        sb.append("    name: ").append(toIndentedString(this.getName())).append("\n");
+        sb.append("    profileImageLink: ").append(toIndentedString(this.getProfileImageLink())).append("\n");
         sb.append("    accountType: ").append(toIndentedString(accountType)).append("\n");
         sb.append("}");
         return sb.toString();
