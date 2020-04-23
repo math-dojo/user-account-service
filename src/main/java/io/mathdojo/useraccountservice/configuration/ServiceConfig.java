@@ -18,18 +18,11 @@ import io.mathdojo.useraccountservice.services.OrganisationService;
 @Configuration
 public class ServiceConfig {
 
-    @Autowired
-    public OrganisationService organisationService;
-
-    public ServiceConfig(){
-        this.organisationService = new OrganisationService();
-    }
 
     @Bean
     public Function<AccountRequest, Organisation> createOrganisation(ExecutionContext context) {
-        System.out.println("Now about to create the function");
-        System.out.println("Organisation Service is "+organisationService.toString());
         return accountRequest -> {
+            OrganisationService organisationService = new OrganisationService();
             context.getLogger().info("About to create a new org fam!!");
             /*
              * return new
