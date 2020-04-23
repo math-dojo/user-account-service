@@ -25,20 +25,13 @@ import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 @RunWith(SpringRunner.class)
 public class UserAccountServiceApplicationTest {
 
-    @MockBean
-    private ExecutionContext mockExecContext; // = mock(ExecutionContext.class);
+    private ExecutionContext mockExecContext;
 
     @Before
     public void setUp() {
         Logger testLogger = mock(Logger.class);
-
+        mockExecContext = mock(ExecutionContext.class);
         Mockito.when(mockExecContext.getLogger()).thenReturn(testLogger);
-    }
-    
-    @Test
-    public void test() {
-        Greeting result = new UserAccountServiceApplication().hello(mockExecContext).apply(new DummyUser("foo"));
-        assertThat(result.getMessage()).isEqualTo("Welcome, foo");
     }
 
     @Test
