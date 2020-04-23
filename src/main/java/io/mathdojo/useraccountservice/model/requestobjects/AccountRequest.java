@@ -9,6 +9,10 @@ public class AccountRequest {
 
     private String profileImageLink;
 
+    public AccountRequest() {
+        
+    }
+
     public AccountRequest(boolean accountVerified, String name, String profileImageLink) {
         this.accountVerified = accountVerified;
         this.name = name;
