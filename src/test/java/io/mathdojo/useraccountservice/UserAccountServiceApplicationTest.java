@@ -41,7 +41,7 @@ public class UserAccountServiceApplicationTest {
         assertThat(result.getMessage()).isEqualTo("Welcome, foo");
     }
 
-    @Ignore
+    @Test
     public void testPostForDummyUserHandler() throws Exception {
         AzureSpringBootRequestHandler<DummyUser, Greeting> handler = new AzureSpringBootRequestHandler<>(
                 UserAccountServiceApplication.class);
@@ -53,7 +53,7 @@ public class UserAccountServiceApplicationTest {
 
     // TODO #5: Write automated integration to check that unauthorized is returned if no signature added
 
-    @Ignore
+    @Test
     public void testPostOrganisationsHandler() throws Exception {
         AzureSpringBootRequestHandler<AccountRequest, Organisation> handler = new AzureSpringBootRequestHandler<>(
                 UserAccountServiceApplication.class);
