@@ -2,22 +2,15 @@ package io.mathdojo.useraccountservice.model.primitives;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import org.springframework.validation.annotation.Validated;
-
 /**
  * Domain Object representing a Math Dojo organisation's billing details
  */
-@Validated
 public class OrganisationBillingDetails {
-    @JsonProperty("paymentProcessor")
+
     private PaymentProcessor paymentProcessor;
 
-    @JsonProperty("idOnPaymentProcessor")
     private String idOnPaymentProcessor;
 
-    @JsonProperty("billingAccountType")
     private BillingAccountType billingAccountType;
 
     public OrganisationBillingDetails(PaymentProcessor paymentProcessor, String idOnPaymentProcessor,

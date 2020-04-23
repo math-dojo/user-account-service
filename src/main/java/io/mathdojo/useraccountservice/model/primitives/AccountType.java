@@ -1,8 +1,5 @@
 package io.mathdojo.useraccountservice.model.primitives;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
 /**
  * Enum representing the types of user account holders
  */
@@ -17,12 +14,10 @@ public enum AccountType {
   }
 
   @Override
-  @JsonValue
   public String toString() {
     return String.valueOf(value);
   }
 
-  @JsonCreator
   public static AccountType fromValue(String text) {
     for (AccountType b : AccountType.values()) {
       if (String.valueOf(b.value).equals(text)) {
