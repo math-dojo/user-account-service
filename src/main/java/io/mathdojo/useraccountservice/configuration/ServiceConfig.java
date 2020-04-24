@@ -4,32 +4,29 @@ import java.util.function.Function;
 
 import com.microsoft.azure.functions.ExecutionContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
-import io.mathdojo.useraccountservice.services.OrganisationService;
+import io.mathdojo.useraccountservice.services.OrganisationServiceSingleton;
 
 @Configuration
 public class ServiceConfig {
 
-
     @Bean
     public Function<AccountRequest, Organisation> createOrganisation(ExecutionContext context) {
+        
         return accountRequest -> {
-            OrganisationService organisationService = new OrganisationService();
             context.getLogger().info("About to create a new org fam!!");
             /*
              * return new
              * Organisation(UUID.randomUUID().toString(),accountRequest.isAccountVerified(),
              * accountRequest.getName(), accountRequest.getProfileImageLink());
              */
-            return organisationService.createNewOrganisation(accountRequest);
+            return OrganisationServiceSingleton.getInstance().createNewOrganisation(accountRequest);
         };
     }
 
