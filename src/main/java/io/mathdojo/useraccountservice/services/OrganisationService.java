@@ -15,7 +15,7 @@ public class OrganisationService {
 
     public Organisation createNewOrganisation(AccountRequest request) {
         return new Organisation(UUID.randomUUID().toString(),false, 
-            request.getName(), "https://somewhere.com/image.png");
+            request.getName(), request.getProfileImageLink());
     }
     @Override
     public String toString() {
