@@ -1,3 +1,4 @@
+// jshint esversion: 6
 const { Given, When } = require("cucumber");
 const axios = require('axios').default;
 
@@ -16,6 +17,11 @@ When(/I make a (\w+) to the function at \'(.*)\'/, function (httpMethod, path) {
     validateStatus: function (status) {
       return status >= 200 && status < 503; // default
     },
+  })
+  .catch(error => {
+    return Promise.reject(`There was a problem making the request: ${error}`);
   });
+
+  return this.world.response;
 });
 

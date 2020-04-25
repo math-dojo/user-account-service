@@ -9,11 +9,6 @@ class CustomWorld {
 
     /* Prefix custom params with world namespace */
     this.world = {};
-    this.world.processes = {};
-    this.world.processes.useraccountservice = {
-        functionapp: new Promise((resolve, reject) => {}),
-        database: new Promise((resolve, reject) => {})
-    };
     this.world.request = {};
     this.world.request.headers = {};
     this.world.request.body = {};

@@ -1,19 +1,23 @@
 // jshint esversion: 6
 const { Then } = require('cucumber');
-const { expect } = require("chai");
+const chai = require("chai");
+const chaiAsPromised = require("chai-as-promised");
+
+chai.use(chaiAsPromised);
+const expect = chai.expect;
 
 const { payloads } = require('../support/payloads');
 
 Then(/I should get a status code (\d{3})/, function (expectedCode) {
-    return this.world.response.then((response) => {
-        expect(response).has.property("status");
-        expect(response.status).to.be.equal(Number.parseInt(expectedCode));
-    });
+    return Promise.all([
+        expect(this.world.response).to.eventually.have.property("status"),
+        expect(this.world.response).to.eventually.be.equal(Number.parseInt(expectedCode))
+    ]);
 });
 
 Then(/the response should contain all the keys and values set from \'(\w+)\'/, function (nameOfSchemaOfExpectedContents) {
-    return this.world.response.then((response) => {
-        expect(response).has.property("data");
-        expect(response.data).contains(payloads[nameOfSchemaOfExpectedContents]);
-    });
+    return Promise.all([
+        expect(this.world.response).to.eventually.have.property("data"),
+        expect(this.world.response.data).to.eventually.contain(payloads[nameOfSchemaOfExpectedContents])
+    ]);
 });
