@@ -1,6 +1,7 @@
 // jshint esversion: 6
+const log = require('why-is-node-running');
 const {BeforeAll, Before, AfterAll} = require('cucumber');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
 
 let processes = {};
@@ -16,7 +17,7 @@ processes.useraccountservice = {
 };
 
 BeforeAll({
-  timeout: 20000
+  timeout: 10000
 }, function () {
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
@@ -31,8 +32,8 @@ BeforeAll({
   
     processes.useraccountservice.functionapp
       .processEventEmitter.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
         if( /Application started\. Press Ctrl\+C to shut down./.test(data)) {
+          console.log(`stdout: ${data}`);
           resolve("Function App Ready!");
         } else if(/\[?ERROR\]?/g.test(data)){
           reject(data);
@@ -63,18 +64,15 @@ BeforeAll({
 
 AfterAll(function() {
   return new Promise((resolve, reject) => {
-    console.info(`Terminating the functions process running with id ${processes.useraccountservice.functionapp.processEventEmitter.pid}`);
-    const terminationResult = processes.useraccountservice.functionapp.processEventEmitter.kill();
-  
-    if(!terminationResult) {
-      console.error("Process termination failed");
-      reject("Process termination failed");
-    }
-  
-    console.info("Function process successfully terminated");
-    resolve(terminationResult);
-  }).finally(() => {
-    process.exit();
+    console.info(`\nTerminating the functions process running with id ${processes.useraccountservice.functionapp.processEventEmitter.pid}`);
+    resolve(process.kill(processes.useraccountservice.functionapp.processEventEmitter.pid));
+  })
+  .finally(() => {
+    processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
+    processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
+    processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
+    execSync('kill $(lsof -t -i :7071)');
+    log();
   });
 });
 

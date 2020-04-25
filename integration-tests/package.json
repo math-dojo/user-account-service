@@ -1,7 +1,7 @@
 {
   "name": "user-account-service-integration-tests",
   "version": "1.0.0",
-  "description": "A series of integration tests that run client tests against the user-account-service function",
+  "description": "A series of integration tests send HTTP requests to the user-account-service function on port 7071.",
   "scripts": {
     "test": "./node_modules/.bin/cucumber-js"
   },
@@ -11,6 +11,7 @@
     "axios": "^0.19.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "cucumber": "^6.0.5"
+    "cucumber": "^6.0.5",
+    "why-is-node-running": "^2.1.2"
   }
 }

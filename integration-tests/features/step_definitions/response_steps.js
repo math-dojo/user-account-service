@@ -10,14 +10,14 @@ const { payloads } = require('../support/payloads');
 
 Then(/I should get a status code (\d{3})/, function (expectedCode) {
     return Promise.all([
-        expect(this.world.response).to.eventually.have.property("status"),
-        expect(this.world.response).to.eventually.be.equal(Number.parseInt(expectedCode))
+        expect(this.world.response).to.eventually.to.have.deep.own.
+            property('status', Number.parseInt(expectedCode))
     ]);
 });
 
 Then(/the response should contain all the keys and values set from \'(\w+)\'/, function (nameOfSchemaOfExpectedContents) {
     return Promise.all([
-        expect(this.world.response).to.eventually.have.property("data"),
-        expect(this.world.response.data).to.eventually.contain(payloads[nameOfSchemaOfExpectedContents])
+        expect(this.world.response).to.eventually.to.have.deep
+            .include({'data': payloads[nameOfSchemaOfExpectedContents]})
     ]);
 });
