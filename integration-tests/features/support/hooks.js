@@ -16,8 +16,13 @@ processes.useraccountservice = {
     }
 };
 
+/** 
+ * Start up the azure function. The timeout has been set to 
+ * a value that allows the function enough time to start up in
+ * a ```npm test``` or via the vscode debug mode.
+ */
 BeforeAll({
-  timeout: 10000
+  timeout: 30000
 }, function () {
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
