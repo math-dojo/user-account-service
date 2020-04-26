@@ -21,12 +21,12 @@ processes.useraccountservice = {
  * a ```npm test``` or via the vscode debug mode.
  */
 BeforeAll({
-  timeout: 30000
+  timeout: 100000
 }, function () {
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
     const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw.cmd' : 'mvnw');
-    const args = [mavenScriptToRun, 'azure-functions:run'];
+    const args = [mavenScriptToRun, '--offline', 'azure-functions:run'];
     const azFunctionSpawnConfig = {
       cwd: path.parse(process.cwd()).dir,
     };
@@ -37,14 +37,17 @@ BeforeAll({
     processes.useraccountservice.functionapp
       .processEventEmitter.stdout.on('data', (data) => {
         if( /Application started\. Press Ctrl\+C to shut down./.test(data)) {
-          console.log(`stdout: ${data}`);
+          console.log(`Function App stdout: ${data}`);
           processes.useraccountservice.functionapp.promiseResolved = true;
 
           /* Close Process Streams as they are not needed */
           processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
           processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
           processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
+
           resolve("Function App Ready!");
+        } else if(/((Starting)|(istening))/.test(data)){
+          console.log(`Function App stdout: ${data}`);
         } else if(
           (!processes.useraccountservice.functionapp.promiseResolved) && 
           /ERROR\]?/.test(data)
@@ -55,7 +58,7 @@ BeforeAll({
       
     processes.useraccountservice.functionapp
       .processEventEmitter.stderr.on('data', (data) => {
-        console.error(`stderr: ${data}`);
+        console.error(`Function App stderr: ${data}`);
         reject(data);
       });
   })
