@@ -15,7 +15,7 @@ Then(/I should get a status code (\d{3})/, function (expectedCode) {
     ]);
 });
 
-Then(/the response should contain all the keys and values set from \'(\w+)\'/, function (nameOfSchemaOfExpectedContents) {
+Then(/the response should be a superset of all the keys and values set from \'(\w+)\'/, function (nameOfSchemaOfExpectedContents) {
     return Promise.all([
         expect(this.world.response).to.eventually.satisfy(function(response) {
             return expect(response.data).to.deep.include(payloads[nameOfSchemaOfExpectedContents]);
