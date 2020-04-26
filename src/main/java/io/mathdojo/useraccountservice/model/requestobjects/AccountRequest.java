@@ -2,9 +2,12 @@ package io.mathdojo.useraccountservice.model.requestobjects;
 
 import java.util.Objects;
 
+import javax.validation.constraints.NotNull;
+
 public class AccountRequest {
     private boolean accountVerified;
 
+    @NotNull
     private String name;
 
     private String profileImageLink;
