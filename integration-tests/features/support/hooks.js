@@ -40,6 +40,10 @@ BeforeAll({
           console.log(`stdout: ${data}`);
           processes.useraccountservice.functionapp.promiseResolved = true;
 
+          /* Close Process Streams as they are not needed */
+          processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
+          processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
+          processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
           resolve("Function App Ready!");
         } else if(
           (!processes.useraccountservice.functionapp.promiseResolved) && 
