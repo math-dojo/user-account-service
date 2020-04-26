@@ -16,12 +16,7 @@ When(/I make a (\w+) to the function at \'(.*)\'/, function (httpMethod, path) {
     method: httpMethod,
     validateStatus: function (status) {
       return status >= 200 && status < 503; // default
-    },
-  })
-  .catch(error => {
-    return Promise.reject(`There was a problem making the request: ${error}`);
+    }
   });
-
-  return this.world.response;
 });
 
