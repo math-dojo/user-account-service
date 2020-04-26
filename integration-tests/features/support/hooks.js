@@ -1,5 +1,4 @@
 // jshint esversion: 6
-const log = require('why-is-node-running');
 const {BeforeAll, Before, AfterAll} = require('cucumber');
 const { spawn, execSync } = require('child_process');
 const path = require('path');
@@ -77,7 +76,6 @@ AfterAll(function() {
     processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
     processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
     execSync('kill $(lsof -t -i :7071)');
-    log();
   });
 });
 
