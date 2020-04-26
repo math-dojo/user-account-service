@@ -7,6 +7,8 @@ import java.security.SignatureException;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import javax.validation.ConstraintViolationException;
+
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
 import com.microsoft.azure.functions.HttpRequestMessage;
@@ -60,8 +62,11 @@ public class PostOrganisationsHandler extends AzureSpringBootRequestHandler<Acco
                     .body(createdOrg)
                     .build();
 
-            } catch (Exception e) {
+            } catch (ConstraintViolationException e) {
                 return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                    .build();
+            } catch (Exception e) {
+                return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
             }
 

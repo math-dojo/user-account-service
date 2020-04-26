@@ -4,19 +4,20 @@ import java.util.UUID;
 
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
+import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 
 public class OrganisationService {
 
     public String aString = "hii";
 
     public OrganisationService() {
-        
     }
 
     public Organisation createNewOrganisation(AccountRequest request) {
-        return new Organisation(UUID.randomUUID().toString(),false, 
-            request.getName(), request.getProfileImageLink());
+        ValidatorSingleton.validateObject(request);
+        return new Organisation(UUID.randomUUID().toString(), false, request.getName(), request.getProfileImageLink());
     }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
