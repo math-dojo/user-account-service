@@ -46,6 +46,16 @@
         <artifactId>applicationinsights-spring-boot-starter</artifactId>
         <version>2.5.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.2.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <version>3.0.3</version>
+        </dependency>
 
         <!-- Test -->
         <dependency>
