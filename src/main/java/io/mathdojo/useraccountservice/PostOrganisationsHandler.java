@@ -34,7 +34,7 @@ public class PostOrganisationsHandler extends AzureSpringBootRequestHandler<Acco
             route = "organisations"
         ) HttpRequestMessage<Optional<AccountRequest>> request,
         ExecutionContext context) {
-            if (!System.getenv("MATH_DOJO_ENV_NAME").equals("local")) {
+            if (!"local".equals(System.getenv("MATH_DOJO_ENV_NAME"))) {
                 try {
                     boolean verificationResult = HTTPRequestSignatureVerifierSingleton
                         .getInstance().verifySignatureHeader(request.getHeaders(),
@@ -55,8 +55,9 @@ public class PostOrganisationsHandler extends AzureSpringBootRequestHandler<Acco
             }
 
             try {
+                Organisation createdOrg = handleRequest(request.getBody().get(), context);
                 return request.createResponseBuilder(HttpStatus.CREATED)
-                    .body(handleRequest(request.getBody().get(), context))
+                    .body(createdOrg)
                     .build();
 
             } catch (Exception e) {
