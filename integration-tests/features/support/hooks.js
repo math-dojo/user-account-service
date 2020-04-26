@@ -7,7 +7,7 @@ let processes = {};
 processes.useraccountservice = {
     functionapp: {
       processEventEmitter: undefined,
-      promise: new Promise((resolve, reject) => {})
+      promiseResolved: false
     },
     database: {
       processEventEmitter: undefined,
@@ -38,8 +38,13 @@ BeforeAll({
       .processEventEmitter.stdout.on('data', (data) => {
         if( /Application started\. Press Ctrl\+C to shut down./.test(data)) {
           console.log(`stdout: ${data}`);
+          processes.useraccountservice.functionapp.promiseResolved = true;
+
           resolve("Function App Ready!");
-        } else if(/\[?ERROR\]?/g.test(data)){
+        } else if(
+          (!processes.useraccountservice.functionapp.promiseResolved) && 
+          /ERROR\]?/.test(data)
+        ){
           reject(data);
         }
       });
