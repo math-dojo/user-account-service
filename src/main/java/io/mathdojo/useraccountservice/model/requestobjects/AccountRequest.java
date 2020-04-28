@@ -1,5 +1,6 @@
 package io.mathdojo.useraccountservice.model.requestobjects;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
@@ -16,6 +17,16 @@ public class AccountRequest {
         
     }
 
+    /** 
+	 * Creates an instance of the AccountRequest class
+	 * <p>
+	 * 
+	 * @param accountVerified the status of the account being created
+	 * @param name the name of the prospective account holder
+     * @param profileImageLink an image of the profile user to be created
+     * 
+	 * @throws NoSuchAlgorithmException
+	 */
     public AccountRequest(boolean accountVerified, String name, String profileImageLink) {
         this.accountVerified = accountVerified;
         this.name = name;
