@@ -37,7 +37,7 @@ public class OrganisationServiceTest {
     }
 
     @Test
-    public void throwsExceptionIfAccountRequestParamsValidForCreatNewOrganisation() {
+    public void throwsExceptionIfAccountRequestWithNullNameForCreateNewOrganisation() {
         boolean accountVerificationStatus = false;
         String name = null;
         String profileImageLink = "https://my.image.domain/super.gif";
@@ -50,6 +50,24 @@ public class OrganisationServiceTest {
 
         String exceptionMessage = exception.getMessage();
         assertEquals("name: no puede ser null", 
+        exceptionMessage);
+        
+    }
+
+    @Test
+    public void throwsExceptionIfAccountRequestWithTrueVerificationStatusForCreateNewOrganisation() {
+        boolean accountVerificationStatus = true;
+        String name = "bob yourunclde";
+        String profileImageLink = "https://my.image.domain/super.gif";
+
+        AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink);
+
+        Exception exception = assertThrows(ConstraintViolationException.class,() -> {
+            organisationService.createNewOrganisation(newRequest);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("a new organisation cannot be created with a true verification status", 
         exceptionMessage);
         
     }
