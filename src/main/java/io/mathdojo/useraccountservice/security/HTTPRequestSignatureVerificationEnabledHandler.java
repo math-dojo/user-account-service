@@ -13,7 +13,11 @@ import com.microsoft.azure.functions.HttpStatus;
 
 import org.springframework.cloud.function.adapter.azure.AzureSpringBootRequestHandler;
 
-public abstract class HTTPRequestSignatureVerificationEnabledHandler<I, O> extends AzureSpringBootRequestHandler<I, O> {
+import io.mathdojo.useraccountservice.services.SystemService;
+
+public class HTTPRequestSignatureVerificationEnabledHandler<I, O> extends AzureSpringBootRequestHandler<I, O> {
+    private final SystemService systemService = new SystemService();
+
     public HTTPRequestSignatureVerificationEnabledHandler(Class<?> configurationClass) {
         super(configurationClass);
     }
@@ -23,7 +27,7 @@ public abstract class HTTPRequestSignatureVerificationEnabledHandler<I, O> exten
     }
     
     public Object handleRequest(HttpRequestMessage<Optional<I>> request, I inputObjectToBeHandled, ExecutionContext context) {
-            if (!"local".equals(System.getenv("MATH_DOJO_ENV_NAME"))) {
+            if (!"local".equals(this.getSystemService().getFunctionEnv())) {
                 try {
                     boolean verificationResult = HTTPRequestSignatureVerifierSingleton
                         .getInstance().verifySignatureHeader(request.getHeaders(),
@@ -43,7 +47,15 @@ public abstract class HTTPRequestSignatureVerificationEnabledHandler<I, O> exten
                 }
             }
             return super.handleRequest(inputObjectToBeHandled, context);
-    }
-    
-    
+    } 
+
+    /**
+     * This exposes the systemService being used for the purposes of mocking
+     * in unit tests
+     * @return SystemService
+     */
+    public SystemService getSystemService() {
+		return systemService;
+	}
+       
 }
