@@ -8,40 +8,51 @@ import static org.mockito.Mockito.when;
 import java.util.logging.Logger;
 
 import com.microsoft.azure.functions.ExecutionContext;
+import com.microsoft.azure.functions.HttpRequestMessage;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.cloud.function.adapter.azure.AzureSpringBootRequestHandler;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
+import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
+import io.mathdojo.useraccountservice.services.SystemService;
 
 @RunWith(SpringRunner.class)
 public class UserAccountServiceApplicationTest {
 
     private ExecutionContext mockExecContext;
+    private HttpRequestMessage mockMessage;
+    private SystemService mockSystemService;
 
     @Before
     public void setUp() {
         Logger testLogger = mock(Logger.class);
         mockExecContext = mock(ExecutionContext.class);
+        mockMessage = mock(HttpRequestMessage.class);
+        mockSystemService = mock(SystemService.class);
+        when(mockSystemService.getFunctionEnv()).thenReturn("local");
+
         Mockito.when(mockExecContext.getLogger()).thenReturn(testLogger);
+
     }
 
     @Test
     public void testPostForDummyUserHandler() throws Exception {
-        AzureSpringBootRequestHandler<DummyUser, Greeting> handler = new AzureSpringBootRequestHandler<>(
+        HTTPRequestSignatureVerificationEnabledHandler<DummyUser, Greeting> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                 UserAccountServiceApplication.class);
+        HTTPRequestSignatureVerificationEnabledHandler<DummyUser, Greeting> handlerSpy = Mockito.spy(handler);
+        Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
         when(mockExecContext.getFunctionName()).thenReturn("hello");
-        Greeting result = handler.handleRequest(new DummyUser("foo"), mockExecContext);
-        handler.close();
+
+        Greeting result = (Greeting) handlerSpy.handleRequest(mockMessage, new DummyUser("foo"), mockExecContext);
+        handlerSpy.close();
         assertThat(result.getMessage()).isEqualTo("Welcome, foo");
     }
 
@@ -49,11 +60,14 @@ public class UserAccountServiceApplicationTest {
 
     @Test
     public void testPostOrganisationsHandlerReturnsCreatedOrg() throws Exception {
-        AzureSpringBootRequestHandler<AccountRequest, Organisation> handler = new AzureSpringBootRequestHandler<>(
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                 UserAccountServiceApplication.class);
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handlerSpy = Mockito.spy(handler);
+        Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+        
         when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
         String profileImageLink = "https://profileImageLink";
-        Organisation result = handler.handleRequest(new AccountRequest(false, "foo", profileImageLink), mockExecContext);
+        Organisation result = (Organisation) handlerSpy.handleRequest(mockMessage, new AccountRequest(false, "foo", profileImageLink), mockExecContext);
         handler.close();
         assertThat(result.getName()).isEqualTo("foo");
         assertThat(result.getProfileImageLink()).isEqualTo(profileImageLink);
