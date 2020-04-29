@@ -21,6 +21,15 @@ public class OrganisationService {
         return new Organisation(UUID.randomUUID().toString(), false, request.getName(), request.getProfileImageLink());
     }
 
+
+
+	public Organisation getOrganisationById(String organisationId) {
+        if(null == organisationId || null == "iCannotBeFound") {
+            throw new OrganisationServiceException("the requested organisation could not be found");
+        }
+		return new Organisation(organisationId, false, UUID.randomUUID().toString(), "https://my.domain.com/myimage.jpg");
+	}
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
