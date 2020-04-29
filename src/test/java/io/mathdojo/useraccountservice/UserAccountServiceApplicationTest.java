@@ -1,6 +1,7 @@
 package io.mathdojo.useraccountservice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,12 +48,15 @@ public class UserAccountServiceApplicationTest {
     // TODO #5: Write automated integration to check that unauthorized is returned if no signature added
 
     @Test
-    public void testPostOrganisationsHandler() throws Exception {
+    public void testPostOrganisationsHandlerReturnsCreatedOrg() throws Exception {
         AzureSpringBootRequestHandler<AccountRequest, Organisation> handler = new AzureSpringBootRequestHandler<>(
                 UserAccountServiceApplication.class);
         when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
-        Organisation result = handler.handleRequest(new AccountRequest(false, "foo", "https://profileImageLink"), mockExecContext);
+        String profileImageLink = "https://profileImageLink";
+        Organisation result = handler.handleRequest(new AccountRequest(false, "foo", profileImageLink), mockExecContext);
         handler.close();
         assertThat(result.getName()).isEqualTo("foo");
+        assertThat(result.getProfileImageLink()).isEqualTo(profileImageLink);
+        assertFalse(result.isAccountVerified());
     }
 }
