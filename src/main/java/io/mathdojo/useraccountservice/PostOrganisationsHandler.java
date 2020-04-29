@@ -16,6 +16,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
+import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 
 public class PostOrganisationsHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> {
 
@@ -35,7 +36,7 @@ public class PostOrganisationsHandler extends HTTPRequestSignatureVerificationEn
                     .body(createdOrg)
                     .build();
 
-            } catch (ConstraintViolationException e) {
+            } catch (ConstraintViolationException | OrganisationServiceException e) {
                 return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
                     .build();
             } catch (Exception e) {
