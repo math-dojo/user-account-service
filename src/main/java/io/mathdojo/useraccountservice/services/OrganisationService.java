@@ -13,8 +13,11 @@ public class OrganisationService {
     public OrganisationService() {
     }
 
-    public Organisation createNewOrganisation(AccountRequest request) {
+    public Organisation createNewOrganisation(AccountRequest request) throws OrganisationServiceException {
         ValidatorSingleton.validateObject(request);
+        if(true == request.isAccountVerified()) {
+            throw new OrganisationServiceException("a new organisation cannot be created with a true verification status");
+        }
         return new Organisation(UUID.randomUUID().toString(), false, request.getName(), request.getProfileImageLink());
     }
 

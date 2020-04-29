@@ -21,7 +21,7 @@ public class OrganisationServiceTest {
     }
 
     @Test
-    public void createNewOrganisationIfAccountRequestParamsValid() {
+    public void createNewOrganisationIfAccountRequestParamsValid() throws OrganisationServiceException {
         boolean accountVerificationStatus = false;
         String name = "fizz buzz";
         String profileImageLink = "https://my.image.domain/super.gif";
@@ -62,7 +62,7 @@ public class OrganisationServiceTest {
 
         AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink);
 
-        Exception exception = assertThrows(ConstraintViolationException.class,() -> {
+        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
             organisationService.createNewOrganisation(newRequest);
         });
 
