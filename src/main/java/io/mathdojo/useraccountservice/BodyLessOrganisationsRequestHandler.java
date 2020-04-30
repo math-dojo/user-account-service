@@ -32,7 +32,7 @@ public class BodyLessOrganisationsRequestHandler
 
             try {
                 Organisation createdOrg = (Organisation) handleRequest(request, orgId, context);
-                return request.createResponseBuilder(HttpStatus.CREATED)
+                return request.createResponseBuilder(HttpStatus.OK)
                     .body(createdOrg)
                     .build();
 
