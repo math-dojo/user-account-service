@@ -56,21 +56,21 @@ public class UserAccountServiceApplicationTest {
         assertThat(result.getMessage()).isEqualTo("Welcome, foo");
     }
 
-    // TODO #5: Write automated integration to check that unauthorized is returned if no signature added
-
     @Test
     public void testPostOrganisationsHandlerReturnsCreatedOrg() throws Exception {
         HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                 UserAccountServiceApplication.class);
         HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handlerSpy = Mockito.spy(handler);
         Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
-        
+
         when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
         String profileImageLink = "https://profileImageLink";
-        Organisation result = (Organisation) handlerSpy.handleRequest(mockMessage, new AccountRequest(false, "foo", profileImageLink), mockExecContext);
+        Organisation result = (Organisation) handlerSpy.handleRequest(mockMessage,
+                new AccountRequest(false, "foo", profileImageLink), mockExecContext);
         handler.close();
         assertThat(result.getName()).isEqualTo("foo");
         assertThat(result.getProfileImageLink()).isEqualTo(profileImageLink);
         assertFalse(result.isAccountVerified());
     }
+
 }
