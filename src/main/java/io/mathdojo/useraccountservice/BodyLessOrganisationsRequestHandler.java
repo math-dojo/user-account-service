@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
+import com.microsoft.azure.functions.annotation.BindingName;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
@@ -24,12 +25,13 @@ public class BodyLessOrganisationsRequestHandler
             name = "request", 
             methods = { HttpMethod.GET }, 
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "organisations"
+            route = "organisations/{orgId:alpha}"
         ) HttpRequestMessage<Optional<String>> request,
+        @BindingName("orgId") String orgId,
         ExecutionContext context) {
 
             try {
-                Organisation createdOrg = (Organisation) handleRequest(request, request.getBody().get(), context);
+                Organisation createdOrg = (Organisation) handleRequest(request, orgId, context);
                 return request.createResponseBuilder(HttpStatus.CREATED)
                     .body(createdOrg)
                     .build();
