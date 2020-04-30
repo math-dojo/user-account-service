@@ -24,4 +24,12 @@ public class SystemService {
         }
     }
 
+	public String getVerifierPublicKey() {
+		return System.getenv("MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY");
+	}
+
+	public String getVerifierPublicKeyId() {
+		return System.getenv("MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID");
+	}
+
 }

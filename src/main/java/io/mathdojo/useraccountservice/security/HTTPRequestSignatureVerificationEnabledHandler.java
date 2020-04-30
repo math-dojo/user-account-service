@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -29,8 +31,10 @@ public class HTTPRequestSignatureVerificationEnabledHandler<I, O> extends AzureS
     public Object handleRequest(HttpRequestMessage<Optional<I>> request, I inputObjectToBeHandled, ExecutionContext context) {
             if (!"local".equals(this.getSystemService().getFunctionEnv())) {
                 try {
-                    boolean verificationResult = HTTPRequestSignatureVerifierSingleton
-                        .getInstance().verifySignatureHeader(request.getHeaders(),
+                    boolean verificationResult = this.getVerifier(
+                        this.getSystemService().getVerifierPublicKeyId(),
+                        this.getSystemService().getVerifierPublicKey()
+                    ).verifySignatureHeader(request.getHeaders(),
                         request.getUri().getPath(), request.getHttpMethod());
                     if(!verificationResult) {
                         return request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
@@ -56,6 +60,20 @@ public class HTTPRequestSignatureVerificationEnabledHandler<I, O> extends AzureS
      */
     public SystemService getSystemService() {
 		return systemService;
-	}
+    }
+
+    private HTTPRequestSignatureVerifier getVerifier(String expectedKeyId, String expectB64PublicKeyDerString) throws NoSuchAlgorithmException {
+            System.out.println("Initialising Request Verification Class");
+            return createVerifier(expectedKeyId,
+                expectB64PublicKeyDerString);
+    }
+    
+        // getters and setters
+    private HTTPRequestSignatureVerifier createVerifier(String expectedKeyId, String b64EncDerOfPublicKey)
+            throws NoSuchAlgorithmException {
+        Map<String, String> mapOfKeyIdAndB64EncDerPubKey = Collections.singletonMap(expectedKeyId,
+                b64EncDerOfPublicKey);
+        return new HTTPRequestSignatureVerifier(mapOfKeyIdAndB64EncDerPubKey);
+    }
        
 }
