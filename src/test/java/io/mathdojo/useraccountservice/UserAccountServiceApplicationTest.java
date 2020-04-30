@@ -73,4 +73,17 @@ public class UserAccountServiceApplicationTest {
         assertFalse(result.isAccountVerified());
     }
 
+    @Test
+    public void testGetOrganisationsByIdReturnsAnOrgIfPresent() throws Exception {
+        HTTPRequestSignatureVerificationEnabledHandler<String, Organisation> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                UserAccountServiceApplication.class);
+        HTTPRequestSignatureVerificationEnabledHandler<String, Organisation> handlerSpy = Mockito.spy(handler);
+        Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+        when(mockExecContext.getFunctionName()).thenReturn("getOrganisationById");
+
+        Organisation result = (Organisation) handlerSpy.handleRequest(mockMessage, "myCustomOrgId", mockExecContext);
+        handler.close();
+        assertThat(result.getId()).isEqualTo("myCustomOrgId");
+    }
 }
