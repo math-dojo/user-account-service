@@ -35,6 +35,20 @@ public class ServiceConfig {
     }
 
     @Bean
+    public Function<String, Organisation> getOrganisationById(ExecutionContext context) {
+        
+        return organisationId -> {
+            context.getLogger().info("About to retrieve a known org fam!!");
+            /*
+             * return new
+             * Organisation(UUID.randomUUID().toString(),accountRequest.isAccountVerified(),
+             * accountRequest.getName(), accountRequest.getProfileImageLink());
+             */
+            return OrganisationServiceSingleton.getInstance().getOrganisationById(organisationId);
+        };
+    }
+
+    @Bean
     public Function<DummyUser, Greeting> hello(final ExecutionContext context) {
         return user -> {
             context.getLogger().info("yo, yo yo in the building homie!!!");
