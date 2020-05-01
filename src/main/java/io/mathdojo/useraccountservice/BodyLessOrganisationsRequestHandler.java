@@ -1,6 +1,7 @@
 package io.mathdojo.useraccountservice;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
@@ -41,6 +42,7 @@ public class BodyLessOrganisationsRequestHandler
                     .body(e.getMessage())
                     .build();
             } catch (Exception e) {
+                context.getLogger().log(Level.WARNING, "Attempt to get organisationBy Id failed because: " + e.getLocalizedMessage());
                 return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
             }
