@@ -42,7 +42,7 @@ public class BodyLessOrganisationsRequestHandler
                     .body(e.getMessage())
                     .build();
             } catch (Exception e) {
-                context.getLogger().log(Level.WARNING, "Attempt to get organisationBy Id failed because: " + e.getLocalizedMessage());
+                context.getLogger().log(Level.WARNING, "Attempt to get organisationBy Id failed", e);
                 return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
             }
