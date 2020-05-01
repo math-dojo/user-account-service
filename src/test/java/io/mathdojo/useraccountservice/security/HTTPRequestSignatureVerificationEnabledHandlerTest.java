@@ -63,17 +63,16 @@ public class HTTPRequestSignatureVerificationEnabledHandlerTest {
             .encodeToString(keyPair.getPublic().getEncoded());
         when(mockSystemService.getVerifierPublicKey()).thenReturn(encodedPublicKeyString);
 
-        // the response build fails
-        HttpResponseMessage tMessage = mock(HttpResponseMessage.class);
-        HttpResponseMessage.Builder mockBuilder = mock(HttpResponseMessage.Builder.class);
+        HttpResponseMessage mockResponseMessage = mock(HttpResponseMessage.class);
+        HttpResponseMessage.Builder mockResponseMessageBuilder = mock(HttpResponseMessage.Builder.class);
         
         when(mockMessage.getHeaders()).thenReturn(new HashMap<>());
         when(mockMessage.getUri()).thenReturn(new URI("https", "my.server.com", "/path"));
         when(mockMessage.getHttpMethod()).thenReturn(HttpMethod.GET);
-        when(mockMessage.createResponseBuilder(HttpStatus.UNAUTHORIZED)).thenReturn(mockBuilder);
-        when(mockBuilder.body(anyString())).thenReturn(mockBuilder);
-        when(mockBuilder.build()).thenReturn(tMessage);
-        when(tMessage.getStatus()).thenReturn(HttpStatus.UNAUTHORIZED);
+        when(mockMessage.createResponseBuilder(HttpStatus.UNAUTHORIZED)).thenReturn(mockResponseMessageBuilder);
+        when(mockResponseMessageBuilder.body(anyString())).thenReturn(mockResponseMessageBuilder);
+        when(mockResponseMessageBuilder.build()).thenReturn(mockResponseMessage);
+        when(mockResponseMessage.getStatus()).thenReturn(HttpStatus.UNAUTHORIZED);
         
         when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
         String profileImageLink = "https://profileImageLink";
