@@ -1,5 +1,5 @@
 package io.mathdojo.useraccountservice;
-import java.security.NoSuchAlgorithmException;
+
 import java.util.Optional;
 
 import com.microsoft.azure.functions.ExecutionContext;
@@ -11,8 +11,8 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
-import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.DummyUser;
+import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
 
 public class HelloHandler extends HTTPRequestSignatureVerificationEnabledHandler<DummyUser, Greeting> {
@@ -20,7 +20,7 @@ public class HelloHandler extends HTTPRequestSignatureVerificationEnabledHandler
     @FunctionName("hello")
     public HttpResponseMessage execute(@HttpTrigger(name = "request", methods = { HttpMethod.GET,
             HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<DummyUser>> request,
-            ExecutionContext context) throws NoSuchAlgorithmException {
+            ExecutionContext context) {
 
         context.getLogger().info("URI path is: "+request.getUri().getPath());
         context.getLogger().info("Got headers: ");
