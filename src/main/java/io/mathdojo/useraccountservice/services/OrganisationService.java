@@ -15,20 +15,20 @@ public class OrganisationService {
 
     public Organisation createNewOrganisation(AccountRequest request) throws OrganisationServiceException {
         ValidatorSingleton.validateObject(request);
-        if(true == request.isAccountVerified()) {
-            throw new OrganisationServiceException("a new organisation cannot be created with a true verification status");
+        if (true == request.isAccountVerified()) {
+            throw new OrganisationServiceException(
+                    "a new organisation cannot be created with a true verification status");
         }
         return new Organisation(UUID.randomUUID().toString(), false, request.getName(), request.getProfileImageLink());
     }
 
-
-
-	public Organisation getOrganisationById(String organisationId) {
-        if(null == organisationId || null == "iCannotBeFound") {
+    public Organisation getOrganisationById(String organisationId) throws OrganisationServiceException {
+        if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
             throw new OrganisationServiceException("the requested organisation could not be found");
         }
-		return new Organisation(organisationId, false, UUID.randomUUID().toString(), "https://my.domain.com/myimage.jpg");
-	}
+        return new Organisation(organisationId, false, UUID.randomUUID().toString(),
+                "https://my.domain.com/myimage.jpg");
+    }
 
     @Override
     public String toString() {
