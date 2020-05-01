@@ -25,11 +25,6 @@ public class ServiceConfig {
         
         return accountRequest -> {
             context.getLogger().info("About to create a new org fam!!");
-            /*
-             * return new
-             * Organisation(UUID.randomUUID().toString(),accountRequest.isAccountVerified(),
-             * accountRequest.getName(), accountRequest.getProfileImageLink());
-             */
             return OrganisationServiceSingleton.getInstance().createNewOrganisation(accountRequest);
         };
     }
@@ -39,11 +34,6 @@ public class ServiceConfig {
         
         return organisationId -> {
             context.getLogger().info("About to retrieve a known org fam!!");
-            /*
-             * return new
-             * Organisation(UUID.randomUUID().toString(),accountRequest.isAccountVerified(),
-             * accountRequest.getName(), accountRequest.getProfileImageLink());
-             */
             return OrganisationServiceSingleton.getInstance().getOrganisationById(organisationId);
         };
     }
