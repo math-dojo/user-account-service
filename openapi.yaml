@@ -287,8 +287,8 @@ components:
     AccountType:
       type: string
       enum:
-        - "user"
-        - "organisation"
+        - "USER"
+        - "ORGANISATION"
     UserPermission:
       type: string
       enum:
