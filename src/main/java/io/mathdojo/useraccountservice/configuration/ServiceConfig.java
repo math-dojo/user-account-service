@@ -16,6 +16,10 @@ import io.mathdojo.useraccountservice.services.OrganisationServiceSingleton;
 @Configuration
 public class ServiceConfig {
 
+    public ServiceConfig() {
+        OrganisationServiceSingleton.getInstance();
+    }    
+
     @Bean
     public Function<AccountRequest, Organisation> createOrganisation(ExecutionContext context) {
         
