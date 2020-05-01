@@ -2,6 +2,7 @@ package io.mathdojo.useraccountservice.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.validation.ConstraintViolationException;
 
@@ -49,9 +50,7 @@ public class OrganisationServiceTest {
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals("name: no puede ser null", 
-        exceptionMessage);
-        
+        assertTrue(exceptionMessage.contains("no") && exceptionMessage.contains("null"));        
     }
 
     @Test
