@@ -1,6 +1,7 @@
 package io.mathdojo.useraccountservice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,7 +68,7 @@ public class UserAccountServiceApplicationTest {
         String profileImageLink = "https://profileImageLink";
         Organisation result = (Organisation) handlerSpy.handleRequest(mockMessage,
                 new AccountRequest(false, "foo", profileImageLink), mockExecContext);
-        handler.close();
+        handlerSpy.close();
         assertThat(result.getName()).isEqualTo("foo");
         assertThat(result.getProfileImageLink()).isEqualTo(profileImageLink);
         assertFalse(result.isAccountVerified());
@@ -83,7 +84,7 @@ public class UserAccountServiceApplicationTest {
         when(mockExecContext.getFunctionName()).thenReturn("getOrganisationById");
 
         Organisation result = (Organisation) handlerSpy.handleRequest(mockMessage, "myCustomOrgId", mockExecContext);
-        handler.close();
+        handlerSpy.close();
         assertThat(result.getId()).isEqualTo("myCustomOrgId");
     }
 }
