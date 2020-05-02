@@ -26,7 +26,7 @@ Feature: Features related to Organisation Management
   @deleteOrganisationsById
   Scenario: DELETE to /organisations with pre-conditioned knownOrgId returns a known org
     When I make a DELETE to the function at '/organisations/knownOrgId'
-    Then I should get a status code 200
+    Then I should get a status code 204
 
   @deleteOrganisationsById @errorHandling
   Scenario: DELETE to /organisations with pre-conditioned unknownOrganisationId returns 404
