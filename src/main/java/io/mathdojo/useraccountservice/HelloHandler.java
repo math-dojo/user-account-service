@@ -29,7 +29,7 @@ public class HelloHandler extends HTTPRequestSignatureVerificationEnabledHandler
         context.getLogger().info("Greeting user name: " + request.getBody().get().getName());
 
         return request.createResponseBuilder(HttpStatus.OK)
-                .body(handleRequest(request.getBody().get(), context))
+                .body(handleRequest(request, request.getBody().get(), context))
                 .build();
     }
 }
