@@ -30,6 +30,13 @@ public class OrganisationService {
                 "https://my.domain.com/myimage.jpg");
     }
 
+
+	public void deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
+        if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
+            throw new OrganisationServiceException("the specified organisation could not be found");
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
