@@ -87,4 +87,18 @@ public class UserAccountServiceApplicationTest {
         handlerSpy.close();
         assertThat(result.getId()).isEqualTo("myCustomOrgId");
     }
+
+    @Test
+    public void testDeleteOrganisationsThrowsNoErrorIfSuccessful() throws Exception {
+        HTTPRequestSignatureVerificationEnabledHandler<String, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                UserAccountServiceApplication.class);
+        HTTPRequestSignatureVerificationEnabledHandler<String, String> handlerSpy = Mockito.spy(handler);
+        Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+        when(mockExecContext.getFunctionName()).thenReturn("deleteOrganisationById");
+        assertDoesNotThrow(() -> {
+            handlerSpy.handleRequest(mockMessage, "myCustomOrgId", mockExecContext);
+            handlerSpy.close();
+        });
+    }
 }

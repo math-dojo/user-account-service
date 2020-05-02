@@ -1,5 +1,6 @@
 package io.mathdojo.useraccountservice.configuration;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.microsoft.azure.functions.ExecutionContext;
@@ -43,6 +44,14 @@ public class ServiceConfig {
         return user -> {
             context.getLogger().info("yo, yo yo in the building homie!!!");
             return new Greeting("Welcome, " + user.getName(), new String[]{"I am some stuff!", "Other Stuff"});
+        };
+    }
+
+    @Bean 
+    public Consumer<String> deleteOrganisationById(final ExecutionContext context) {
+        return organisationId -> {
+            context.getLogger().info("About to delete organisation: "+organisationId);
+            OrganisationServiceSingleton.getInstance().deleteOrganisationWithId(organisationId);
         };
     }
 }
