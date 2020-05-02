@@ -70,4 +70,33 @@ public class OrganisationServiceTest {
         exceptionMessage);
         
     }
+
+    @Test
+    public void throwsExceptionIfDeleteForNull() {
+
+        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.deleteOrganisationWithId(null);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("the specified organisation could not be found", exceptionMessage);
+        
+    }
+
+    @Test
+    public void throwsExceptionIfDeleteForPreconditionedNonExistentOrg() {
+
+        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.deleteOrganisationWithId("unknownOrganisationId");
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("the specified organisation could not be found", exceptionMessage);
+        
+    }
+
+    @Test
+    public void throwsNoErrorIfDeletingForValidOrgId() {
+        organisationService.deleteOrganisationWithId("knownOrganisationId");        
+    }
 }
