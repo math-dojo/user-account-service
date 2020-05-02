@@ -18,24 +18,24 @@ import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationE
 
 public class HelloHandler extends HTTPRequestSignatureVerificationEnabledHandler<DummyUser, Greeting> {
 
-    @FunctionName("hello")
-    public HttpResponseMessage execute(@HttpTrigger(name = "request", methods = { HttpMethod.GET,
-            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<DummyUser>> request,
-            ExecutionContext context) {
+        @FunctionName("hello")
+        public HttpResponseMessage execute(@HttpTrigger(name = "request", methods = { HttpMethod.GET,
+                        HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<DummyUser>> request,
+                        ExecutionContext context) {
 
                 context.getLogger().info("URI path is: " + request.getUri().getPath());
-        context.getLogger().info("Got headers: ");
-        request.getHeaders().forEach((eachKey, eachValue) -> context.getLogger()
-                .info("Got header " + eachKey + " with value: " + eachValue));
-        context.getLogger().info("Greeting user name: " + request.getBody().get().getName());
+                context.getLogger().info("Got headers: ");
+                request.getHeaders().forEach((eachKey, eachValue) -> context.getLogger()
+                                .info("Got header " + eachKey + " with value: " + eachValue));
+                context.getLogger().info("Greeting user name: " + request.getBody().get().getName());
 
                 try {
-        return request.createResponseBuilder(HttpStatus.OK)
+                        return request.createResponseBuilder(HttpStatus.OK)
                                 .body(handleRequest(request, request.getBody().get(), context)).build();
 
                 } catch (Exception e) {
                         context.getLogger().log(Level.WARNING, "Hello handler failed", e);
                         return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 }
-    }
+        }
 }
