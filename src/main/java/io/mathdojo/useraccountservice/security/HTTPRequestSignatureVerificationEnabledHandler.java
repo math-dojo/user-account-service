@@ -48,6 +48,13 @@ public class HTTPRequestSignatureVerificationEnabledHandler<I, O> extends AzureS
                         return request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
                             .body("signature verification failed")
                             .build();
+                } catch(Exception e) {
+                        context.getLogger().log(
+                            Level.WARNING, "signature verification failed for an uknown reason", e);
+                        return request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
+                            .body("signature verification failed")
+                            .build();
+
                 }
             }
             return super.handleRequest(inputObjectToBeHandled, context);
