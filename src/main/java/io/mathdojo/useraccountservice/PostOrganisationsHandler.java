@@ -32,7 +32,11 @@ public class PostOrganisationsHandler extends HTTPRequestSignatureVerificationEn
         ExecutionContext context) {
 
             try {
-                Organisation createdOrg = (Organisation) handleRequest(request, request.getBody().get(), context);
+                Object handledRequest = handleRequest(request, request.getBody().get(), context);
+                if(handledRequest instanceof HttpResponseMessage) {
+                    return (HttpResponseMessage) handledRequest;
+                }
+                Organisation createdOrg = (Organisation) handledRequest;
                 return request.createResponseBuilder(HttpStatus.CREATED)
                     .body(createdOrg)
                     .build();

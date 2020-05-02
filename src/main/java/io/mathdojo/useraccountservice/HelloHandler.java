@@ -30,8 +30,12 @@ public class HelloHandler extends HTTPRequestSignatureVerificationEnabledHandler
                 context.getLogger().info("Greeting user name: " + request.getBody().get().getName());
 
                 try {
-                        return request.createResponseBuilder(HttpStatus.OK)
-                                .body(handleRequest(request, request.getBody().get(), context)).build();
+                        Object handledRequest = handleRequest(request, request.getBody().get(), context);
+                        if (handledRequest instanceof HttpResponseMessage) {
+                                return (HttpResponseMessage) handledRequest;
+                        }
+                        DummyUser dummyUser = (DummyUser) handledRequest;
+                        return request.createResponseBuilder(HttpStatus.OK).body(dummyUser).build();
 
                 } catch (Exception e) {
                         context.getLogger().log(Level.WARNING, "Hello handler failed", e);

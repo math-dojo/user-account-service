@@ -32,7 +32,11 @@ public class BodyLessOrganisationsRequestHandler
         ExecutionContext context) {
 
             try {
-                Organisation createdOrg = (Organisation) handleRequest(request, orgId, context);
+                Object handledRequest = handleRequest(request, orgId, context);
+                if(handledRequest instanceof HttpResponseMessage) {
+                    return (HttpResponseMessage) handledRequest;
+                }
+                Organisation createdOrg = (Organisation) handledRequest;
                 return request.createResponseBuilder(HttpStatus.OK)
                     .body(createdOrg)
                     .build();
