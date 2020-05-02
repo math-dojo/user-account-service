@@ -1,6 +1,7 @@
 package io.mathdojo.useraccountservice;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 import javax.validation.ConstraintViolationException;
 
@@ -40,6 +41,8 @@ public class PostOrganisationsHandler extends HTTPRequestSignatureVerificationEn
                 return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
                     .build();
             } catch (Exception e) {
+                context.getLogger().log(
+                            Level.WARNING, "Organisation creation failed", e);
                 return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
             }
