@@ -22,3 +22,13 @@ Feature: Features related to Organisation Management
   Scenario: GET to /organisations with pre-conditioned unknownOrganisationId returns 404
     When I make a GET to the function at '/organisations/unknownOrganisationId'
     Then I should get a status code 404
+
+  @deleteOrganisationsById
+  Scenario: DELETE to /organisations with pre-conditioned knownOrgId returns a known org
+    When I make a DELETE to the function at '/organisations/knownOrgId'
+    Then I should get a status code 200
+
+  @deleteOrganisationsById @errorHandling
+  Scenario: DELETE to /organisations with pre-conditioned unknownOrganisationId returns 404
+    When I make a DELETE to the function at '/organisations/unknownOrganisationId'
+    Then I should get a status code 404
