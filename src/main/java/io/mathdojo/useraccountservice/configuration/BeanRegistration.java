@@ -15,9 +15,9 @@ import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.services.OrganisationServiceSingleton;
 
 @Configuration
-public class ServiceConfig {
+public class BeanRegistration {
 
-    public ServiceConfig() {
+    public BeanRegistration() {
         OrganisationServiceSingleton.getInstance();
     }    
 
