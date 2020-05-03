@@ -102,7 +102,7 @@ public class OrganisationServiceTest {
     }
 
     @Test
-    public void updateOrgWithIdReturnsModificationResultIfParamsValid() {
+    public void updateOrgWithIdReturnsModificationResultIfAllParamsFilledAndValid() {
         AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange", "https://my.custom.domain/image-i-dont-like.png");
         Organisation oldOrganisation = organisationService.createNewOrganisation(accountCreationRequest);
 
@@ -113,9 +113,11 @@ public class OrganisationServiceTest {
         Organisation modificationResult = organisationService.updateOrganisationWithId(oldOrganisation.getId(), accountModificationRequest);
 
         assertEquals(oldOrganisation.getId(), modificationResult.getId());
-        assertEquals(newName, modificationResult.getId());
-        assertEquals(newProfileImageLink, modificationResult.getId());
+        assertEquals(newName, modificationResult.getName());
+        assertEquals(newProfileImageLink, modificationResult.getProfileImageLink());
     }
+
+    // TODO #15: Add unit test coverage for partial filling of account request params on update
 
     @Test
     public void throwsExceptionIfUpdateForPreconditionedNonExistentOrg() {

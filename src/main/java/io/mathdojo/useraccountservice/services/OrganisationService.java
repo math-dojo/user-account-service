@@ -1,12 +1,22 @@
 package io.mathdojo.useraccountservice.services;
 
 import java.util.UUID;
+import java.util.logging.Level;
+
+import com.microsoft.azure.functions.ExecutionContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 
 public class OrganisationService {
+
+    private static final String UNKNOWN_ORGID_EXCEPTION_MSG = "the specified organisation could not be found";
+
+    @Autowired
+    private ExecutionContext targetExecutionContext;
 
     public String aString = "hii";
 
@@ -24,16 +34,42 @@ public class OrganisationService {
 
     public Organisation getOrganisationById(String organisationId) throws OrganisationServiceException {
         if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
-            throw new OrganisationServiceException("the requested organisation could not be found");
+            throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return new Organisation(organisationId, false, UUID.randomUUID().toString(),
                 "https://my.domain.com/myimage.jpg");
     }
 
-
-	public void deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
+    public Organisation updateOrganisationWithId(String organisationId, AccountRequest accountModificationRequest) {
         if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
-            throw new OrganisationServiceException("the specified organisation could not be found");
+            throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
+        }
+
+        Organisation foundOrganisation;
+
+        try {
+            foundOrganisation = getOrganisationById(organisationId);
+        } catch (OrganisationServiceException e) {
+            targetExecutionContext.getLogger().log(Level.WARNING, UNKNOWN_ORGID_EXCEPTION_MSG, e);
+            throw e;
+        }
+
+        String nameToUpdate = (null == accountModificationRequest.getName()
+                || accountModificationRequest.getName().isEmpty()) ? foundOrganisation.getName()
+                        : accountModificationRequest.getName();
+        String profileToUpdate = (null == accountModificationRequest.getProfileImageLink()
+                || accountModificationRequest.getProfileImageLink().isEmpty()) ? foundOrganisation.getProfileImageLink()
+                        : accountModificationRequest.getProfileImageLink();
+        boolean verificationStatusToUpdate = (!foundOrganisation.isAccountVerified()
+                && accountModificationRequest.isAccountVerified()) ? accountModificationRequest.isAccountVerified()
+                        : foundOrganisation.isAccountVerified();
+
+        return new Organisation(foundOrganisation.getId(), (verificationStatusToUpdate), nameToUpdate, profileToUpdate);
+    }
+
+    public void deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
+        if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
+            throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
     }
 
