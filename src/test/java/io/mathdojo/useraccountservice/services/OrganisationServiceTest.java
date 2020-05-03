@@ -15,6 +15,7 @@ import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 public class OrganisationServiceTest {
 
     private static OrganisationService organisationService;
+    private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
 
     @BeforeClass
     public static void setUp() {
@@ -87,7 +88,7 @@ public class OrganisationServiceTest {
     public void throwsExceptionIfDeleteForPreconditionedNonExistentOrg() {
 
         RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
-            organisationService.deleteOrganisationWithId("unknownOrganisationId");
+            organisationService.deleteOrganisationWithId(PRECONDITIONED_UNKNOWN_ORG_ID);
         });
 
         String exceptionMessage = exception.getMessage();
@@ -98,5 +99,36 @@ public class OrganisationServiceTest {
     @Test
     public void throwsNoErrorIfDeletingForValidOrgId() {
         organisationService.deleteOrganisationWithId("knownOrganisationId");        
+    }
+
+    @Test
+    public void updateOrgWithIdReturnsModificationResultIfParamsValid() {
+        AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange", "https://my.custom.domain/image-i-dont-like.png");
+        Organisation oldOrganisation = organisationService.createNewOrganisation(accountCreationRequest);
+
+
+        String newName = "aName iWillNotChange";
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+        Organisation modificationResult = organisationService.updateOrganisationWithId(oldOrganisation.getId(), accountModificationRequest);
+
+        assertEquals(oldOrganisation.getId(), modificationResult.getId());
+        assertEquals(newName, modificationResult.getId());
+        assertEquals(newProfileImageLink, modificationResult.getId());
+    }
+
+    @Test
+    public void throwsExceptionIfUpdateForPreconditionedNonExistentOrg() {
+        String newName = "aName iWillNotChange";
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.updateOrganisationWithId(PRECONDITIONED_UNKNOWN_ORG_ID, accountModificationRequest);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("the specified organisation could not be found", exceptionMessage);
+        
     }
 }
