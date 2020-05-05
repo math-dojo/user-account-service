@@ -71,11 +71,24 @@ public class OrganisationServiceTest {
         
     }
 
-     @Test
+    @Test
     public void throwsExceptionIfGetOrganisationWithNullOrgId() {
 
         RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
             organisationService.getOrganisationById(null);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("the requested organisation could not be found", 
+        exceptionMessage);
+        
+    }
+
+    @Test
+    public void throwsExceptionIfGetOrganisationWithPreconditionedUnknownOrgId() {
+
+        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.getOrganisationById("unknownOrganisationId");
         });
 
         String exceptionMessage = exception.getMessage();
