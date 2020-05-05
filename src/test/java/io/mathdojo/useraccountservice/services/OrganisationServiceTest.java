@@ -70,4 +70,17 @@ public class OrganisationServiceTest {
         exceptionMessage);
         
     }
+
+     @Test
+    public void throwsExceptionIfGetOrganisationWithNullOrgId() {
+
+        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.getOrganisationById(null);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("the requested organisation could not be found", 
+        exceptionMessage);
+        
+    }
 }
