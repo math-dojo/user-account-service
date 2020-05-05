@@ -13,6 +13,8 @@ public class AccountRequest {
 
     private String profileImageLink;
 
+    private String idOfAccountToModify;
+
     public AccountRequest() {
         
     }
@@ -28,6 +30,24 @@ public class AccountRequest {
 	 * @throws NoSuchAlgorithmException
 	 */
     public AccountRequest(boolean accountVerified, String name, String profileImageLink) {
+        this.accountVerified = accountVerified;
+        this.name = name;
+        this.profileImageLink = profileImageLink;
+    }
+
+    /**
+	 * Creates an instance of the AccountRequest class
+	 * <p>
+	 * 
+     * @param accountId the id of the account to be modified
+	 * @param accountVerified the status of the account being created
+	 * @param name the name of the prospective account holder
+     * @param profileImageLink an image of the profile user to be created
+     * 
+	 * @throws NoSuchAlgorithmException
+	 */
+    public AccountRequest(String accountId, boolean accountVerified, String name, String profileImageLink) {
+        this.idOfAccountToModify = accountId;
         this.accountVerified = accountVerified;
         this.name = name;
         this.profileImageLink = profileImageLink;
@@ -68,12 +88,13 @@ public class AccountRequest {
         AccountRequest accountHolder = (AccountRequest) o;
         return Objects.equals(this.accountVerified, accountHolder.accountVerified)
                 && Objects.equals(this.name, accountHolder.name)
-                && Objects.equals(this.profileImageLink, accountHolder.profileImageLink);
+                && Objects.equals(this.profileImageLink, accountHolder.profileImageLink)
+                && Objects.equals(this.idOfAccountToModify, accountHolder.idOfAccountToModify);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountVerified, name, profileImageLink);
+        return Objects.hash(accountVerified, name, profileImageLink, idOfAccountToModify);
     }
 
     @Override
@@ -83,6 +104,7 @@ public class AccountRequest {
         sb.append("    accountVerified: ").append(toIndentedString(accountVerified)).append("\n");
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    profileImageLink: ").append(toIndentedString(profileImageLink)).append("\n");
+        sb.append("    idOfAccountToModify: ").append(toIndentedString(idOfAccountToModify)).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -96,6 +118,14 @@ public class AccountRequest {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    public String getIdOfAccountToModify() {
+        return idOfAccountToModify;
+    }
+
+    public void setIdOfAccountToModify(String idOfAccountToModify) {
+        this.idOfAccountToModify = idOfAccountToModify;
     }
 
     
