@@ -54,4 +54,13 @@ public class BeanRegistration {
             OrganisationServiceSingleton.getInstance().deleteOrganisationWithId(organisationId);
         };
     }
+
+    @Bean
+    public Function<AccountRequest, Organisation> updateOrganisationById(ExecutionContext context) {
+        
+        return accountRequest -> {
+            context.getLogger().info(String.format("About to create a org with id: %s", accountRequest.getIdOfAccountToModify()));
+            return OrganisationServiceSingleton.getInstance().updateOrganisationWithId(accountRequest.getIdOfAccountToModify(), accountRequest);
+        };
+    }
 }
