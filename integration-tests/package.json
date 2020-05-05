@@ -1,0 +1,22 @@
+{
+  "name": "user-account-service-integration-tests",
+  "version": "1.0.0",
+  "description": "A series of integration tests send HTTP requests to the user-account-service function on port 7071.",
+  "scripts": {
+    "local:pretest": "cd ../ && ./mvnw clean package",
+    "local:runsuite": "./node_modules/.bin/cucumber-js",
+    "local:test": "npm run local:pretest && npm run local:runsuite",
+    "test": "./node_modules/.bin/cucumber-js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "cucumber": "^6.0.5"
+  },
+  "devDependencies": {
+    "why-is-node-running": "^2.1.2"
+  }
+}

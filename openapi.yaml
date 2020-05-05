@@ -48,14 +48,14 @@ paths:
                 update-error:
                   summary: Error response if one or more properties cannot be updated
                   value: "Bad request: One or more parameters could not be updated"
-        '403':
-          description: Forbidden
+        '401':
+          description: Unauthorized
     delete:
       summary: "deletes an organisation with the matching id"
       responses: 
         '204':
           description: The organisation was successfully deleted
-        '403':
+        '401':
           description: Forbidden
         '404':
           description: A organisation with the specified ID was not found
@@ -84,7 +84,7 @@ paths:
                 bad-request-body:
                   summary: Error response for incorrectly specifying the organisation to create 
                   value: "Bad request: Bad parameters in request body"
-        '403':
+        '401':
           description: Forbidden
   /organisations/{organisationId}/users:
     parameters:
@@ -113,7 +113,7 @@ paths:
                 bad-request-body:
                   summary: Error response for incorrectly specifying the user to create 
                   value: "Bad request: Bad parameters in request body"
-        '403':
+        '401':
           description: Forbidden  
   /organisations/{organisationId}/users/{userId}:
     parameters:
@@ -151,14 +151,14 @@ paths:
                 update-error:
                   summary: Error response if one or more properties cannot be updated
                   value: "Bad request: One or more parameters could not be updated"
-        '403':
+        '401':
           description: Forbidden
     delete:
       summary: "deletes a user with the matching id in the specified organisation"
       responses: 
         '204':
           description: The user was successfully deleted from the organisation
-        '403':
+        '401':
           description: Forbidden
         '404':
           description: A user with the specified ID was not found in the organisation
@@ -186,7 +186,7 @@ paths:
                 update-error:
                   summary: Error response if one or more properties cannot be updated
                   value: "Bad request: One or more parameters could not be updated"
-        '403':
+        '401':
           description: Forbidden
 components:
   #-------------------------------
@@ -198,15 +198,22 @@ components:
         - $ref: '#/components/schemas/AccountHolder'
         - type: object
           properties:
+            accountType:
+              example: 'organisation'
             adminUsers:
-              type: array
-              items:
-                type: object
-                properties:
-                  adminUser:
-                    allOf:
-                      - type: object
-                      - $ref: '#/components/schemas/User'
+              type: object
+              additionalProperties:
+                $ref: '#/components/schemas/User'
+              example:
+                user-id-xyz:
+                  id: 'some-user-id'
+                  accountVerified: true
+                  name: 'fizz buzz'
+                  profileImageLink: 'https://secure-domain.com/myimage.png'
+                  accountType: 'user'
+                  permissions: 
+                    - "org-admin"
+                  belongsToOrgWithId: 'this-org-id'
             billingDetails:
               type: object
               properties:
@@ -230,10 +237,12 @@ components:
             permissions:
               type: array
               items:
-                $ref: '#/components/schemas/UserPermission' 
+                $ref: '#/components/schemas/UserPermission'
             belongsToOrgWithId:
               type: string
               description: "The id of the organisation to which the user belongs."
+            accountType:
+              example: 'user'
             activityHistory:
               type: object
               required:
@@ -263,7 +272,7 @@ components:
         profileImageLink:
           type: string
         accountType:
-          $ref: '#/components/schemas/AccountTypes'
+          $ref: '#/components/schemas/AccountType'
     PracticeQuestionAttemptRecord:
       type: object
       properties:
@@ -275,11 +284,11 @@ components:
       example:
         solved: true
         numberOfAttempts: 5
-    AccountTypes:
+    AccountType:
       type: string
       enum:
-        - "user"
-        - "organisation"
+        - "USER"
+        - "ORGANISATION"
     UserPermission:
       type: string
       enum:

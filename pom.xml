@@ -27,7 +27,7 @@
         <functionAppRegion>uksouth</functionAppRegion>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
         <functionResourceGroup>math-dojo-hzprod-user-account-service</functionResourceGroup>
-        <start-class>io.mathdojo.HelloFunction</start-class>
+        <start-class>io.mathdojo.useraccountservice.UserAccountServiceApplication</start-class>
         <wrapper.version>1.0.22.RELEASE</wrapper.version>
     </properties>
 
@@ -45,6 +45,16 @@
         <groupId>com.microsoft.azure</groupId>
         <artifactId>applicationinsights-spring-boot-starter</artifactId>
         <version>2.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.2.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <version>3.0.3</version>
         </dependency>
 
         <!-- Test -->
@@ -117,7 +127,7 @@
                         </property>
                         <property>
                             <name>MAIN_CLASS</name>
-                            <value>io.mathdojo.HelloFunction</value>
+                            <value>io.mathdojo.useraccountservice.UserAccountServiceApplication</value>
                         </property>
                     </appSettings>
                     <authentication>

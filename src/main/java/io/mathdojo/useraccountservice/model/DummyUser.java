@@ -1,11 +1,11 @@
-package io.mathdojo.model;
+package io.mathdojo.useraccountservice.model;
 
-public class User {
+public class DummyUser {
 
-    public User() {
+    public DummyUser() {
     }
 
-    public User(String name) {
+    public DummyUser(String name) {
         this.name = name;
     }
 
