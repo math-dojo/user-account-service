@@ -2,6 +2,7 @@ package io.mathdojo.useraccountservice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -100,5 +101,44 @@ public class UserAccountServiceApplicationTest {
             handlerSpy.handleRequest(mockMessage, "myCustomOrgId", mockExecContext);
             handlerSpy.close();
         });
+    }
+
+    @Test
+    public void testUpdateOrgByIdFunctionReturnsUpdatedOrg() {
+        /** 
+         * Pre-req: Create an organisation to update
+         */
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> createOrgHandler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                UserAccountServiceApplication.class);
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> createOrgHandlerSpy = Mockito.spy(createOrgHandler);
+        Mockito.doReturn(mockSystemService).when(createOrgHandlerSpy).getSystemService();
+
+        when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
+        String profileImageLink = "https://profileImageLink";
+        Organisation oldResult = (Organisation) createOrgHandlerSpy.handleRequest(mockMessage,
+                new AccountRequest(false, "foo", profileImageLink), mockExecContext);
+        createOrgHandlerSpy.close();
+
+        /** 
+         * Actual test begins
+         */
+
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> updateOrgHandler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                UserAccountServiceApplication.class);
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> updateOrgHandlerSpy = Mockito.spy(updateOrgHandler);
+        Mockito.doReturn(mockSystemService).when(updateOrgHandlerSpy).getSystemService();
+        String idOfOrgToUpdate = oldResult.getId();
+        when(mockExecContext.getFunctionName()).thenReturn("updateOrganisationById");
+        String newProfileImageLink = "https://profileImageLink/new.jpg";
+        String newName = "a new glorious name";
+        boolean newAccountVerificationStatus = true;
+
+        Organisation result = (Organisation) updateOrgHandlerSpy.handleRequest(mockMessage,
+                new AccountRequest(false, newName, newProfileImageLink), mockExecContext);
+        updateOrgHandlerSpy.close();
+
+        assertThat(result.getName()).isEqualTo(newName);
+        assertThat(result.getProfileImageLink()).isEqualTo(newProfileImageLink);
+        assertEquals(newAccountVerificationStatus, result.isAccountVerified());
     }
 }
