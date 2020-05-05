@@ -19,7 +19,7 @@ import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
 import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 
-public class PostOrganisationsHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> {
+public class AccountRequestBodyOrganisationsHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> {
 
     @FunctionName("createOrganisation")
     public HttpResponseMessage executePostForOrganisations(

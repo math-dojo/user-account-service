@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 
-public class PostOrganisationsHandlerTest {
+public class AccountRequestBodyOrganisationsHandlerTest {
     private ExecutionContext mockExecContext;
 
     @Before
@@ -33,8 +33,8 @@ public class PostOrganisationsHandlerTest {
 
     @Test
     public void testGetOrgByIdReturns401FromVerificationFailure() {
-        PostOrganisationsHandler handler = new PostOrganisationsHandler();
-        PostOrganisationsHandler handlerSpy = Mockito.spy(handler);
+        AccountRequestBodyOrganisationsHandler handler = new AccountRequestBodyOrganisationsHandler();
+        AccountRequestBodyOrganisationsHandler handlerSpy = Mockito.spy(handler);
 
         HttpRequestMessage<Optional<AccountRequest>> mockMessage = (HttpRequestMessage<Optional<AccountRequest>>) mock(HttpRequestMessage.class);
         AccountRequest mockAccountRequest = mock(AccountRequest.class);
