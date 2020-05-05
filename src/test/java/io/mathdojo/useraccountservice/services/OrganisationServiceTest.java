@@ -92,7 +92,7 @@ public class OrganisationServiceTest {
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals("the requested organisation could not be found", 
+        assertEquals("the specified organisation could not be found", 
         exceptionMessage);
         
     }
@@ -116,7 +116,7 @@ public class OrganisationServiceTest {
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals("the requested organisation could not be found", 
+        assertEquals("the specified organisation could not be found", 
         exceptionMessage);
         
     }
