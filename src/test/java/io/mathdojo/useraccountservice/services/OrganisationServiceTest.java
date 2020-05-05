@@ -81,6 +81,19 @@ public class OrganisationServiceTest {
 
         String exceptionMessage = exception.getMessage();
         assertEquals("the specified organisation could not be found", exceptionMessage);
+
+    }
+
+    @Test
+    public void throwsExceptionIfGetOrganisationWithNullOrgId() {
+
+        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.getOrganisationById(null);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("the requested organisation could not be found", 
+        exceptionMessage);
         
     }
 
@@ -93,6 +106,18 @@ public class OrganisationServiceTest {
 
         String exceptionMessage = exception.getMessage();
         assertEquals("the specified organisation could not be found", exceptionMessage);
+    }
+
+    @Test
+    public void throwsExceptionIfGetOrganisationWithPreconditionedUnknownOrgId() {
+
+        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.getOrganisationById("unknownOrganisationId");
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("the requested organisation could not be found", 
+        exceptionMessage);
         
     }
 
@@ -131,6 +156,17 @@ public class OrganisationServiceTest {
 
         String exceptionMessage = exception.getMessage();
         assertEquals("the specified organisation could not be found", exceptionMessage);
+
+    }
+
+    @Test
+    public void returnsOrgWithMatchingIdIfPossibleToFind() {
+
+        String expectedOrganisationId = "aKnownOrg";
+        Organisation foundOrg = organisationService.getOrganisationById(expectedOrganisationId);
+
+        
+        assertEquals(expectedOrganisationId, foundOrg.getId());
         
     }
 }
