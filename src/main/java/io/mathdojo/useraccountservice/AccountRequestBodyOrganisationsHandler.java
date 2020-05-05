@@ -11,6 +11,7 @@ import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
+import com.microsoft.azure.functions.annotation.BindingName;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
@@ -19,37 +20,51 @@ import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
 import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 
-public class AccountRequestBodyOrganisationsHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> {
+public class AccountRequestBodyOrganisationsHandler
+        extends HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> {
 
     @FunctionName("createOrganisation")
-    public HttpResponseMessage executePostForOrganisations(
-        @HttpTrigger(
-            name = "request", 
-            methods = { HttpMethod.POST }, 
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "organisations"
-        ) HttpRequestMessage<Optional<AccountRequest>> request,
-        ExecutionContext context) {
+    public HttpResponseMessage executePostForOrganisations(@HttpTrigger(name = "request", methods = {
+            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations") HttpRequestMessage<Optional<AccountRequest>> request,
+            ExecutionContext context) {
 
-            try {
-                Object handledRequest = handleRequest(request, request.getBody().get(), context);
-                if(handledRequest instanceof HttpResponseMessage) {
-                    return (HttpResponseMessage) handledRequest;
-                }
-                Organisation createdOrg = (Organisation) handledRequest;
-                return request.createResponseBuilder(HttpStatus.CREATED)
-                    .body(createdOrg)
-                    .build();
-
-            } catch (ConstraintViolationException | OrganisationServiceException e) {
-                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-                    .build();
-            } catch (Exception e) {
-                context.getLogger().log(
-                            Level.WARNING, "Organisation creation failed", e);
-                return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .build();
+        try {
+            Object handledRequest = handleRequest(request, request.getBody().get(), context);
+            if (handledRequest instanceof HttpResponseMessage) {
+                return (HttpResponseMessage) handledRequest;
             }
+            Organisation createdOrg = (Organisation) handledRequest;
+            return request.createResponseBuilder(HttpStatus.CREATED).body(createdOrg).build();
+
+        } catch (ConstraintViolationException | OrganisationServiceException e) {
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            context.getLogger().log(Level.WARNING, "Organisation creation failed", e);
+            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
     }
+
+    @FunctionName("updateOrganisationById")
+    public HttpResponseMessage executePutForOrganisations(@HttpTrigger(name = "request", methods = {
+            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}") HttpRequestMessage<Optional<AccountRequest>> request,
+            @BindingName("orgId") String orgId, ExecutionContext context) {
+
+        try {
+            request.getBody().get().setIdOfAccountToModify(orgId);
+            Object handledRequest = handleRequest(request, request.getBody().get(), context);
+            if (handledRequest instanceof HttpResponseMessage) {
+                return (HttpResponseMessage) handledRequest;
+            }
+            Organisation createdOrg = (Organisation) handledRequest;
+            return request.createResponseBuilder(HttpStatus.CREATED).body(createdOrg).build();
+
+        } catch (ConstraintViolationException | OrganisationServiceException e) {
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            context.getLogger().log(Level.WARNING, "Organisation creation failed", e);
+            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
