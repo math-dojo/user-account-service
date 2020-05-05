@@ -83,4 +83,15 @@ public class OrganisationServiceTest {
         exceptionMessage);
         
     }
+
+    @Test
+    public void returnsOrgWithMatchingIdIfPossibleToFind() {
+
+        String expectedOrganisationId = "aKnownOrg";
+        Organisation foundOrg = organisationService.getOrganisationById(expectedOrganisationId);
+
+        
+        assertEquals(expectedOrganisationId, foundOrg.getId());
+        
+    }
 }
