@@ -1,6 +1,5 @@
 package io.mathdojo.useraccountservice.model.requestobjects;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
@@ -16,19 +15,18 @@ public class AccountRequest {
     private String idOfAccountToModify;
 
     public AccountRequest() {
-        
+
     }
 
-    /** 
-	 * Creates an instance of the AccountRequest class
-	 * <p>
-	 * 
-	 * @param accountVerified the status of the account being created
-	 * @param name the name of the prospective account holder
+    /**
+     * Creates an instance of the AccountRequest class
+     * <p>
+     * 
+     * @param accountVerified  the status of the account being created
+     * @param name             the name of the prospective account holder
      * @param profileImageLink an image of the profile user to be created
      * 
-	 * @throws NoSuchAlgorithmException
-	 */
+     */
     public AccountRequest(boolean accountVerified, String name, String profileImageLink) {
         this.accountVerified = accountVerified;
         this.name = name;
@@ -36,16 +34,15 @@ public class AccountRequest {
     }
 
     /**
-	 * Creates an instance of the AccountRequest class
-	 * <p>
-	 * 
-     * @param accountId the id of the account to be modified
-	 * @param accountVerified the status of the account being created
-	 * @param name the name of the prospective account holder
+     * Creates an instance of the AccountRequest class
+     * <p>
+     * 
+     * @param accountId        the id of the account to be modified
+     * @param accountVerified  the status of the account being created
+     * @param name             the name of the prospective account holder
      * @param profileImageLink an image of the profile user to be created
      * 
-	 * @throws NoSuchAlgorithmException
-	 */
+     */
     public AccountRequest(String accountId, boolean accountVerified, String name, String profileImageLink) {
         this.idOfAccountToModify = accountId;
         this.accountVerified = accountVerified;
@@ -128,5 +125,4 @@ public class AccountRequest {
         this.idOfAccountToModify = idOfAccountToModify;
     }
 
-    
 }
