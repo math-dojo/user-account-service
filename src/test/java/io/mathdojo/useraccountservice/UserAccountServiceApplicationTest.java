@@ -2,7 +2,6 @@ package io.mathdojo.useraccountservice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -134,11 +133,12 @@ public class UserAccountServiceApplicationTest {
         boolean newAccountVerificationStatus = true;
 
         Organisation result = (Organisation) updateOrgHandlerSpy.handleRequest(mockMessage,
-                new AccountRequest(false, newName, newProfileImageLink), mockExecContext);
+                new AccountRequest(idOfOrgToUpdate, newAccountVerificationStatus, newName, newProfileImageLink), mockExecContext);
         updateOrgHandlerSpy.close();
 
+        assertThat(result.getId()).isEqualTo(idOfOrgToUpdate);
         assertThat(result.getName()).isEqualTo(newName);
         assertThat(result.getProfileImageLink()).isEqualTo(newProfileImageLink);
-        assertEquals(newAccountVerificationStatus, result.isAccountVerified());
+        assertThat(result.isAccountVerified()).isEqualTo(newAccountVerificationStatus);
     }
 }
