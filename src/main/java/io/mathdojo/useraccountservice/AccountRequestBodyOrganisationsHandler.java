@@ -51,8 +51,10 @@ public class AccountRequestBodyOrganisationsHandler
             @BindingName("orgId") String orgId, ExecutionContext context) {
 
         try {
-            request.getBody().get().setIdOfAccountToModify(orgId);
-            Object handledRequest = handleRequest(request, request.getBody().get(), context);
+            AccountRequest modificationRequest = new AccountRequest(orgId, 
+                request.getBody().get().isAccountVerified(), request.getBody().get().getName(), 
+                request.getBody().get().getProfileImageLink());
+            Object handledRequest = handleRequest(request, modificationRequest, context);
             if (handledRequest instanceof HttpResponseMessage) {
                 return (HttpResponseMessage) handledRequest;
             }
