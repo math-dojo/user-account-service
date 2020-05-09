@@ -34,8 +34,20 @@ Feature: Features related to Organisation Management
     Then I should get a status code 404
 
   @updateOrganisationsById
-  Scenario: PUT to /organisations/{someOrgId} with valid body returns 204
+  Scenario: PUT to /organisations with pre-conditioned knownOrgId and valid body returns 204
     Given I generate a json payload called 'orgModificationRequest'
     When I make a PUT to the function at '/organisations/knownOrgId'
     Then I should get a status code 204
     And the response should have no body
+
+  @updateOrganisationsById @errorHandling
+  Scenario: PUT to /organisations with pre-conditioned knownOrgId and invalid body returns 400
+    Given I generate a json payload called 'badOrgModificationRequest'
+    When I make a PUT to the function at '/organisations/knownOrgId'
+    Then I should get a status code 400
+
+  @updateOrganisationsById @errorHandling
+  Scenario: PUT to /organisations with pre-conditioned unknownOrganisationId returns 404
+    Given I generate a json payload called 'orgModificationRequest'
+    When I make a PUT to the function at '/organisations/unknownOrganisationId'
+    Then I should get a status code 404
