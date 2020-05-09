@@ -18,6 +18,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
+import io.mathdojo.useraccountservice.services.OrganisationService;
 import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 
 public class AccountRequestBodyOrganisationsHandler
@@ -64,6 +65,9 @@ public class AccountRequestBodyOrganisationsHandler
                 .body(finalResult).build();
 
         } catch (ConstraintViolationException | OrganisationServiceException e) {
+            if(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage()) {
+                return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+            }
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             context.getLogger().log(Level.WARNING, "Organisation update operation for "+ orgId + " failed", e);

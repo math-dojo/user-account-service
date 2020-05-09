@@ -6,14 +6,16 @@ import java.util.logging.Level;
 import com.microsoft.azure.functions.ExecutionContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 
+@Service
 public class OrganisationService {
 
-    private static final String UNKNOWN_ORGID_EXCEPTION_MSG = "the specified organisation could not be found";
+    public static final String UNKNOWN_ORGID_EXCEPTION_MSG = "the specified organisation could not be found";
 
     @Autowired
     private ExecutionContext targetExecutionContext;
@@ -41,6 +43,13 @@ public class OrganisationService {
     }
 
     public Organisation updateOrganisationWithId(String organisationId, AccountRequest accountModificationRequest) {
+        try {        
+            validateAccountModificationRequest(accountModificationRequest);
+        } catch (OrganisationServiceException e) {
+            targetExecutionContext.getLogger().log(Level.WARNING, e.getMessage(), e);
+            throw e;            
+        }      
+
         if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
@@ -70,6 +79,14 @@ public class OrganisationService {
     public void deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
         if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
+        }
+    }
+
+    private void validateAccountModificationRequest(AccountRequest request) throws OrganisationServiceException{
+        if (null == request.getName() && null == request.getProfileImageLink()
+                && request.isAccountVerified() == false) {
+            throw new OrganisationServiceException(
+                    "The name, profileImageLink and accountVerified cannot all be empty in a modification request.");
         }
     }
 
