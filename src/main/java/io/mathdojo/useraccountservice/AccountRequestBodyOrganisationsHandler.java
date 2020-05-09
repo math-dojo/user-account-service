@@ -47,7 +47,7 @@ public class AccountRequestBodyOrganisationsHandler
 
     @FunctionName("updateOrganisationById")
     public HttpResponseMessage executePutForOrganisations(@HttpTrigger(name = "request", methods = {
-            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}") HttpRequestMessage<Optional<AccountRequest>> request,
+            HttpMethod.PUT }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}") HttpRequestMessage<Optional<AccountRequest>> request,
             @BindingName("orgId") String orgId, ExecutionContext context) {
 
         try {

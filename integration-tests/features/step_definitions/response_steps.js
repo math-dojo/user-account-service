@@ -24,3 +24,11 @@ Then(/the response should be a superset of all the keys and values set from \'(\
           })
     ]);
 });
+
+Then(/the response should contain a key \'(\w+)\' with value \'(\w+)\'/, function (keyName, expectedValue) {
+    return Promise.all([
+        expect(this.world.response).to.eventually.satisfy(function(response) {
+            return expect(response.data).to.deep.include({[keyName]: expectedValue});
+          })
+    ]);
+});

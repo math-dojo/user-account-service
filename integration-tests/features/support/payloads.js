@@ -7,5 +7,10 @@ module.exports.payloads = {
     badNewOrgRequest: {
         accountVerified: false,
         profileImageLink: "https://my.image.domain.com/it.jpg"
+    },
+    orgModificationRequest: {
+        accountVerified: true,
+        name: "some Newname",
+        profileImageLink: "https://my.image.domain.com/new-image.jpg"
     }
 };
