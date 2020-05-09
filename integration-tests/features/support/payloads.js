@@ -12,5 +12,8 @@ module.exports.payloads = {
         accountVerified: true,
         name: "some Newname",
         profileImageLink: "https://my.image.domain.com/new-image.jpg"
+    },
+    badOrgModificationRequest: {
+        invalidParam: "ivalidValue"
     }
 };
