@@ -58,13 +58,15 @@ public class AccountRequestBodyOrganisationsHandler
             if (handledRequest instanceof HttpResponseMessage) {
                 return (HttpResponseMessage) handledRequest;
             }
-            Organisation createdOrg = (Organisation) handledRequest;
-            return request.createResponseBuilder(HttpStatus.CREATED).body(createdOrg).build();
+            Organisation finalResult = (Organisation) handledRequest;
+            return request.createResponseBuilder(HttpStatus.NO_CONTENT)
+                .header("Content-Type", "/organisations/"+finalResult.getId())
+                .body(finalResult).build();
 
         } catch (ConstraintViolationException | OrganisationServiceException e) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
-            context.getLogger().log(Level.WARNING, "Organisation creation failed", e);
+            context.getLogger().log(Level.WARNING, "Organisation update operation for "+ orgId + " failed", e);
             return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
