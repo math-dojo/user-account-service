@@ -59,7 +59,7 @@ public class BeanRegistration {
     public Function<AccountRequest, Organisation> updateOrganisationById(ExecutionContext context) {
         
         return accountRequest -> {
-            context.getLogger().info(String.format("About to create a org with id: %s", accountRequest.getIdOfAccountToModify()));
+            context.getLogger().info(String.format("About to update an org with id: %s", accountRequest.getIdOfAccountToModify()));
             return OrganisationServiceSingleton.getInstance().updateOrganisationWithId(accountRequest.getIdOfAccountToModify(), accountRequest);
         };
     }
