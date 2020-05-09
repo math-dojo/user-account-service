@@ -34,9 +34,8 @@ Feature: Features related to Organisation Management
     Then I should get a status code 404
 
   @updateOrganisationsById
-  Scenario: PUT to /organisations/{someOrgId} with valid body returns modified org
+  Scenario: PUT to /organisations/{someOrgId} with valid body returns 204
     Given I generate a json payload called 'orgModificationRequest'
     When I make a PUT to the function at '/organisations/knownOrgId'
     Then I should get a status code 204
-    And the response should be a superset of all the keys and values set from 'orgModificationRequest'
-    And the response should contain a key 'id' with value 'knownOrgId'
+    And the response should have no body
