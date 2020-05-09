@@ -76,10 +76,11 @@ public class OrganisationService {
         return new Organisation(foundOrganisation.getId(), (verificationStatusToUpdate), nameToUpdate, profileToUpdate);
     }
 
-    public void deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
+    public String deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
         if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
+        return "";
     }
 
     private void validateAccountModificationRequest(AccountRequest request) throws OrganisationServiceException{

@@ -1,6 +1,5 @@
 package io.mathdojo.useraccountservice.configuration;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.microsoft.azure.functions.ExecutionContext;
@@ -53,11 +52,11 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Consumer<Flux<String>> deleteOrganisationById(final ExecutionContext context) {
+    public Function<Flux<String>, Flux<String>> deleteOrganisationById(final ExecutionContext context) {
         return organisationIdFluxEntity -> {
-            organisationIdFluxEntity.doOnEach(organisationIdSignal -> {
-                context.getLogger().info("About to delete organisation: " + organisationIdSignal.get());
-                organisationService.deleteOrganisationWithId(organisationIdSignal.get());
+            return organisationIdFluxEntity.map(orgId -> {
+                context.getLogger().info("About to delete organisation: " + orgId);
+                return organisationService.deleteOrganisationWithId(orgId);
             });
         };
     }
