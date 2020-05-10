@@ -6,6 +6,7 @@
     "local:pretest": "cd ../ && ./mvnw clean package",
     "local:runsuite": "./node_modules/.bin/cucumber-js",
     "local:runnamedtags": "./node_modules/.bin/cucumber-js --tags \"(@getOrganisationsById)\"",
+    "local:test-subset": "npm run local:pretest && npm run local:runnamedtags",
     "local:test": "npm run local:pretest && npm run local:runsuite",
     "test": "./node_modules/.bin/cucumber-js"
   },
