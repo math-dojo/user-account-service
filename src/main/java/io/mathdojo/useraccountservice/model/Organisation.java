@@ -2,6 +2,8 @@ package io.mathdojo.useraccountservice.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import io.mathdojo.useraccountservice.model.primitives.AccountType;
 import io.mathdojo.useraccountservice.model.primitives.OrganisationBillingDetails;
@@ -39,4 +41,32 @@ public class Organisation extends AccountHolder {
         this.billingDetails = billingDetails;
     }
 
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class Organisation {\n");
+        sb.append("    ").append(toIndentedString(super.toString())).append("\n");
+        sb.append("    adminUsers: ").append(toIndentedString(printMapProperties(adminUsers))).append("\n");
+        sb.append("    billingDetails: ").append(toIndentedString(billingDetails)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(java.lang.Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
+
+    private String printMapProperties(Map<String, ?> map) {
+        String mapAsString = map.keySet().stream().map(key -> key + "=" + map.get(key))
+                .collect(Collectors.joining(", ", "{", "}"));
+        return mapAsString;
+    }
 }
