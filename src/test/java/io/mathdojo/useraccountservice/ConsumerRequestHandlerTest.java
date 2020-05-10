@@ -44,6 +44,7 @@ public class ConsumerRequestHandlerTest {
 
         HttpResponseMessage actualResponseMessage = handlerSpy.executeDeleteByIdForOrganisations(
             mockMessage, "orgId", mockExecContext);
+        handlerSpy.close();
 
         assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
 

@@ -50,6 +50,7 @@ public class AccountRequestBodyOrganisationsHandlerTest {
 
         HttpResponseMessage actualResponseMessage = handlerSpy.executePostForOrganisations(
             mockMessage, mockExecContext);
+        handlerSpy.close();
 
         assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
 
@@ -74,6 +75,7 @@ public class AccountRequestBodyOrganisationsHandlerTest {
 
         HttpResponseMessage actualResponseMessage = handlerSpy.executePutForOrganisations(
             mockMessage, "orgId", mockExecContext);
+        handlerSpy.close();
 
         assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
 
