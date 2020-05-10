@@ -21,4 +21,5 @@ public class User extends AccountHolder {
         super(id, accountVerified, name, profileImageLink, AccountType.USER);
     }
 
+    //TODO Add hashcode, equals, to string
 }
