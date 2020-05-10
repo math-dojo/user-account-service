@@ -1,11 +1,21 @@
 package io.mathdojo.useraccountservice.model.primitives;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class UserActivityHistory {
 
     private Map<String, PracticeQuestionAttemptRecord> practiceHistory;
+
+    public UserActivityHistory() {
+        practiceHistory = new HashMap<String, PracticeQuestionAttemptRecord>();
+    }
+
+    public Map<String, PracticeQuestionAttemptRecord> getPracticeHistory() {
+        return practiceHistory;
+    }
 
     @Override
     public boolean equals(java.lang.Object o) {
@@ -29,7 +39,7 @@ public class UserActivityHistory {
         StringBuilder sb = new StringBuilder();
         sb.append("class UserActivityHistory {\n");
 
-        sb.append("    practiceHistory: ").append(toIndentedString(practiceHistory)).append("\n");
+        sb.append("    practiceHistory: ").append(toIndentedString(printMapProperties(practiceHistory))).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -43,5 +53,11 @@ public class UserActivityHistory {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    private String printMapProperties(Map<String, ?> map) {
+        String mapAsString = map.keySet().stream().map(key -> key + "=" + map.get(key))
+                .collect(Collectors.joining(", ", "{", "}"));
+        return mapAsString;
     }
 }
