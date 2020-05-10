@@ -19,7 +19,7 @@ public class OrganisationServiceTest {
 
     @BeforeClass
     public static void setUp() {
-        organisationService = OrganisationServiceSingleton.getInstance();
+        organisationService = new OrganisationService();
     }
 
     @Test
