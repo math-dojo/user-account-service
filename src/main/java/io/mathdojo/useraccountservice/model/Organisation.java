@@ -27,7 +27,7 @@ public class Organisation extends AccountHolder {
     }
 
     public void addAdminUser(User adminUserToBeAddedd) {
-        if(this.adminUsers == null) {
+        if (this.adminUsers == null) {
             this.adminUsers = new HashMap<String, User>();
         }
         this.adminUsers.put(adminUserToBeAddedd.getName(), adminUserToBeAddedd);
@@ -41,6 +41,23 @@ public class Organisation extends AccountHolder {
         this.billingDetails = billingDetails;
     }
 
+    @Override
+    public boolean equals(java.lang.Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Organisation organisation = (Organisation) o;
+        return Objects.equals(this.adminUsers, organisation.adminUsers)
+                && Objects.equals(this.billingDetails, organisation.billingDetails) && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(adminUsers, billingDetails, super.hashCode());
+    }
 
     @Override
     public String toString() {
