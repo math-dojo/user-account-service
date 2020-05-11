@@ -1,5 +1,6 @@
 package io.mathdojo.useraccountservice.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -19,6 +20,16 @@ public class User extends AccountHolder {
 
     public User(String id, boolean accountVerified, String name, String profileImageLink) {
         super(id, accountVerified, name, profileImageLink, AccountType.USER);
+        permissions = new HashSet<>();
+        activityHistory = new UserActivityHistory();
+    }
+
+    public Set<UserPermission> getPermissions() {
+        return permissions;
+    }
+
+    public UserActivityHistory getActivityHistory() {
+        return activityHistory;
     }
 
     //TODO Add hashcode, equals, to string
