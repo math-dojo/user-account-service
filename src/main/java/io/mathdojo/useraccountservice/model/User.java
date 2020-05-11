@@ -24,6 +24,14 @@ public class User extends AccountHolder {
         activityHistory = new UserActivityHistory();
     }
 
+    public String getBelongsToOrgWithId() {
+        return belongsToOrgWithId;
+    }
+
+    public void setBelongsToOrgWithId(String belongsToOrgWithId) {
+        this.belongsToOrgWithId = belongsToOrgWithId;
+    }
+
     public Set<UserPermission> getPermissions() {
         return permissions;
     }
