@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
+import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
 import io.mathdojo.useraccountservice.services.SystemService;
@@ -133,7 +134,7 @@ public class UserAccountServiceApplicationTest {
         boolean newAccountVerificationStatus = true;
 
         Organisation result = (Organisation) updateOrgHandlerSpy.handleRequest(mockMessage,
-                new AccountRequest(idOfOrgToUpdate, newAccountVerificationStatus, newName, newProfileImageLink), mockExecContext);
+                new AccountModificationRequest(idOfOrgToUpdate, newAccountVerificationStatus, newName, newProfileImageLink), mockExecContext);
         updateOrgHandlerSpy.close();
 
         assertThat(result.getId()).isEqualTo(idOfOrgToUpdate);

@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
+import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.services.OrganisationService;
 import reactor.core.publisher.Flux;
@@ -62,13 +63,13 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Function<Flux<AccountRequest>, Flux<Organisation>> updateOrganisationById(ExecutionContext context) {
+    public Function<Flux<AccountModificationRequest>, Flux<Organisation>> updateOrganisationById(ExecutionContext context) {
 
         return accountRequestFluxEntity -> {
             return accountRequestFluxEntity.map(accountRequest -> {
                 context.getLogger().info(
-                        String.format("About to update an org with id: %s", accountRequest.getIdOfAccountToModify()));
-                return organisationService.updateOrganisationWithId(accountRequest.getIdOfAccountToModify(),
+                        String.format("About to update an org with id: %s", accountRequest.getAccountId()));
+                return organisationService.updateOrganisationWithId(accountRequest.getAccountId(),
                         accountRequest);
             });
         };
