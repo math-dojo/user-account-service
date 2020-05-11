@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.mathdojo.useraccountservice.model.Organisation;
+import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 
 public class OrganisationServiceTest {
@@ -168,5 +169,54 @@ public class OrganisationServiceTest {
         
         assertEquals(expectedOrganisationId, foundOrg.getId());
         
+    }
+
+    @Test
+    public void createUserInOrgReturnsNewUserIfSuccessful() {
+
+        boolean accountVerified = false;
+        String name = "fizz buzz";
+        String profileImageLink = "https://domain.com/cool.png";
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+        User createdUser = organisationService.createUserInOrg("randomParentOrgId", userToCreate);
+
+        assertEquals(accountVerified, createdUser.isAccountVerified());
+        assertEquals(name, createdUser.getName());
+        assertEquals(profileImageLink, createdUser.getProfileImageLink());
+
+    }
+
+    @Test
+    public void throwErrorIfAttemptToCreateVerifiedUser() {
+
+        boolean accountVerified = true;
+        String name = "fizz buzz";
+        String profileImageLink = "https://domain.com/cool.png";
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.createUserInOrg("randomParentOrgId", userToCreate);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("a new user cannot already have their account verified", exceptionMessage);
+
+    }
+
+    @Test
+    public void throwErrorIfAttemptToCreateUserWithoutSpecifiedOrg() {
+
+        boolean accountVerified = true;
+        String name = "fizz buzz";
+        String profileImageLink = "https://domain.com/cool.png";
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.createUserInOrg(null, userToCreate);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("a new user cannot already have their account verified", exceptionMessage);
+
     }
 }
