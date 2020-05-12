@@ -219,4 +219,21 @@ public class OrganisationServiceTest {
         assertEquals(OrganisationService.ORG_LESS_NEW_USER_ERROR_MSG, exceptionMessage);
 
     }
+
+    @Test
+    public void throwErrorIfAttemptToCreateUserInPreconditionedNonExistentOrg() {
+
+        boolean accountVerified = false;
+        String name = "fizz buzz";
+        String profileImageLink = "https://domain.com/cool.png";
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.createUserInOrg(PRECONDITIONED_UNKNOWN_ORG_ID, userToCreate);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+
+    }    
 }
