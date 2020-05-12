@@ -52,7 +52,7 @@ public class OrganisationServiceTest {
         });
 
         String exceptionMessage = exception.getMessage();
-        assertTrue(exceptionMessage.contains("no") && exceptionMessage.contains("null"));        
+        assertTrue(exceptionMessage.contains("name"));        
     }
 
     @Test
@@ -235,5 +235,22 @@ public class OrganisationServiceTest {
         String exceptionMessage = exception.getMessage();
         assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
 
-    }    
+    }
+    
+    @Test
+    public void throwErrorIfAttemptToCreateUserWithNullName() {
+
+        boolean accountVerified = false;
+        String name = "";
+        String profileImageLink = "https://domain.com/cool.png";
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+
+        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class,() -> {
+            organisationService.createUserInOrg("someKnownOrgId", userToCreate);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertTrue(exceptionMessage.contains("name"));
+
+    }
 }
