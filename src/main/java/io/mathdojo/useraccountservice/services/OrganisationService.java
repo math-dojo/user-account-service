@@ -9,11 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.mathdojo.useraccountservice.model.Organisation;
+import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 
 @Service
 public class OrganisationService {
+
+    private static final String NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG = "a new organisation cannot be created with a true verification status";
 
     public static final String UNKNOWN_ORGID_EXCEPTION_MSG = "the specified organisation could not be found";
 
@@ -28,8 +31,7 @@ public class OrganisationService {
     public Organisation createNewOrganisation(AccountRequest request) throws OrganisationServiceException {
         ValidatorSingleton.validateObject(request);
         if (true == request.isAccountVerified()) {
-            throw new OrganisationServiceException(
-                    "a new organisation cannot be created with a true verification status");
+            throw new OrganisationServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
         }
         return new Organisation(UUID.randomUUID().toString(), false, request.getName(), request.getProfileImageLink());
     }
@@ -43,12 +45,12 @@ public class OrganisationService {
     }
 
     public Organisation updateOrganisationWithId(String organisationId, AccountRequest accountModificationRequest) {
-        try {        
+        try {
             validateAccountModificationRequest(accountModificationRequest);
         } catch (OrganisationServiceException e) {
             targetExecutionContext.getLogger().log(Level.WARNING, e.getMessage(), e);
-            throw e;            
-        }      
+            throw e;
+        }
 
         if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
@@ -83,7 +85,19 @@ public class OrganisationService {
         return "";
     }
 
-    private void validateAccountModificationRequest(AccountRequest request) throws OrganisationServiceException{
+    public User createUserInOrg(String parentOrgId, AccountRequest userToCreate) {
+        ValidatorSingleton.validateObject(userToCreate);
+        if (true == userToCreate.isAccountVerified()) {
+            throw new OrganisationServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
+        }
+        if (null == parentOrgId) {
+            throw new OrganisationServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
+        }
+        return new User(UUID.randomUUID().toString(), userToCreate.isAccountVerified(), userToCreate.getName(),
+                userToCreate.getProfileImageLink(), parentOrgId);
+    }
+
+    private void validateAccountModificationRequest(AccountRequest request) throws OrganisationServiceException {
         if (null == request.getName() && null == request.getProfileImageLink()
                 && request.isAccountVerified() == false) {
             throw new OrganisationServiceException(
