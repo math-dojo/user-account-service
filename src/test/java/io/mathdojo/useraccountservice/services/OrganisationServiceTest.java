@@ -206,7 +206,7 @@ public class OrganisationServiceTest {
     @Test
     public void throwErrorIfAttemptToCreateUserWithoutSpecifiedOrg() {
 
-        boolean accountVerified = true;
+        boolean accountVerified = false;
         String name = "fizz buzz";
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
@@ -216,7 +216,7 @@ public class OrganisationServiceTest {
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG, exceptionMessage);
+        assertEquals(OrganisationService.ORG_LESS_NEW_USER_ERROR_MSG, exceptionMessage);
 
     }
 }

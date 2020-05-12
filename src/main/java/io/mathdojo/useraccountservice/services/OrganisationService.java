@@ -17,7 +17,7 @@ import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 public class OrganisationService {
 
     public static final String NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG = "a new organisation cannot be created with a true verification status";
-
+    public static final String ORG_LESS_NEW_USER_ERROR_MSG = "a new user cannot be made without specifying a parent org";
     public static final String UNKNOWN_ORGID_EXCEPTION_MSG = "the specified organisation could not be found";
 
     @Autowired
@@ -91,7 +91,7 @@ public class OrganisationService {
             throw new OrganisationServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
         }
         if (null == parentOrgId) {
-            throw new OrganisationServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
+            throw new OrganisationServiceException(ORG_LESS_NEW_USER_ERROR_MSG);
         }
         return new User(UUID.randomUUID().toString(), userToCreate.isAccountVerified(), userToCreate.getName(),
                 userToCreate.getProfileImageLink(), parentOrgId);
