@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
+import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.services.OrganisationService;
@@ -73,5 +74,17 @@ public class BeanRegistration {
                         accountRequest);
             });
         };
+    }
+
+    @Bean
+    public Function<Flux<AccountModificationRequest>, Flux<User>> createUserInOrg(ExecutionContext context) {
+       return newUserRequestFluxEntity -> {
+        return newUserRequestFluxEntity.map(newUserRequest -> {
+            context.getLogger().info(
+                String.format("About to create a new user in org: ", newUserRequest.getParentOrgId())
+            );
+            return organisationService.createUserInOrg(newUserRequest.getParentOrgId(), newUserRequest);
+        });
+       };
     }
 }
