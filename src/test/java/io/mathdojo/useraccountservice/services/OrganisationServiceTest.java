@@ -199,7 +199,7 @@ public class OrganisationServiceTest {
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals("a new user cannot already have their account verified", exceptionMessage);
+        assertEquals(OrganisationService.NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG, exceptionMessage);
 
     }
 
@@ -216,7 +216,7 @@ public class OrganisationServiceTest {
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals("a new user cannot already have their account verified", exceptionMessage);
+        assertEquals(OrganisationService.NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG, exceptionMessage);
 
     }
 }

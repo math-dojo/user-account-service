@@ -16,7 +16,7 @@ import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 @Service
 public class OrganisationService {
 
-    private static final String NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG = "a new organisation cannot be created with a true verification status";
+    public static final String NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG = "a new organisation cannot be created with a true verification status";
 
     public static final String UNKNOWN_ORGID_EXCEPTION_MSG = "the specified organisation could not be found";
 
