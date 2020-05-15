@@ -17,6 +17,7 @@ public class OrganisationServiceTest {
 
     private static OrganisationService organisationService;
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
+    private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
 
     @BeforeClass
     public static void setUp() {
@@ -252,5 +253,46 @@ public class OrganisationServiceTest {
         String exceptionMessage = exception.getMessage();
         assertTrue(exceptionMessage.contains("name"));
 
+    }
+
+    @Test
+    public void returnsUserWithMatchingIdIfPossibleToFindInOrg() {
+
+        String expectedOrganisationId = "aKnownOrg";
+        String userId = "knownUserId";
+
+        User createdUser = organisationService.getUserInOrg(expectedOrganisationId, userId);
+        
+        assertEquals(expectedOrganisationId, createdUser.getBelongsToOrgWithId());
+        
+    }
+
+    @Test
+    public void throwsExceptionIfAttemptToRetrieveUserFromUnknownOrg() {
+
+        String expectedOrganisationId = PRECONDITIONED_UNKNOWN_ORG_ID;
+        String userId = "knownUserId";
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.getUserInOrg(expectedOrganisationId, userId);
+        });
+
+        String exceptionMessage = exception.getMessage();        
+        
+    }
+
+    @Test
+    public void throwsExceptionIfAttemptToRetrieveUnknownUserFromKnownOrg() {
+
+        String expectedOrganisationId = "aKnownOrg";
+        String userId = PRECONDITIONED_UNKNOWN_USER_ID;
+        
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+            organisationService.getUserInOrg(expectedOrganisationId, userId);
+        });
+
+        String exceptionMessage = exception.getMessage(); 
+        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);        
+        
     }
 }
