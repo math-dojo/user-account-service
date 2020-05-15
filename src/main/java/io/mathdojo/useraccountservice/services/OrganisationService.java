@@ -106,6 +106,11 @@ public class OrganisationService {
         }
     }
 
+	public User getUserInOrg(String expectedOrganisationId, String userId) {
+        String returnedOrgId = (getOrganisationById(expectedOrganisationId)).getId();
+        return new User(userId, false, "a name", "https://domain.com/img.png", returnedOrgId);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
