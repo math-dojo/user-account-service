@@ -173,4 +173,24 @@ public class UserAccountServiceApplicationTest {
                 assertThat(result.getBelongsToOrgWithId()).isEqualTo(parentOrgId);
                 assertFalse(result.isAccountVerified());
         }
+
+        @Test
+        public void testGetUserInOrgFunctionReturnsKnownUser() {
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> handlerSpy = Mockito
+                                .spy(handler);
+                Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+                when(mockExecContext.getFunctionName()).thenReturn("getUserInOrg");
+                String parentOrgId = "customOrgId";
+                String userId = "my coolName";
+                User result = (User) handlerSpy.handleRequest(mockMessage,
+                                new AccountModificationRequest(userId, parentOrgId, false,
+                                                null, null),
+                                mockExecContext);
+                handlerSpy.close();
+                assertThat(result.getId()).isEqualTo(userId);
+                assertThat(result.getBelongsToOrgWithId()).isEqualTo(parentOrgId);
+        }
 }
