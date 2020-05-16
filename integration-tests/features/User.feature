@@ -17,7 +17,7 @@ Feature: Features related to User Management
   Scenario: GET to /organisations/{organisationId}/users/{userId} with valid userId returns user
     When I make a GET to the function at '/organisations/validOrg/users/knownUserId'
     Then I should get a status code 200
-    And the response should contain a key 'userId' with value 'knownUserId'
+    And the response should contain a key 'id' with value 'knownUserId'
 
   @getUserFromOrg @errorHandling
   Scenario: GET to /organisations/{organisationId}/users/{userId} with invalid userId returns 404

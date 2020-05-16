@@ -76,7 +76,7 @@ public class AccountRequestBodyUsersHandler
                 return (HttpResponseMessage) handledRequest;
             }
             User createdOrg = (User) handledRequest;
-            return request.createResponseBuilder(HttpStatus.CREATED).body(createdOrg).build();
+            return request.createResponseBuilder(HttpStatus.OK).body(createdOrg).build();
 
         } catch (OrganisationServiceException e) {
             return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
