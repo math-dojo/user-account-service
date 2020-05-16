@@ -90,12 +90,16 @@ public class OrganisationService {
     public User createUserInOrg(String parentOrgId, AccountRequest userToCreate) {
         ValidatorSingleton.validateObject(userToCreate);
         if (true == userToCreate.isAccountVerified()) {
+            targetExecutionContext.getLogger().log(Level.FINEST,
+                    String.format("Failed attempt to create an already validated user."));
             throw new OrganisationServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
         }
         if (null == parentOrgId || null == getOrganisationById(parentOrgId)) {
+            targetExecutionContext.getLogger().log(Level.FINEST,
+                    String.format("Failed attempt to create a user without an org."));
             throw new OrganisationServiceException(ORG_LESS_NEW_USER_ERROR_MSG);
         }
-        
+
         return new User(UUID.randomUUID().toString(), userToCreate.isAccountVerified(), userToCreate.getName(),
                 userToCreate.getProfileImageLink(), parentOrgId);
     }
@@ -108,9 +112,11 @@ public class OrganisationService {
         }
     }
 
-	public User getUserInOrg(String expectedOrganisationId, String userId) {
+    public User getUserInOrg(String expectedOrganisationId, String userId) {
         String returnedOrgId = (getOrganisationById(expectedOrganisationId)).getId();
-        if("unknownUserId" == userId) {
+        if ("unknownUserId" == userId) {
+            targetExecutionContext.getLogger().log(Level.WARNING,
+                    String.format("UserId %s in Org %s could not be found", userId, expectedOrganisationId));
             throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
         }
         return new User(userId, false, "a name", "https://domain.com/img.png", returnedOrgId);

@@ -3,25 +3,42 @@ package io.mathdojo.useraccountservice.services;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import java.util.logging.Logger;
 
 import javax.validation.ConstraintViolationException;
 
-import org.junit.BeforeClass;
+import com.microsoft.azure.functions.ExecutionContext;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 
+@RunWith(MockitoJUnitRunner.class)
 public class OrganisationServiceTest {
 
-    private static OrganisationService organisationService;
+    @Mock
+    private ExecutionContext targetExecutionContext;
+
+    @InjectMocks
+    private OrganisationService organisationService = new OrganisationService();
+
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
     private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
 
-    @BeforeClass
-    public static void setUp() {
-        organisationService = new OrganisationService();
+    @Before
+    public void setUp() {
+        Logger testLogger = mock(Logger.class);
+        Mockito.when(targetExecutionContext.getLogger()).thenReturn(testLogger);
     }
 
     @Test
@@ -37,7 +54,7 @@ public class OrganisationServiceTest {
         assertEquals(name, testOrg.getName());
         assertEquals(profileImageLink, testOrg.getProfileImageLink());
         assertEquals(accountVerificationStatus, testOrg.isAccountVerified());
-        
+
     }
 
     @Test
@@ -48,12 +65,12 @@ public class OrganisationServiceTest {
 
         AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink);
 
-        Exception exception = assertThrows(ConstraintViolationException.class,() -> {
+        Exception exception = assertThrows(ConstraintViolationException.class, () -> {
             organisationService.createNewOrganisation(newRequest);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertTrue(exceptionMessage.contains("name"));        
+        assertTrue(exceptionMessage.contains("name"));
     }
 
     @Test
@@ -64,20 +81,19 @@ public class OrganisationServiceTest {
 
         AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink);
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.createNewOrganisation(newRequest);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals("a new organisation cannot be created with a true verification status", 
-        exceptionMessage);
-        
+        assertEquals("a new organisation cannot be created with a true verification status", exceptionMessage);
+
     }
 
     @Test
     public void throwsExceptionIfDeleteForNull() {
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.deleteOrganisationWithId(null);
         });
 
@@ -89,20 +105,19 @@ public class OrganisationServiceTest {
     @Test
     public void throwsExceptionIfGetOrganisationWithNullOrgId() {
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.getOrganisationById(null);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals("the specified organisation could not be found", 
-        exceptionMessage);
-        
+        assertEquals("the specified organisation could not be found", exceptionMessage);
+
     }
 
     @Test
     public void throwsExceptionIfDeleteForPreconditionedNonExistentOrg() {
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.deleteOrganisationWithId(PRECONDITIONED_UNKNOWN_ORG_ID);
         });
 
@@ -113,38 +128,39 @@ public class OrganisationServiceTest {
     @Test
     public void throwsExceptionIfGetOrganisationWithPreconditionedUnknownOrgId() {
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.getOrganisationById("unknownOrganisationId");
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals("the specified organisation could not be found", 
-        exceptionMessage);
-        
+        assertEquals("the specified organisation could not be found", exceptionMessage);
+
     }
 
     @Test
     public void throwsNoErrorIfDeletingForValidOrgId() {
-        organisationService.deleteOrganisationWithId("knownOrganisationId");        
+        organisationService.deleteOrganisationWithId("knownOrganisationId");
     }
 
     @Test
     public void updateOrgWithIdReturnsModificationResultIfAllParamsFilledAndValid() {
-        AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange", "https://my.custom.domain/image-i-dont-like.png");
+        AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
+                "https://my.custom.domain/image-i-dont-like.png");
         Organisation oldOrganisation = organisationService.createNewOrganisation(accountCreationRequest);
-
 
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
         AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
-        Organisation modificationResult = organisationService.updateOrganisationWithId(oldOrganisation.getId(), accountModificationRequest);
+        Organisation modificationResult = organisationService.updateOrganisationWithId(oldOrganisation.getId(),
+                accountModificationRequest);
 
         assertEquals(oldOrganisation.getId(), modificationResult.getId());
         assertEquals(newName, modificationResult.getName());
         assertEquals(newProfileImageLink, modificationResult.getProfileImageLink());
     }
 
-    // TODO #15: Add unit test coverage for partial filling of account request params on update
+    // TODO #15: Add unit test coverage for partial filling of account request
+    // params on update
 
     @Test
     public void throwsExceptionIfUpdateForPreconditionedNonExistentOrg() {
@@ -152,7 +168,7 @@ public class OrganisationServiceTest {
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
         AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class,() -> {
+        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.updateOrganisationWithId(PRECONDITIONED_UNKNOWN_ORG_ID, accountModificationRequest);
         });
 
@@ -167,9 +183,8 @@ public class OrganisationServiceTest {
         String expectedOrganisationId = "aKnownOrg";
         Organisation foundOrg = organisationService.getOrganisationById(expectedOrganisationId);
 
-        
         assertEquals(expectedOrganisationId, foundOrg.getId());
-        
+
     }
 
     @Test
@@ -195,7 +210,7 @@ public class OrganisationServiceTest {
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.createUserInOrg("randomParentOrgId", userToCreate);
         });
 
@@ -212,7 +227,7 @@ public class OrganisationServiceTest {
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.createUserInOrg(null, userToCreate);
         });
 
@@ -229,7 +244,7 @@ public class OrganisationServiceTest {
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.createUserInOrg(PRECONDITIONED_UNKNOWN_ORG_ID, userToCreate);
         });
 
@@ -237,7 +252,7 @@ public class OrganisationServiceTest {
         assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
 
     }
-    
+
     @Test
     public void throwErrorIfAttemptToCreateUserWithNullName() {
 
@@ -246,7 +261,7 @@ public class OrganisationServiceTest {
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class,() -> {
+        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
             organisationService.createUserInOrg("someKnownOrgId", userToCreate);
         });
 
@@ -262,9 +277,9 @@ public class OrganisationServiceTest {
         String userId = "knownUserId";
 
         User createdUser = organisationService.getUserInOrg(expectedOrganisationId, userId);
-        
+
         assertEquals(expectedOrganisationId, createdUser.getBelongsToOrgWithId());
-        
+
     }
 
     @Test
@@ -273,13 +288,13 @@ public class OrganisationServiceTest {
         String expectedOrganisationId = PRECONDITIONED_UNKNOWN_ORG_ID;
         String userId = "knownUserId";
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.getUserInOrg(expectedOrganisationId, userId);
         });
 
-        String exceptionMessage = exception.getMessage();  
-        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);      
-        
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+
     }
 
     @Test
@@ -287,13 +302,13 @@ public class OrganisationServiceTest {
 
         String expectedOrganisationId = "aKnownOrg";
         String userId = PRECONDITIONED_UNKNOWN_USER_ID;
-        
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class,() -> {
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
             organisationService.getUserInOrg(expectedOrganisationId, userId);
         });
 
-        String exceptionMessage = exception.getMessage(); 
-        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);        
-        
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+
     }
 }
