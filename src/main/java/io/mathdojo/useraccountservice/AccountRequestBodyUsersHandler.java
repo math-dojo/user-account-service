@@ -53,4 +53,36 @@ public class AccountRequestBodyUsersHandler
             return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+    @FunctionName("getUserInOrg")
+    public HttpResponseMessage executeGetForNewUserInOrg(
+        @HttpTrigger(
+            name = "request", 
+            methods = { HttpMethod.GET }, 
+            authLevel = AuthorizationLevel.ANONYMOUS, 
+            route = "organisations/{orgId:alpha}/users/{userId:alpha}"
+            ) HttpRequestMessage<Optional<AccountModificationRequest>> request,
+        @BindingName("orgId") String orgId,
+        @BindingName("userId") String userId,
+        ExecutionContext context) {
+
+        try {
+            AccountModificationRequest modificationRequest = new AccountModificationRequest(
+                userId, orgId, false, null, null
+            );
+            Object handledRequest = handleRequest(request, modificationRequest, context);
+            if (handledRequest instanceof HttpResponseMessage) {
+                return (HttpResponseMessage) handledRequest;
+            }
+            User createdOrg = (User) handledRequest;
+            return request.createResponseBuilder(HttpStatus.CREATED).body(createdOrg).build();
+
+        } catch (OrganisationServiceException e) {
+            return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            context.getLogger().log(Level.WARNING, "User retrieval by Id failed", e);
+            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
