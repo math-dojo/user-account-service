@@ -64,14 +64,14 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Function<Flux<AccountModificationRequest>, Flux<Organisation>> updateOrganisationById(ExecutionContext context) {
+    public Function<Flux<AccountModificationRequest>, Flux<Organisation>> updateOrganisationById(
+            ExecutionContext context) {
 
         return accountRequestFluxEntity -> {
             return accountRequestFluxEntity.map(accountRequest -> {
-                context.getLogger().info(
-                        String.format("About to update an org with id: %s", accountRequest.getAccountId()));
-                return organisationService.updateOrganisationWithId(accountRequest.getAccountId(),
-                        accountRequest);
+                context.getLogger()
+                        .info(String.format("About to update an org with id: %s", accountRequest.getAccountId()));
+                return organisationService.updateOrganisationWithId(accountRequest.getAccountId(), accountRequest);
             });
         };
     }
