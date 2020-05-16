@@ -277,7 +277,8 @@ public class OrganisationServiceTest {
             organisationService.getUserInOrg(expectedOrganisationId, userId);
         });
 
-        String exceptionMessage = exception.getMessage();        
+        String exceptionMessage = exception.getMessage();  
+        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);      
         
     }
 
@@ -292,7 +293,7 @@ public class OrganisationServiceTest {
         });
 
         String exceptionMessage = exception.getMessage(); 
-        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);        
+        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);        
         
     }
 }

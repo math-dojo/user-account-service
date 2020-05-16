@@ -16,9 +16,11 @@ import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 @Service
 public class OrganisationService {
 
+    private static final String UNKNOWN_ORGANISATION_ID = "unknownOrganisationId";
     public static final String NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG = "a new organisation cannot be created with a true verification status";
     public static final String ORG_LESS_NEW_USER_ERROR_MSG = "a new user cannot be made without specifying a valid parent org";
     public static final String UNKNOWN_ORGID_EXCEPTION_MSG = "the specified organisation could not be found";
+    public static final String UNKNOWN_USERID_EXCEPTION_MSG = "the specified user could not be found";
 
     @Autowired
     private ExecutionContext targetExecutionContext;
@@ -37,7 +39,7 @@ public class OrganisationService {
     }
 
     public Organisation getOrganisationById(String organisationId) throws OrganisationServiceException {
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
+        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return new Organisation(organisationId, false, UUID.randomUUID().toString(),
@@ -52,7 +54,7 @@ public class OrganisationService {
             throw e;
         }
 
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
+        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
 
@@ -79,7 +81,7 @@ public class OrganisationService {
     }
 
     public String deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals("unknownOrganisationId")) {
+        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return "";
@@ -108,6 +110,9 @@ public class OrganisationService {
 
 	public User getUserInOrg(String expectedOrganisationId, String userId) {
         String returnedOrgId = (getOrganisationById(expectedOrganisationId)).getId();
+        if("unknownUserId" == userId) {
+            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+        }
         return new User(userId, false, "a name", "https://domain.com/img.png", returnedOrgId);
     }
 
