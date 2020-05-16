@@ -20,7 +20,7 @@ import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRe
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
 import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 
-public class UserAccountRequestBodyHandler
+public class AccountRequestBodyUsersHandler
         extends HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> {
 
     @FunctionName("createUserInOrg")

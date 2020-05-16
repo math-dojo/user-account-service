@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 
-public class UserAccountRequestBodyHandlerTest {
+public class AccountRequestBodyUsersHandlerTest {
     private ExecutionContext mockExecContext;
 
     @Before
@@ -33,8 +33,8 @@ public class UserAccountRequestBodyHandlerTest {
 
     @Test
     public void testPostToCreateOrgReturns401FromVerificationFailure() {
-        UserAccountRequestBodyHandler handler = new UserAccountRequestBodyHandler();
-        UserAccountRequestBodyHandler handlerSpy = Mockito.spy(handler);
+        AccountRequestBodyUsersHandler handler = new AccountRequestBodyUsersHandler();
+        AccountRequestBodyUsersHandler handlerSpy = Mockito.spy(handler);
 
         HttpRequestMessage<Optional<AccountModificationRequest>> mockMessage = (HttpRequestMessage<Optional<AccountModificationRequest>>) mock(HttpRequestMessage.class);
         AccountModificationRequest mockAccountRequest = mock(AccountModificationRequest.class);
