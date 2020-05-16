@@ -87,4 +87,15 @@ public class BeanRegistration {
         });
        };
     }
+
+    @Bean
+    public Function<Flux<AccountModificationRequest>, Flux<User>> getUserInOrg(ExecutionContext context) {
+        return retrieveUserRequestFluxEntity -> {
+            return retrieveUserRequestFluxEntity.map(retrieveUserRequest -> {
+                context.getLogger().info(String.format("About to retrieve user %s from org: %s",
+                        retrieveUserRequest.getAccountId(), retrieveUserRequest.getParentOrgId()));
+                return organisationService.getUserInOrg(retrieveUserRequest.getParentOrgId(), retrieveUserRequest.getAccountId());
+            });
+        };
+    }
 }
