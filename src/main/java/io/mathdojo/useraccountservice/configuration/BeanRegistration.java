@@ -78,14 +78,13 @@ public class BeanRegistration {
 
     @Bean
     public Function<Flux<AccountModificationRequest>, Flux<User>> createUserInOrg(ExecutionContext context) {
-       return newUserRequestFluxEntity -> {
-        return newUserRequestFluxEntity.map(newUserRequest -> {
-            context.getLogger().info(
-                String.format("About to create a new user in org: ", newUserRequest.getParentOrgId())
-            );
-            return organisationService.createUserInOrg(newUserRequest.getParentOrgId(), newUserRequest);
-        });
-       };
+        return newUserRequestFluxEntity -> {
+            return newUserRequestFluxEntity.map(newUserRequest -> {
+                context.getLogger()
+                        .info(String.format("About to create a new user in org: %s", newUserRequest.getParentOrgId()));
+                return organisationService.createUserInOrg(newUserRequest.getParentOrgId(), newUserRequest);
+            });
+        };
     }
 
     @Bean
