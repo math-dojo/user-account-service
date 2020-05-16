@@ -46,7 +46,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testPostForDummyUserHandler() throws Exception {
+        public void testPostForDummyUserHandler() {
                 HTTPRequestSignatureVerificationEnabledHandler<DummyUser, Greeting> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<DummyUser, Greeting> handlerSpy = Mockito.spy(handler);
@@ -61,7 +61,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testPostOrganisationsHandlerReturnsCreatedOrg() throws Exception {
+        public void testPostOrganisationsHandlerReturnsCreatedOrg() {
                 HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handlerSpy = Mockito
@@ -79,7 +79,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testGetOrganisationsByIdReturnsAnOrgIfPresent() throws Exception {
+        public void testGetOrganisationsByIdReturnsAnOrgIfPresent() {
                 HTTPRequestSignatureVerificationEnabledHandler<String, Organisation> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<String, Organisation> handlerSpy = Mockito.spy(handler);
@@ -94,7 +94,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testDeleteOrganisationsThrowsNoErrorIfSuccessful() throws Exception {
+        public void testDeleteOrganisationsThrowsNoErrorIfSuccessful() {
                 HTTPRequestSignatureVerificationEnabledHandler<String, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<String, String> handlerSpy = Mockito.spy(handler);
@@ -152,7 +152,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testPostCreateUserInOrgFunctionReturnsCreatedUser() throws Exception {
+        public void testPostCreateUserInOrgFunctionReturnsCreatedUser() {
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> handlerSpy = Mockito
