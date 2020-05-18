@@ -58,4 +58,33 @@ public class AccountRequestBodyUsersHandlerTest {
         assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
 
     }
+
+    @Test
+    public void testGetForUserReturns401FromVerificationFailure() {
+        AccountRequestBodyUsersHandler handler = new AccountRequestBodyUsersHandler();
+        AccountRequestBodyUsersHandler handlerSpy = Mockito.spy(handler);
+
+        HttpRequestMessage<Optional<AccountModificationRequest>> mockMessage = (HttpRequestMessage<Optional<AccountModificationRequest>>) mock(HttpRequestMessage.class);
+        AccountModificationRequest mockAccountRequest = mock(AccountModificationRequest.class);
+        Optional<AccountModificationRequest> mockAccountRequestOptional = Optional.of(mockAccountRequest);
+
+        when(mockMessage.getBody()).thenReturn(mockAccountRequestOptional);
+
+        HttpResponseMessage expectedResponseFromSignatureVerifier = mock(HttpResponseMessage.class);
+        when(expectedResponseFromSignatureVerifier.getStatus()).thenReturn(HttpStatus.UNAUTHORIZED);
+
+        doReturn(expectedResponseFromSignatureVerifier).when(handlerSpy).handleRequest(
+            any(HttpRequestMessage.class), any(AccountModificationRequest.class), any(ExecutionContext.class));
+
+        HttpResponseMessage actualResponseMessage = handlerSpy.executeGetForUserInOrg(
+            mockMessage, 
+            "someValidOrgId",
+            "someValidUserId",
+            mockExecContext
+        );
+        handlerSpy.close();
+
+        assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
+
+    }
 }
