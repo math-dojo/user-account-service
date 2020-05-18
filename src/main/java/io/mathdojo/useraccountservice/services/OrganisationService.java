@@ -40,7 +40,8 @@ public class OrganisationService {
     }
 
     public Organisation getOrganisationById(String organisationId) throws OrganisationServiceException {
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
+        if (null == organisationId || organisationId.isEmpty()
+                || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return new Organisation(organisationId, false, UUID.randomUUID().toString(),
@@ -55,7 +56,8 @@ public class OrganisationService {
             throw e;
         }
 
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
+        if (null == organisationId || organisationId.isEmpty()
+                || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
 
@@ -82,7 +84,8 @@ public class OrganisationService {
     }
 
     public String deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
+        if (null == organisationId || organisationId.isEmpty()
+                || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return "";
