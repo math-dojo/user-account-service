@@ -311,4 +311,33 @@ public class OrganisationServiceTest {
         assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
 
     }
+    @Test
+    public void throwsErrorIfAttemptToUpdateUserInNonExistentOrg() {
+        String newName = "aName iWillNotChange";
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.updateUserWithId(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId",
+                    accountModificationRequest);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfAttemptToUpdateNonExistentUserInValidOrg() {
+        String newName = "aName iWillNotChange";
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.updateUserWithId("knownOrg", PRECONDITIONED_UNKNOWN_USER_ID,
+                    accountModificationRequest);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+    }
 }
