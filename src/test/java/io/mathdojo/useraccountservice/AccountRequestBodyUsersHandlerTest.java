@@ -32,7 +32,7 @@ public class AccountRequestBodyUsersHandlerTest {
     }
 
     @Test
-    public void testPostToCreateOrgReturns401FromVerificationFailure() {
+    public void testPostToCreateUserReturns401FromVerificationFailure() {
         AccountRequestBodyUsersHandler handler = new AccountRequestBodyUsersHandler();
         AccountRequestBodyUsersHandler handlerSpy = Mockito.spy(handler);
 
