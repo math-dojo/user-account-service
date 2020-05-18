@@ -340,4 +340,9 @@ public class OrganisationServiceTest {
         String exceptionMessage = exception.getMessage();
         assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
     }
+
+    @Test
+    public void throwsErrorIfAttemptToUpdateValidUserWithInvalidParams() {
+
+    }
 }
