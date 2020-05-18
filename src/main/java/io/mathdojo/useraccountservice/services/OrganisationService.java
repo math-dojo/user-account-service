@@ -143,4 +143,20 @@ public class OrganisationService {
         }
         return o.toString().replace("\n", "\n    ");
     }
+
+    /**
+     * @param orgId                      - the id of the org where the user can be
+     *                                   found
+     * @param userId                     - the user's id
+     * @param accountModificationRequest - object containing the desired parameters
+     *                                   to be modified.
+     */
+    public void updateUserWithId(String orgId, String userId, AccountRequest accountModificationRequest) {
+        String returnedOrgId = (getOrganisationById(orgId)).getId();
+        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
+            targetExecutionContext.getLogger().log(Level.WARNING,
+                    String.format("UserId %s in Org %s could not be found", userId, orgId));
+            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+        }
+    }
 }
