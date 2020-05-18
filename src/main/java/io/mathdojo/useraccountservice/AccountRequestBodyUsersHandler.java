@@ -56,7 +56,7 @@ public class AccountRequestBodyUsersHandler
 
 
     @FunctionName("getUserInOrg")
-    public HttpResponseMessage executeGetForNewUserInOrg(
+    public HttpResponseMessage executeGetForUserInOrg(
         @HttpTrigger(
             name = "request", 
             methods = { HttpMethod.GET }, 

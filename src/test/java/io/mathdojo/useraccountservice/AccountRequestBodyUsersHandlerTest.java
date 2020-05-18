@@ -76,7 +76,7 @@ public class AccountRequestBodyUsersHandlerTest {
         doReturn(expectedResponseFromSignatureVerifier).when(handlerSpy).handleRequest(
             any(HttpRequestMessage.class), any(AccountModificationRequest.class), any(ExecutionContext.class));
 
-        HttpResponseMessage actualResponseMessage = handlerSpy.executeGetForNewUserInOrg(
+        HttpResponseMessage actualResponseMessage = handlerSpy.executeGetForUserInOrg(
             mockMessage, 
             "someValidOrgId",
             "someValidUserId",
