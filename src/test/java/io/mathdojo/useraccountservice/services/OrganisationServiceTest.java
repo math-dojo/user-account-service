@@ -311,6 +311,12 @@ public class OrganisationServiceTest {
         assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
 
     }
+
+    @Test
+    public void updateUserWithIdReturnsResultIfOrgAndAllParamsFilledAndValid() {
+
+    }
+
     @Test
     public void throwsErrorIfAttemptToUpdateUserInNonExistentOrg() {
         String newName = "aName iWillNotChange";
