@@ -49,11 +49,10 @@ public class OrganisationService {
     }
 
     public Organisation updateOrganisationWithId(String organisationId, AccountRequest accountModificationRequest) {
-        try {
-            validateAccountModificationRequest(accountModificationRequest);
-        } catch (OrganisationServiceException e) {
-            targetExecutionContext.getLogger().log(Level.WARNING, e.getMessage(), e);
-            throw e;
+        if (!isValidAccountModificationRequest(accountModificationRequest)) {
+            String errorMessage = "The name, profileImageLink and accountVerified cannot all be empty in a modification request.";
+            targetExecutionContext.getLogger().log(Level.WARNING, errorMessage);
+            throw new OrganisationServiceException(errorMessage);
         }
 
         if (null == organisationId || organisationId.isEmpty()
@@ -108,12 +107,12 @@ public class OrganisationService {
                 userToCreate.getProfileImageLink(), parentOrgId);
     }
 
-    private void validateAccountModificationRequest(AccountRequest request) throws OrganisationServiceException {
+    private boolean isValidAccountModificationRequest(AccountRequest request) {
         if (null == request.getName() && null == request.getProfileImageLink()
                 && request.isAccountVerified() == false) {
-            throw new OrganisationServiceException(
-                    "The name, profileImageLink and accountVerified cannot all be empty in a modification request.");
+            return false;
         }
+        return true;
     }
 
     public User getUserInOrg(String expectedOrganisationId, String userId) {
