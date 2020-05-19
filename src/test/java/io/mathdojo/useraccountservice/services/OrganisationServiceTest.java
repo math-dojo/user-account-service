@@ -314,6 +314,55 @@ public class OrganisationServiceTest {
 
     @Test
     public void updateUserWithIdReturnsResultIfOrgAndAllParamsFilledAndValid() {
+        String orgId = "knownOrg";
+
+        AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
+                "https://my.custom.domain/image-i-dont-like.png");
+        User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
+
+        String newName = "aName iWillNotChange";
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        User modifiedUser = organisationService.updateUserWithId(orgId, "knownUserId",
+                    accountModificationRequest);
+
+        assertEquals(oldUser.getId(), modifiedUser.getId());
+        assertEquals(newName, modifiedUser.getName());
+        assertEquals(newProfileImageLink, modifiedUser.getProfileImageLink());
+        
+    }
+
+    @Test
+    public void updateUserWithIdUpdatesOnlyNonNullFields() {
+        String orgId = "knownOrg";
+
+        AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
+                "https://my.custom.domain/image-i-dont-like.png");
+        User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
+
+        String newName = null;
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        User modifiedUser = organisationService.updateUserWithId(orgId, "knownUserId",
+                    accountModificationRequest);
+
+        assertEquals(oldUser.getId(), modifiedUser.getId());
+        assertEquals(oldUser.getName(), modifiedUser.getName());
+        assertEquals(newProfileImageLink, modifiedUser.getProfileImageLink());
+
+        String secondNewName = "newerName";
+        String secondNewProfileImageLink = null;
+        AccountRequest secondAccountModificationRequest = new AccountRequest(true, newName, secondNewProfileImageLink);
+
+        User secondModifiedUser = organisationService.updateUserWithId(orgId, "knownUserId",
+            secondAccountModificationRequest);
+
+        assertEquals(modifiedUser.getId(), secondModifiedUser.getId());
+        assertEquals(secondNewName, secondModifiedUser.getName());
+        assertEquals(modifiedUser.getProfileImageLink(), secondModifiedUser.getProfileImageLink());
+        
 
     }
 
@@ -359,4 +408,6 @@ public class OrganisationServiceTest {
         String exceptionMessage = exception.getMessage();
         assertEquals("One or more of the properties to update for the user are incorrect.", exceptionMessage);
     }
+
+    // TODO: #18 Add unit test coverage for partial filling of user account modification params
 }
