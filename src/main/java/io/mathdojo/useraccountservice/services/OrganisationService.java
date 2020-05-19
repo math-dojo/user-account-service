@@ -125,6 +125,29 @@ public class OrganisationService {
         return new User(userId, false, "a name", "https://domain.com/img.png", returnedOrgId);
     }
 
+    /**
+     * @param orgId                      - the id of the org where the user can be
+     *                                   found
+     * @param userId                     - the user's id
+     * @param accountModificationRequest - object containing the desired parameters
+     *                                   to be modified.
+     */
+    public void updateUserWithId(String orgId, String userId, AccountRequest accountModificationRequest) {
+        String returnedOrgId = (getOrganisationById(orgId)).getId();
+        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
+            targetExecutionContext.getLogger().log(Level.WARNING,
+                    String.format("UserId %s in Org %s could not be found", userId, orgId));
+            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+        }
+
+        if (!isValidAccountModificationRequest(accountModificationRequest)) {
+            String errorMessage = "One or more of the properties to update for the user are incorrect.";
+            targetExecutionContext.getLogger().log(Level.WARNING,
+                    String.format("UserId %s in Org %s could not be upated", userId, orgId));
+            throw new OrganisationServiceException(errorMessage);
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -144,21 +167,5 @@ public class OrganisationService {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
-    }
-
-    /**
-     * @param orgId                      - the id of the org where the user can be
-     *                                   found
-     * @param userId                     - the user's id
-     * @param accountModificationRequest - object containing the desired parameters
-     *                                   to be modified.
-     */
-    public void updateUserWithId(String orgId, String userId, AccountRequest accountModificationRequest) {
-        String returnedOrgId = (getOrganisationById(orgId)).getId();
-        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
-            targetExecutionContext.getLogger().log(Level.WARNING,
-                    String.format("UserId %s in Org %s could not be found", userId, orgId));
-            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
-        }
     }
 }

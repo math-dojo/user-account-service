@@ -348,7 +348,15 @@ public class OrganisationServiceTest {
     }
 
     @Test
-    public void throwsErrorIfAttemptToUpdateValidUserWithInvalidParams() {
+    public void throwsErrorIfAttemptToUpdateValidUserWithNullParams() {
+        AccountRequest accountModificationRequest = new AccountRequest(false, null, null);
 
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.updateUserWithId("knownOrg", "knownUserId",
+                    accountModificationRequest);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("One or more of the properties to update for the user are incorrect.", exceptionMessage);
     }
 }
