@@ -131,8 +131,9 @@ public class OrganisationService {
      * @param userId                     - the user's id
      * @param accountModificationRequest - object containing the desired parameters
      *                                   to be modified.
+     * @return 
      */
-    public void updateUserWithId(String orgId, String userId, AccountRequest accountModificationRequest) {
+    public User updateUserWithId(String orgId, String userId, AccountRequest accountModificationRequest) {
         String returnedOrgId = (getOrganisationById(orgId)).getId();
         if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
             targetExecutionContext.getLogger().log(Level.WARNING,
@@ -146,6 +147,18 @@ public class OrganisationService {
                     String.format("UserId %s in Org %s could not be upated", userId, orgId));
             throw new OrganisationServiceException(errorMessage);
         }
+
+        User foundUser = getUserInOrg(returnedOrgId, userId);
+		String nameToUpdate = (null == accountModificationRequest.getName()
+                || accountModificationRequest.getName().isEmpty()) ? foundUser.getName()
+                        : accountModificationRequest.getName();
+        String profileToUpdate = (null == accountModificationRequest.getProfileImageLink()
+                || accountModificationRequest.getProfileImageLink().isEmpty()) ? foundUser.getProfileImageLink()
+                        : accountModificationRequest.getProfileImageLink();
+        boolean verificationStatusToUpdate = (!foundUser.isAccountVerified()
+                && accountModificationRequest.isAccountVerified()) ? accountModificationRequest.isAccountVerified()
+                        : foundUser.isAccountVerified();
+        return new User(userId, verificationStatusToUpdate, nameToUpdate, profileToUpdate, returnedOrgId);
     }
 
     @Override
