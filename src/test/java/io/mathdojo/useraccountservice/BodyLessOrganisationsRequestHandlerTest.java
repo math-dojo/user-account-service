@@ -44,6 +44,7 @@ public class BodyLessOrganisationsRequestHandlerTest {
 
         HttpResponseMessage actualResponseMessage = handlerSpy.executeGetByIdForOrganisations(
             mockMessage, "orgId", mockExecContext);
+        handlerSpy.close();
 
         assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
 

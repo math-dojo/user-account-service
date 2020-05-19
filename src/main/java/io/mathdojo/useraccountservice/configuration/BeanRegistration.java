@@ -1,0 +1,76 @@
+package io.mathdojo.useraccountservice.configuration;
+
+import java.util.function.Function;
+
+import com.microsoft.azure.functions.ExecutionContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import io.mathdojo.useraccountservice.model.DummyUser;
+import io.mathdojo.useraccountservice.model.Greeting;
+import io.mathdojo.useraccountservice.model.Organisation;
+import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
+import io.mathdojo.useraccountservice.services.OrganisationService;
+import reactor.core.publisher.Flux;
+
+@Configuration
+public class BeanRegistration {
+
+    @Autowired
+    public OrganisationService organisationService;
+
+    @Bean
+    public Function<Flux<AccountRequest>, Flux<Organisation>> createOrganisation(ExecutionContext context) {
+
+        return accountRequestFluxEntity -> {
+            return accountRequestFluxEntity.map(accountRequest -> {
+                context.getLogger().info("About to create a new org fam!!");
+                return organisationService.createNewOrganisation(accountRequest);
+            });
+        };
+    }
+
+    @Bean
+    public Function<Flux<String>, Flux<Organisation>> getOrganisationById(ExecutionContext context) {
+
+        return organisationIdFluxEntity -> {
+            return organisationIdFluxEntity.map(organisationId -> {
+                context.getLogger().info("About to retrieve a known org fam!!");
+                return organisationService.getOrganisationById(organisationId);
+            });
+        };
+    }
+
+    @Bean
+    public Function<DummyUser, Greeting> hello(final ExecutionContext context) {
+        return user -> {
+            context.getLogger().info("yo, yo yo in the building homie!!!");
+            return new Greeting("Welcome, " + user.getName(), new String[] { "I am some stuff!", "Other Stuff" });
+        };
+    }
+
+    @Bean
+    public Function<Flux<String>, Flux<String>> deleteOrganisationById(final ExecutionContext context) {
+        return organisationIdFluxEntity -> {
+            return organisationIdFluxEntity.map(orgId -> {
+                context.getLogger().info("About to delete organisation: " + orgId);
+                return organisationService.deleteOrganisationWithId(orgId);
+            });
+        };
+    }
+
+    @Bean
+    public Function<Flux<AccountRequest>, Flux<Organisation>> updateOrganisationById(ExecutionContext context) {
+
+        return accountRequestFluxEntity -> {
+            return accountRequestFluxEntity.map(accountRequest -> {
+                context.getLogger().info(
+                        String.format("About to update an org with id: %s", accountRequest.getIdOfAccountToModify()));
+                return organisationService.updateOrganisationWithId(accountRequest.getIdOfAccountToModify(),
+                        accountRequest);
+            });
+        };
+    }
+}

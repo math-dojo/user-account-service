@@ -50,6 +50,8 @@ paths:
                   value: "Bad request: One or more parameters could not be updated"
         '401':
           description: Unauthorized
+        '404':
+          description: A organisation with the specified ID was not found
     delete:
       summary: "deletes an organisation with the matching id"
       responses: 
