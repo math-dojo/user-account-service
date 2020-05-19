@@ -15,5 +15,15 @@ module.exports.payloads = {
     },
     badOrgModificationRequest: {
         invalidParam: "ivalidValue"
+    },
+    newUserRequest: {
+        accountVerified: false,
+        name: "some name",
+        profileImageLink: "https://my.image.domain.com/it.jpg"
+    }, 
+    badNewUserRequest: {
+        accountVerified: true,
+        name: "",
+        profileImageLink: "https://my.image.domain.com/it.jpg"
     }
 };

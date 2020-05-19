@@ -18,9 +18,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
+import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 
-public class AccountRequestBodyOrganisationsHandlerTest {
+public class OrganisationModificationRequestBodyHandlerTest {
     private ExecutionContext mockExecContext;
 
     @Before
@@ -29,16 +29,16 @@ public class AccountRequestBodyOrganisationsHandlerTest {
         mockExecContext = mock(ExecutionContext.class);
 
         Mockito.when(mockExecContext.getLogger()).thenReturn(testLogger);
-    }
+    }    
 
     @Test
-    public void testPostToCreateOrgReturns401FromVerificationFailure() {
-        AccountRequestBodyOrganisationsHandler handler = new AccountRequestBodyOrganisationsHandler();
-        AccountRequestBodyOrganisationsHandler handlerSpy = Mockito.spy(handler);
+    public void testPutToCreateOrgReturns401FromVerificationFailure() {
+        OrgnisationModificationRequestBodyHandler handler = new OrgnisationModificationRequestBodyHandler();
+        OrgnisationModificationRequestBodyHandler handlerSpy = Mockito.spy(handler);
 
-        HttpRequestMessage<Optional<AccountRequest>> mockMessage = (HttpRequestMessage<Optional<AccountRequest>>) mock(HttpRequestMessage.class);
-        AccountRequest mockAccountRequest = mock(AccountRequest.class);
-        Optional<AccountRequest> mockAccountRequestOptional = Optional.of(mockAccountRequest);
+        HttpRequestMessage<Optional<AccountModificationRequest>> mockMessage = (HttpRequestMessage<Optional<AccountModificationRequest>>) mock(HttpRequestMessage.class);
+        AccountModificationRequest mockAccountRequest = mock(AccountModificationRequest.class);
+        Optional<AccountModificationRequest> mockAccountRequestOptional = Optional.of(mockAccountRequest);
 
         when(mockMessage.getBody()).thenReturn(mockAccountRequestOptional);
 
@@ -46,13 +46,13 @@ public class AccountRequestBodyOrganisationsHandlerTest {
         when(expectedResponseFromSignatureVerifier.getStatus()).thenReturn(HttpStatus.UNAUTHORIZED);
 
         doReturn(expectedResponseFromSignatureVerifier).when(handlerSpy).handleRequest(
-            any(HttpRequestMessage.class), any(AccountRequest.class), any(ExecutionContext.class));
+            any(HttpRequestMessage.class), any(AccountModificationRequest.class), any(ExecutionContext.class));
 
-        HttpResponseMessage actualResponseMessage = handlerSpy.executePostForOrganisations(
-            mockMessage, mockExecContext);
+        HttpResponseMessage actualResponseMessage = handlerSpy.executePutForOrganisations(
+            mockMessage, "orgId", mockExecContext);
         handlerSpy.close();
 
         assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
 
-    }
+    }        
 }
