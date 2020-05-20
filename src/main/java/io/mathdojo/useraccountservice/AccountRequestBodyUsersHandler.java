@@ -54,7 +54,6 @@ public class AccountRequestBodyUsersHandler
         }
     }
 
-
     @FunctionName("getUserInOrg")
     public HttpResponseMessage executeGetForUserInOrg(
         @HttpTrigger(
@@ -82,6 +81,37 @@ public class AccountRequestBodyUsersHandler
             return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             context.getLogger().log(Level.WARNING, "User retrieval by Id failed", e);
+            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @FunctionName("updateUserInOrg")
+    public HttpResponseMessage executePutUserInOrg(@HttpTrigger(name = "request", methods = {
+            HttpMethod.PUT }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}/users/{userId:alpha}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
+            @BindingName("orgId") String orgId, @BindingName("userId") String userId, ExecutionContext context) {
+
+        try {
+            AccountModificationRequest requestBody = request.getBody().get();
+            AccountModificationRequest modificationRequest = new AccountModificationRequest(userId, orgId,
+                    requestBody.isAccountVerified(), requestBody.getName(), requestBody.getProfileImageLink());
+            Object handledRequest = handleRequest(request, modificationRequest, context);
+            if (handledRequest instanceof HttpResponseMessage) {
+                return (HttpResponseMessage) handledRequest;
+            }
+            User finalResult = (User) handledRequest;
+            return request.createResponseBuilder(HttpStatus.NO_CONTENT)
+                .header("Content-Location", String
+                    .format("/organisations/%s/users/%s", finalResult.getBelongsToOrgWithId(), 
+                        finalResult.getId()))
+                .build();
+
+        } catch (ConstraintViolationException | OrganisationServiceException e) {
+            context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
+                context.getInvocationId(), context.getFunctionName()), e);
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            context.getLogger().log(Level.WARNING, String.format("A system error occured while processing request %s to function %s",
+                context.getInvocationId(), context.getFunctionName()), e);            
             return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
