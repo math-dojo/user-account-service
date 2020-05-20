@@ -18,6 +18,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
+import io.mathdojo.useraccountservice.services.OrganisationService;
 import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 
 public class AccountRequestBodyUsersHandler
@@ -108,7 +109,12 @@ public class AccountRequestBodyUsersHandler
         } catch (ConstraintViolationException | OrganisationServiceException e) {
             context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
                 context.getInvocationId(), context.getFunctionName()), e);
+            if(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage() || 
+                OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG == e.getMessage()) {
+                return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+            }
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
+
         } catch (Exception e) {
             context.getLogger().log(Level.WARNING, String.format("A system error occured while processing request %s to function %s",
                 context.getInvocationId(), context.getFunctionName()), e);            
