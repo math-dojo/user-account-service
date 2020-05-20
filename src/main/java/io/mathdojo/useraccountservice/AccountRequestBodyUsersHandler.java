@@ -43,8 +43,8 @@ public class AccountRequestBodyUsersHandler
             if (handledRequest instanceof HttpResponseMessage) {
                 return (HttpResponseMessage) handledRequest;
             }
-            User createdOrg = (User) handledRequest;
-            return request.createResponseBuilder(HttpStatus.CREATED).body(createdOrg).build();
+            User createdUser = (User) handledRequest;
+            return request.createResponseBuilder(HttpStatus.CREATED).body(createdUser).build();
 
         } catch (ConstraintViolationException | OrganisationServiceException e) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
@@ -75,8 +75,8 @@ public class AccountRequestBodyUsersHandler
             if (handledRequest instanceof HttpResponseMessage) {
                 return (HttpResponseMessage) handledRequest;
             }
-            User createdOrg = (User) handledRequest;
-            return request.createResponseBuilder(HttpStatus.OK).body(createdOrg).build();
+            User retrievedUser = (User) handledRequest;
+            return request.createResponseBuilder(HttpStatus.OK).body(retrievedUser).build();
 
         } catch (OrganisationServiceException e) {
             return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
