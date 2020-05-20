@@ -161,6 +161,15 @@ public class OrganisationService {
         return new User(userId, verificationStatusToUpdate, nameToUpdate, profileToUpdate, returnedOrgId);
     }
 
+	public void deleteUserFromOrg(String orgId, String userId) {
+        String returnedOrgId = (getOrganisationById(orgId)).getId();
+        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
+            targetExecutionContext.getLogger().log(Level.WARNING,
+                    String.format("UserId %s in Org %s could not be found", userId, orgId));
+            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+        }
+	}
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

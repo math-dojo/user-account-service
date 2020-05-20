@@ -411,4 +411,29 @@ public class OrganisationServiceTest {
         String exceptionMessage = exception.getMessage();
         assertEquals("One or more of the properties to update for the user are incorrect.", exceptionMessage);
     }
+
+    @Test
+    public void throwsNoErrorIfDeletingForValidUserInValidOrgId() {
+        organisationService.deleteUserFromOrg("knownOrganisationId", "knownUserId");
+    }
+
+    @Test
+    public void throwsErrorIfDeletingUserForInvalidOrgId() {
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.deleteUserFromOrg(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId");
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfDeletingNonExistentUserId() {
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.deleteUserFromOrg("knownOrgId", PRECONDITIONED_UNKNOWN_USER_ID);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+    }
 }
