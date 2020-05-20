@@ -44,7 +44,9 @@ Feature: Features related to User Management
     Then I should get a status code 404
 
 @updateUserById @errorHandling
-  Scenario: PUT to /organisations/{organisationId}/users/{userId} with pre-conditioned unknownUserId returns 404
+  Scenario: PUT to /users/{userId} with pre-conditioned unknownUserId returns 404
     Given I generate a json payload called 'userModificationRequest'
-    When I make a PUT to the function at '/organisations/unknownOrganisationId/users/knownUserId'
+    When I make a PUT to the function at '/organisations/knownOrganisationId/users/unknownUserId'
+    Then I should get a status code 404
+
     Then I should get a status code 404
