@@ -164,8 +164,7 @@ public class UserAccountServiceApplicationTest {
                 String parentOrgId = "customOrgId";
                 String name = "my coolName";
                 User result = (User) handlerSpy.handleRequest(mockMessage,
-                                new AccountModificationRequest(null, parentOrgId, false,
-                                                name, profileImageLink),
+                                new AccountModificationRequest(null, parentOrgId, false, name, profileImageLink),
                                 mockExecContext);
                 handlerSpy.close();
                 assertThat(result.getName()).isEqualTo(name);
@@ -186,11 +185,59 @@ public class UserAccountServiceApplicationTest {
                 String parentOrgId = "customOrgId";
                 String userId = "my coolName";
                 User result = (User) handlerSpy.handleRequest(mockMessage,
-                                new AccountModificationRequest(userId, parentOrgId, false,
-                                                null, null),
+                                new AccountModificationRequest(userId, parentOrgId, false, null, null),
                                 mockExecContext);
                 handlerSpy.close();
                 assertThat(result.getId()).isEqualTo(userId);
                 assertThat(result.getBelongsToOrgWithId()).isEqualTo(parentOrgId);
+        }
+
+        @Test
+        public void testUpdateUserInOrgFunctionReturnsKnownUser() {
+                /**
+                 * Pre-req: Create a user to update
+                 */
+
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> createUserHandler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> createUserHandlerSpy = Mockito
+                                .spy(createUserHandler);
+                Mockito.doReturn(mockSystemService).when(createUserHandlerSpy).getSystemService();
+
+                when(mockExecContext.getFunctionName()).thenReturn("createUserInOrg");
+                String parentOrgId = "customOrgId";
+                String name = "My Name";
+                String imageLink = "https://superdomain.com/cool.img";
+                User result = (User) createUserHandlerSpy.handleRequest(mockMessage,
+                                new AccountModificationRequest(null, parentOrgId, false, name, imageLink),
+                                mockExecContext);
+                createUserHandlerSpy.close();
+                assertThat(result.getBelongsToOrgWithId()).isEqualTo(parentOrgId);
+
+                /**
+                 * Actual test begins
+                 */
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> updateUserHandler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> updateUserHandlerSpy = Mockito
+                                .spy(updateUserHandler);
+                Mockito.doReturn(mockSystemService).when(updateUserHandlerSpy).getSystemService();
+
+                when(mockExecContext.getFunctionName()).thenReturn("updateUserInOrg");
+
+                String newName = "aName iWillNotChange";
+                String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+                boolean newAccountVerificationStatus = true;
+                User modifiedResult = (User) updateUserHandlerSpy.handleRequest(mockMessage,
+                                new AccountModificationRequest(result.getId(), result.getBelongsToOrgWithId(),
+                                                newAccountVerificationStatus, newName, newProfileImageLink),
+                                mockExecContext);
+
+                assertThat(modifiedResult.getId()).isEqualTo(result.getId());
+                assertThat(modifiedResult.getBelongsToOrgWithId()).isEqualTo(result.getBelongsToOrgWithId());
+                assertThat(modifiedResult.isAccountVerified()).isEqualTo(newAccountVerificationStatus);
+                assertThat(modifiedResult.getName()).isEqualTo(newName);
+                assertThat(modifiedResult.getProfileImageLink()).isEqualTo(newProfileImageLink);
+
         }
 }
