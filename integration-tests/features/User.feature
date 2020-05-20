@@ -49,4 +49,17 @@ Feature: Features related to User Management
     When I make a PUT to the function at '/organisations/knownOrganisationId/users/unknownUserId'
     Then I should get a status code 404
 
+  @deleteUserById
+  Scenario: DELETE to /users/{userId} with pre-conditioned knownOrgId and valid userId returns 204
+    When I make a DELETE to the function at '/organisations/knownOrgId/users/knownUserId'
+    Then I should get a status code 204
+
+  @deleteUserById @errorHandling
+  Scenario: DELETE to /users/{userId} with pre-conditioned unknownOrganisationId returns 404
+    When I make a DELETE to the function at '/organisations/unknownOrganisationId/users/knownUserId'
+    Then I should get a status code 404
+
+  @deleteUserById @errorHandling
+  Scenario: DELETE to /users/{userId} with pre-conditioned unknownUserId returns 404
+    When I make a DELETE to the function at '/organisations/knownOrganisationId/users/unknownUserId'
     Then I should get a status code 404
