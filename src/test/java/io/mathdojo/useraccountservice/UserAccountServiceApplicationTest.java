@@ -3,6 +3,7 @@ package io.mathdojo.useraccountservice;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +25,7 @@ import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
+import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 import io.mathdojo.useraccountservice.services.SystemService;
 
 @RunWith(SpringRunner.class)
@@ -239,5 +241,35 @@ public class UserAccountServiceApplicationTest {
                 assertThat(modifiedResult.getName()).isEqualTo(newName);
                 assertThat(modifiedResult.getProfileImageLink()).isEqualTo(newProfileImageLink);
 
+        }
+
+        @Test
+        public void testDeleteUserThrowsNoErrorIfSuccessful() {
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
+                Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+                AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("someUserId",
+                        "someOrgId",false, null, null);
+                when(mockExecContext.getFunctionName()).thenReturn("deleteUserFromOrg");
+                assertDoesNotThrow(() -> {
+                        handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
+                        handlerSpy.close();
+                });
+        }
+
+        @Test
+        public void testDeleteThrowsOrgServiceExceptionIfUnsuccessful() {
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
+                Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+                AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("someUserId",
+                        "unknownOrganisationId",false, null, null);
+                when(mockExecContext.getFunctionName()).thenReturn("deleteUserFromOrg");
+                OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+                        handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
+                        handlerSpy.close();
+                });
         }
 }
