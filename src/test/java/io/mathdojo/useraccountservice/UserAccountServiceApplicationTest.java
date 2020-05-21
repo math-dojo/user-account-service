@@ -271,5 +271,7 @@ public class UserAccountServiceApplicationTest {
                         handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
                         handlerSpy.close();
                 });
+
+                exception.getMessage();
         }
 }

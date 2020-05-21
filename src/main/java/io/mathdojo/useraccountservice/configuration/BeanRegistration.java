@@ -113,13 +113,8 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Consumer<Flux<AccountModificationRequest>> deleteUserFromOrg() {
-        return deleteUserFluxEntity -> {
-            deleteUserFluxEntity.subscribe(
-                deletionRequest -> organisationService.deleteUserFromOrg(
-                    deletionRequest.getParentOrgId(), deletionRequest.getAccountId()));
-        
-            deleteUserFluxEntity.onErrorMap(error -> error);
-        };
+    public Consumer<AccountModificationRequest> deleteUserFromOrg() {
+        return deletionRequest -> organisationService.deleteUserFromOrg(
+                    deletionRequest.getParentOrgId(), deletionRequest.getAccountId());
     }
 }
