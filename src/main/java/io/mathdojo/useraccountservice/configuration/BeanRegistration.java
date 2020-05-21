@@ -1,5 +1,6 @@
 package io.mathdojo.useraccountservice.configuration;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.microsoft.azure.functions.ExecutionContext;
@@ -108,6 +109,17 @@ public class BeanRegistration {
                 return organisationService.updateUserWithId(updateUserRequest.getParentOrgId(),
                         updateUserRequest.getAccountId(), updateUserRequest);
             });
+        };
+    }
+
+    @Bean
+    public Consumer<Flux<AccountModificationRequest>> deleteUserFromOrg() {
+        return deleteUserFluxEntity -> {
+            deleteUserFluxEntity.subscribe(
+                deletionRequest -> organisationService.deleteUserFromOrg(
+                    deletionRequest.getParentOrgId(), deletionRequest.getAccountId()));
+        
+            deleteUserFluxEntity.onErrorMap(error -> error);
         };
     }
 }
