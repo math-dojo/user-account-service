@@ -50,5 +50,24 @@ public class ConsumerRequestHandlerTest {
 
         assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
 
-    }    
+    }
+    
+    @Test
+    public void testDeleteUserByIdReturns401FromVerificationFailure() {
+        ConsumerRequestHandler handler = new ConsumerRequestHandler();
+        ConsumerRequestHandler handlerSpy = Mockito.spy(handler);
+
+        HttpResponseMessage expectedResponseFromSignatureVerifier = mock(HttpResponseMessage.class);
+        when(expectedResponseFromSignatureVerifier.getStatus()).thenReturn(HttpStatus.UNAUTHORIZED);
+
+        doReturn(expectedResponseFromSignatureVerifier).when(handlerSpy).handleRequest(
+            any(HttpRequestMessage.class), any(AccountModificationRequest.class), any(ExecutionContext.class));
+
+        HttpResponseMessage actualResponseMessage = handlerSpy.executeDeleteByIdForUser(
+            mockMessage, "orgId", "userId", mockExecContext);
+        handlerSpy.close();
+
+        assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
+
+    } 
 }
