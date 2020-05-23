@@ -1,12 +1,16 @@
 package io.mathdojo.useraccountservice.model.requestobjects;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 
 public class AccountModificationRequest extends AccountRequest {
 
-
     private String accountId;
     private String parentOrgId;
+    private Set<UserPermission> userPermissions;
 
     /**
      * Creates an instance of the AccountModificationRequest class
@@ -46,6 +50,7 @@ public class AccountModificationRequest extends AccountRequest {
         super(builder.accountVerified, builder.name, builder.profileImageLink);
         this.accountId = builder.accountId;
         this.parentOrgId = builder.parentOrgId;
+        this.userPermissions = builder.userPermissions;
     }
 
     public String getAccountId() {
@@ -67,12 +72,13 @@ public class AccountModificationRequest extends AccountRequest {
         AccountModificationRequest accountModRequest = (AccountModificationRequest) o;
         return super.equals(o)
                 && Objects.equals(this.accountId, accountModRequest.accountId)
-                && Objects.equals(this.parentOrgId, accountModRequest.parentOrgId);
+                && Objects.equals(this.parentOrgId, accountModRequest.parentOrgId)
+                && Objects.equals(this.userPermissions, accountModRequest.userPermissions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountId, parentOrgId, super.hashCode());
+        return Objects.hash(accountId, parentOrgId, userPermissions, super.hashCode());
     }
 
     @Override
@@ -82,6 +88,7 @@ public class AccountModificationRequest extends AccountRequest {
         sb.append("    ").append(toIndentedString(super.toString())).append("\n");
         sb.append("    accountId: ").append(toIndentedString(accountId)).append("\n");
         sb.append("    parentOrgId: ").append(toIndentedString(parentOrgId)).append("\n");
+        sb.append("    userPermissions: ").append(toIndentedString(userPermissions)).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -97,6 +104,7 @@ public class AccountModificationRequest extends AccountRequest {
      * A Builder for creating AccountModificationRequests
      */
     public static class Builder {
+        private Set<UserPermission> userPermissions;
         private String accountId;
         private String parentOrgId;
         private boolean accountVerified;
@@ -109,6 +117,7 @@ public class AccountModificationRequest extends AccountRequest {
             this.accountVerified = false;
             this.name = null;
             this.profileImageLink = null;
+            this.userPermissions = new HashSet<>();
         }
 
         /**
@@ -142,6 +151,11 @@ public class AccountModificationRequest extends AccountRequest {
 
         public Builder withProfileImageLink(String imageUrlString) {
             this.profileImageLink = imageUrlString;
+            return this;
+        }
+
+        public Builder withUserPermissions(Set<UserPermission> permissions) {
+            this.userPermissions = permissions;
             return this;
         }
 
