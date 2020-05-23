@@ -43,7 +43,7 @@ Feature: Features related to User Management
     When I make a PUT to the function at '/organisations/unknownOrganisationId/users/knownUserId'
     Then I should get a status code 404
 
-@updateUserById @errorHandling
+  @updateUserById @errorHandling
   Scenario: PUT to /users/{userId} with pre-conditioned unknownUserId returns 404
     Given I generate a json payload called 'userModificationRequest'
     When I make a PUT to the function at '/organisations/knownOrganisationId/users/unknownUserId'
@@ -62,4 +62,29 @@ Feature: Features related to User Management
   @deleteUserById @errorHandling
   Scenario: DELETE to /users/{userId} with pre-conditioned unknownUserId returns 404
     When I make a DELETE to the function at '/organisations/knownOrganisationId/users/unknownUserId'
+    Then I should get a status code 404
+
+  @updateUserPermissions
+  Scenario: PUT to /users/{userId}/permissions with pre-conditioned knownUserId and valid body returns 204
+    Given I generate a json payload called 'userPermissionsModificationRequest'
+    When I make a PUT to the function at '/organisations/knownOrgId/users/knownUserId/permissions'
+    Then I should get a status code 204
+    And the response should have no body
+
+  @updateUserPermissions @errorHandling
+  Scenario: PUT to /users/{userId} with pre-conditioned knownOrgId and invalid body returns 400
+    Given I generate a json payload called 'badUserPermissionsModificationRequest'
+    When I make a PUT to the function at '/organisations/knownOrgId/users/knownUserId/permissions'
+    Then I should get a status code 400
+
+  @updateUserPermissions @errorHandling
+  Scenario: PUT to /users/{userId} with pre-conditioned unknownOrganisationId returns 404
+    Given I generate a json payload called 'userPermissionsModificationRequest'
+    When I make a PUT to the function at '/organisations/unknownOrganisationId/users/knownUserId/permissions'
+    Then I should get a status code 404
+
+  @updateUserPermissions @errorHandling
+  Scenario: PUT to /users/{userId} with pre-conditioned unknownUserId returns 404
+    Given I generate a json payload called 'userPermissionsModificationRequest'
+    When I make a PUT to the function at '/organisations/knownOrganisationId/users/unknownUserId/permissions'
     Then I should get a status code 404
