@@ -192,6 +192,8 @@ paths:
                   value: "Bad request: One or more parameters could not be updated"
         '401':
           description: Forbidden
+        '404':
+          description: A user or organisation with the specified ID was not found
 components:
   #-------------------------------
   # Reusable schemas (data models)
