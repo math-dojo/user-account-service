@@ -42,6 +42,12 @@ public class AccountModificationRequest extends AccountRequest {
         this.parentOrgId = parentOrgId;
     }
 
+    public AccountModificationRequest(Builder builder) {
+        super(builder.accountVerified, builder.name, builder.profileImageLink);
+        this.accountId = builder.accountId;
+        this.parentOrgId = builder.parentOrgId;
+    }
+
     public String getAccountId() {
         return accountId;
     }
@@ -86,4 +92,61 @@ public class AccountModificationRequest extends AccountRequest {
     private String toIndentedString(Object o) {
         return o == null ? "null" : o.toString().replace("\n", "\n    ");
     }    
+
+    /**
+     * A Builder for creating AccountModificationRequests
+     */
+    public static class Builder {
+        private String accountId;
+        private String parentOrgId;
+        private boolean accountVerified;
+        private String name;
+        private String profileImageLink;        
+    
+        private Builder() {
+            this.accountId = null;
+            this.parentOrgId = null;
+            this.accountVerified = false;
+            this.name = null;
+            this.profileImageLink = null;
+        }
+
+        /**
+         * Creates a new instance of an AccountModificationRequest.Builder
+         * to which further parameter modification calls can be chained.
+         * @return an instance of the builder
+         */
+        public static Builder createBuilder() {
+            return new Builder();
+        }
+
+        public Builder withAccountId(String accountId) {
+            this.accountId = accountId;
+            return this;
+        }
+
+        public Builder withParentOrgId(String parentOrgId) {
+            this.parentOrgId = parentOrgId;
+            return this;
+        }
+
+        public Builder withAccountVerifiedStatus(boolean status) {
+            this.accountVerified = status;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withProfileImageLink(String imageUrlString) {
+            this.profileImageLink = imageUrlString;
+            return this;
+        }
+
+        public AccountModificationRequest build() {
+            return new AccountModificationRequest(this);
+        }
+    }
 }
