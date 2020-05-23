@@ -97,15 +97,20 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testDeleteOrganisationsThrowsNoErrorIfSuccessful() {
-                HTTPRequestSignatureVerificationEnabledHandler<String, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+        public void testDeleteOrganisationThrowsNoErrorIfSuccessful() {
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
-                HTTPRequestSignatureVerificationEnabledHandler<String, String> handlerSpy = Mockito.spy(handler);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
                 Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
 
                 when(mockExecContext.getFunctionName()).thenReturn("deleteOrganisationById");
+
+                AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("knownOrganisationId",
+                        null,false, null, null);
                 assertDoesNotThrow(() -> {
-                        handlerSpy.handleRequest(mockMessage, "myCustomOrgId", mockExecContext);
+                        handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
+                        handlerSpy.close();
+                });
                         handlerSpy.close();
                 });
         }

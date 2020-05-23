@@ -13,10 +13,11 @@ import com.microsoft.azure.functions.annotation.BindingName;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
+import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
 import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 
-public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnabledHandler<String, String> {
+public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> {
     @FunctionName("deleteOrganisationById")
     public HttpResponseMessage executeDeleteByIdForOrganisations(
         @HttpTrigger(
@@ -24,12 +25,14 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
             methods = { HttpMethod.DELETE }, 
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "organisations/{orgId:alpha}"
-        ) HttpRequestMessage<Optional<String>> request,
+        ) HttpRequestMessage<Optional<AccountModificationRequest>> request,
         @BindingName("orgId") String orgId,
         ExecutionContext context) {
 
             try {
-                Object handledRequest = handleRequest(request, orgId, context);
+                AccountModificationRequest deletionRequest = new AccountModificationRequest(
+                    orgId, null, false, null, null);
+                Object handledRequest = handleRequest(request, deletionRequest, context);
                 if(handledRequest instanceof HttpResponseMessage) {
                     return (HttpResponseMessage) handledRequest;
                 }

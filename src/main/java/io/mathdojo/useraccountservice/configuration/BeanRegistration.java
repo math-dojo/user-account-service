@@ -55,13 +55,9 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Function<Flux<String>, Flux<String>> deleteOrganisationById(final ExecutionContext context) {
-        return organisationIdFluxEntity -> {
-            return organisationIdFluxEntity.map(orgId -> {
-                context.getLogger().info("About to delete organisation: " + orgId);
-                return organisationService.deleteOrganisationWithId(orgId);
-            });
-        };
+    public Consumer<AccountModificationRequest> deleteOrganisationById(final ExecutionContext context) {
+        return deletionRequest -> organisationService.deleteOrganisationWithId(
+            deletionRequest.getAccountId());
     }
 
     @Bean
