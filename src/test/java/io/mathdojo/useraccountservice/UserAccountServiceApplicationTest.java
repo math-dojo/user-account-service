@@ -25,6 +25,7 @@ import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
+import io.mathdojo.useraccountservice.services.OrganisationService;
 import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 import io.mathdojo.useraccountservice.services.SystemService;
 
@@ -272,6 +273,7 @@ public class UserAccountServiceApplicationTest {
                         handlerSpy.close();
                 });
 
-                exception.getMessage();
+                assertThat(exception.getMessage()).isEqualTo(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG);
+
         }
 }
