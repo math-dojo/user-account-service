@@ -34,4 +34,11 @@ module.exports.payloads = {
     badUserModificationRequest: {
         invalidParam: "ivalidValue"
     },
+    userPermissionsModificationRequest: {
+        permissions: ["consumer", "creator"]
+    },
+    badUserPermissionsModificationRequest: {
+        invalidParam: "ivalidValue",
+        permissions: ["spammyPermission"]
+    }
 };
