@@ -53,6 +53,8 @@ BeforeAll({
           /ERROR\]?/.test(data)
         ){
           reject(data);
+        } else {
+          console.log(`Function App stdout: ${data}`);
         }
       });
       
