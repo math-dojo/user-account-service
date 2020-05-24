@@ -47,6 +47,10 @@ public class User extends AccountHolder {
         return permissions;
     }
 
+    public void setPermissions(Set<UserPermission> permissions) {
+        this.permissions = permissions;
+    }
+
     public UserActivityHistory getActivityHistory() {
         return activityHistory;
     }

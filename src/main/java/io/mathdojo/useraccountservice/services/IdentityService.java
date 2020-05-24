@@ -1,5 +1,6 @@
 package io.mathdojo.useraccountservice.services;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -24,6 +25,7 @@ public class IdentityService {
     public static final String ORG_LESS_NEW_USER_ERROR_MSG = "a new user cannot be made without specifying a valid parent org";
     public static final String UNKNOWN_ORGID_EXCEPTION_MSG = "the specified organisation could not be found";
     public static final String UNKNOWN_USERID_EXCEPTION_MSG = "the specified user could not be found";
+    public static final String BAD_PERMISSIONS_EXCEPTION_MSG = "One or more of the permissions to update for the user are incorrect.";
 
     @Autowired
     private ExecutionContext targetExecutionContext;
@@ -172,7 +174,17 @@ public class IdentityService {
         }
 	}
 
-	public void updateUserPermissions(String string, String string2, Set<UserPermission> permissions) {
+	public User updateUserPermissions(String orgId, String userId, final Set<UserPermission> permissions) {
+        if(permissions.isEmpty() || permissions.contains(null)) {
+            throw new IdentityServiceException(BAD_PERMISSIONS_EXCEPTION_MSG);
+        } else if (permissions.contains(UserPermission.GLOBAL_ADMIN) && (permissions.size() > 1)) {
+            throw new IdentityServiceException("A user can only hold global-admin privileges exclusive of all others.");
+        }
+
+        User retrievedUser = getUserInOrg(orgId, userId);
+        retrievedUser.setPermissions(permissions);
+
+        return retrievedUser;
 	}
 
     @Override
