@@ -1,5 +1,7 @@
 package io.mathdojo.useraccountservice.configuration;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -13,6 +15,7 @@ import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.services.IdentityService;
@@ -119,7 +122,7 @@ public class BeanRegistration {
         return permissionRequest -> organisationService
             .updateUserPermissions(
                 permissionRequest.getParentOrgId(), permissionRequest.getAccountId(),
-                permissionRequest.getUserPermissions()
+                new HashSet<UserPermission>(Arrays.asList(permissionRequest.getUserPermissions()))
             );
     }
 }

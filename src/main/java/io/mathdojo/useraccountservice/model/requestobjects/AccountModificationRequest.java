@@ -1,8 +1,6 @@
 package io.mathdojo.useraccountservice.model.requestobjects;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 
@@ -10,7 +8,7 @@ public class AccountModificationRequest extends AccountRequest {
 
     private String accountId;
     private String parentOrgId;
-    private Set<UserPermission> permissions;
+    private UserPermission[] permissions;
 
     /**
      * Creates an instance of the AccountModificationRequest class
@@ -61,7 +59,7 @@ public class AccountModificationRequest extends AccountRequest {
         return parentOrgId;
     }
 
-    public Set<UserPermission> getUserPermissions() {
+    public UserPermission[] getUserPermissions() {
         return permissions;
     }
 
@@ -108,7 +106,7 @@ public class AccountModificationRequest extends AccountRequest {
      * A Builder for creating AccountModificationRequests
      */
     public static class Builder {
-        private Set<UserPermission> userPermissions;
+        private UserPermission[] userPermissions;
         private String accountId;
         private String parentOrgId;
         private boolean accountVerified;
@@ -121,7 +119,7 @@ public class AccountModificationRequest extends AccountRequest {
             this.accountVerified = false;
             this.name = null;
             this.profileImageLink = null;
-            this.userPermissions = new HashSet<>();
+            this.userPermissions = new UserPermission[1];
         }
 
         /**
@@ -158,7 +156,7 @@ public class AccountModificationRequest extends AccountRequest {
             return this;
         }
 
-        public Builder withUserPermissions(Set<UserPermission> permissions) {
+        public Builder withUserPermissions(UserPermission[] permissions) {
             this.userPermissions = permissions;
             return this;
         }

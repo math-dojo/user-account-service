@@ -308,10 +308,9 @@ public class UserAccountServiceApplicationTest {
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
                 Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
 
-                Set<UserPermission> permissionsToSet = new HashSet<UserPermission>();
-                        permissionsToSet.add(UserPermission.CONSUMER);
-                        permissionsToSet.add(UserPermission.CREATOR);
-                        permissionsToSet.add(UserPermission.ORG_ADMIN);
+                UserPermission[] permissionsToSet = { UserPermission.CONSUMER,
+                                UserPermission.CREATOR
+                        ,UserPermission.ORG_ADMIN};
                 AccountModificationRequest permissionsModificationRequest = AccountModificationRequest
                         .Builder.createBuilder()
                         .withAccountId("someValidUserId")
@@ -332,7 +331,7 @@ public class UserAccountServiceApplicationTest {
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
                 Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
 
-                Set<UserPermission> permissionsToSet = new HashSet<UserPermission>();
+                UserPermission[] permissionsToSet = {};
                 AccountModificationRequest permissionsModificationRequest = AccountModificationRequest
                         .Builder.createBuilder()
                         .withAccountId("someValidUserId")
