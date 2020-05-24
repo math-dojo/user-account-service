@@ -15,6 +15,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
+import io.mathdojo.useraccountservice.services.IdentityService;
 import io.mathdojo.useraccountservice.services.IdentityServiceException;
 
 public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> {
@@ -118,9 +119,11 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
             } catch (IdentityServiceException e) {
                 context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
                     context.getInvocationId(), context.getFunctionName()), e);
-                return request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage())
-                    .build();
+                if(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage() || 
+                    IdentityService.UNKNOWN_USERID_EXCEPTION_MSG == e.getMessage()) {
+                    return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+                }
+                return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
             } catch (Exception e) {
                 context.getLogger().log(Level.WARNING, String.format("A system error occured while processing request %s to function %s",
                     context.getInvocationId(), context.getFunctionName()), e);
