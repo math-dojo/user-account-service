@@ -1,5 +1,6 @@
 package io.mathdojo.useraccountservice.services;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 
@@ -168,6 +170,9 @@ public class IdentityService {
                     String.format("UserId %s in Org %s could not be found", userId, orgId));
             throw new IdentityServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
         }
+	}
+
+	public void updateUserPermissions(String string, String string2, Set<UserPermission> permissions) {
 	}
 
     @Override

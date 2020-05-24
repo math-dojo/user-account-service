@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.validation.ConstraintViolationException;
@@ -22,6 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -431,6 +434,89 @@ public class IdentityServiceTest {
     public void throwsErrorIfDeletingNonExistentUserId() {
         IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.deleteUserFromOrg("knownOrgId", PRECONDITIONED_UNKNOWN_USER_ID);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(IdentityService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsNoErrorIfSettingValidPermissionsForValidUserInValidOrgId() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+            permissions.add(UserPermission.CREATOR);
+            permissions.add(UserPermission.ORG_ADMIN);
+        organisationService.updateUserPermissions("knownOrganisationId", "knownUserId",
+            permissions);
+    }
+
+    @Test
+    public void throwsErrorIfAnyPermissionInvalid() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+            permissions.add(UserPermission.CREATOR);
+            permissions.add(null);
+
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions("knownOrg", "knownUserId",
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("One or more of the permissions to update for the user are incorrect.", exceptionMessage);
+    }
+
+    @Test
+    public void denySettingOfGlobalAdminPermissionAlongWithAllOthers() {
+       Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+            permissions.add(UserPermission.CREATOR);
+            permissions.add(UserPermission.GLOBAL_ADMIN);
+
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions("knownOrg", "knownUserId",
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("A user can only hold global-admin privileges exclusive of all others.", exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfEmptySetOfPermissionsSuppliedForUpdate() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions("knownOrg", "knownUserId",
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("One or more of the permissions to update for the user are incorrect.", exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfSettingPermissionsForInvalidOrgId() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+            
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId",
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfSettingPermissionsOnNonExistentUserId() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions("knownOrgId", PRECONDITIONED_UNKNOWN_USER_ID,
+                permissions);
         });
 
         String exceptionMessage = exception.getMessage();
