@@ -61,6 +61,10 @@ public class AccountModificationRequest extends AccountRequest {
         return parentOrgId;
     }
 
+    public Set<UserPermission> getUserPermissions() {
+        return userPermissions;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

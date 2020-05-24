@@ -113,4 +113,13 @@ public class BeanRegistration {
         return deletionRequest -> organisationService.deleteUserFromOrg(
                     deletionRequest.getParentOrgId(), deletionRequest.getAccountId());
     }
+
+    @Bean
+    public Consumer<AccountModificationRequest> updateUserPermissions() {
+        return permissionRequest -> organisationService
+            .updateUserPermissions(
+                permissionRequest.getParentOrgId(), permissionRequest.getAccountId(),
+                permissionRequest.getUserPermissions()
+            );
+    }
 }
