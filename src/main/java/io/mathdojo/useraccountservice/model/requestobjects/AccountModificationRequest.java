@@ -10,7 +10,7 @@ public class AccountModificationRequest extends AccountRequest {
 
     private String accountId;
     private String parentOrgId;
-    private Set<UserPermission> userPermissions;
+    private Set<UserPermission> permissions;
 
     /**
      * Creates an instance of the AccountModificationRequest class
@@ -50,7 +50,7 @@ public class AccountModificationRequest extends AccountRequest {
         super(builder.accountVerified, builder.name, builder.profileImageLink);
         this.accountId = builder.accountId;
         this.parentOrgId = builder.parentOrgId;
-        this.userPermissions = builder.userPermissions;
+        this.permissions = builder.userPermissions;
     }
 
     public String getAccountId() {
@@ -62,7 +62,7 @@ public class AccountModificationRequest extends AccountRequest {
     }
 
     public Set<UserPermission> getUserPermissions() {
-        return userPermissions;
+        return permissions;
     }
 
     @Override
@@ -77,12 +77,12 @@ public class AccountModificationRequest extends AccountRequest {
         return super.equals(o)
                 && Objects.equals(this.accountId, accountModRequest.accountId)
                 && Objects.equals(this.parentOrgId, accountModRequest.parentOrgId)
-                && Objects.equals(this.userPermissions, accountModRequest.userPermissions);
+                && Objects.equals(this.permissions, accountModRequest.permissions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountId, parentOrgId, userPermissions, super.hashCode());
+        return Objects.hash(accountId, parentOrgId, permissions, super.hashCode());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class AccountModificationRequest extends AccountRequest {
         sb.append("    ").append(toIndentedString(super.toString())).append("\n");
         sb.append("    accountId: ").append(toIndentedString(accountId)).append("\n");
         sb.append("    parentOrgId: ").append(toIndentedString(parentOrgId)).append("\n");
-        sb.append("    userPermissions: ").append(toIndentedString(userPermissions)).append("\n");
+        sb.append("    userPermissions: ").append(toIndentedString(permissions)).append("\n");
         sb.append("}");
         return sb.toString();
     }
