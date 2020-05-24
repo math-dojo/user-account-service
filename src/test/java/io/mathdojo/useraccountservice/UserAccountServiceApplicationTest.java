@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.microsoft.azure.functions.ExecutionContext;
@@ -22,6 +24,7 @@ import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
@@ -295,6 +298,54 @@ public class UserAccountServiceApplicationTest {
                 });
 
                 assertThat(exception.getMessage()).isEqualTo(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG);
+
+        }
+
+        @Test
+        public void testUpdatePermissionsThrowsNoErrorIfSuccessful() {
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
+                Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+                Set<UserPermission> permissionsToSet = new HashSet<UserPermission>();
+                        permissionsToSet.add(UserPermission.CONSUMER);
+                        permissionsToSet.add(UserPermission.CREATOR);
+                        permissionsToSet.add(UserPermission.ORG_ADMIN);
+                AccountModificationRequest permissionsModificationRequest = AccountModificationRequest
+                        .Builder.createBuilder()
+                        .withAccountId("someValidUserId")
+                        .withParentOrgId("validOrgId")
+                        .withUserPermissions(permissionsToSet)
+                        .build();
+                when(mockExecContext.getFunctionName()).thenReturn("updateUserPermissions");
+                assertDoesNotThrow(() -> {
+                        handlerSpy.handleRequest(mockMessage, permissionsModificationRequest, mockExecContext);
+                        handlerSpy.close();
+                });
+        }
+
+        @Test
+        public void testUpdatePermissionsThrowsErrorIfUnsuccessful() {
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
+                Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+                Set<UserPermission> permissionsToSet = new HashSet<UserPermission>();
+                AccountModificationRequest permissionsModificationRequest = AccountModificationRequest
+                        .Builder.createBuilder()
+                        .withAccountId("someValidUserId")
+                        .withParentOrgId("validOrgId")
+                        .withUserPermissions(permissionsToSet)
+                        .build();
+                when(mockExecContext.getFunctionName()).thenReturn("updateUserPermissions");
+                IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+                        handlerSpy.handleRequest(mockMessage, permissionsModificationRequest, mockExecContext);
+                        handlerSpy.close();
+                });
+
+                assertThat(exception.getMessage()).isEqualTo(IdentityService.BAD_PERMISSIONS_EXCEPTION_MSG);
 
         }
 }
