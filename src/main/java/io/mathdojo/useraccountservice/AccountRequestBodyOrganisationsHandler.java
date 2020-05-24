@@ -17,7 +17,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
-import io.mathdojo.useraccountservice.services.OrganisationServiceException;
+import io.mathdojo.useraccountservice.services.IdentityServiceException;
 
 public class AccountRequestBodyOrganisationsHandler
         extends HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> {
@@ -35,7 +35,7 @@ public class AccountRequestBodyOrganisationsHandler
             Organisation createdOrg = (Organisation) handledRequest;
             return request.createResponseBuilder(HttpStatus.CREATED).body(createdOrg).build();
 
-        } catch (ConstraintViolationException | OrganisationServiceException e) {
+        } catch (ConstraintViolationException | IdentityServiceException e) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             context.getLogger().log(Level.WARNING, "Organisation creation failed", e);

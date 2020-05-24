@@ -14,7 +14,7 @@ import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 
 @Service
-public class OrganisationService {
+public class IdentityService {
 
     private static final String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
     private static final String PRECONDITIONED_UNKNOWN_ORGANISATION_ID = "unknownOrganisationId";
@@ -28,21 +28,21 @@ public class OrganisationService {
 
     public String aString = "hii";
 
-    public OrganisationService() {
+    public IdentityService() {
     }
 
-    public Organisation createNewOrganisation(AccountRequest request) throws OrganisationServiceException {
+    public Organisation createNewOrganisation(AccountRequest request) throws IdentityServiceException {
         ValidatorSingleton.validateObject(request);
         if (true == request.isAccountVerified()) {
-            throw new OrganisationServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
+            throw new IdentityServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
         }
         return new Organisation(UUID.randomUUID().toString(), false, request.getName(), request.getProfileImageLink());
     }
 
-    public Organisation getOrganisationById(String organisationId) throws OrganisationServiceException {
+    public Organisation getOrganisationById(String organisationId) throws IdentityServiceException {
         if (null == organisationId || organisationId.isEmpty()
                 || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
-            throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
+            throw new IdentityServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return new Organisation(organisationId, false, UUID.randomUUID().toString(),
                 "https://my.domain.com/myimage.jpg");
@@ -52,19 +52,19 @@ public class OrganisationService {
         if (!isValidAccountModificationRequest(accountModificationRequest)) {
             String errorMessage = "The name, profileImageLink and accountVerified cannot all be empty in a modification request.";
             targetExecutionContext.getLogger().log(Level.WARNING, errorMessage);
-            throw new OrganisationServiceException(errorMessage);
+            throw new IdentityServiceException(errorMessage);
         }
 
         if (null == organisationId || organisationId.isEmpty()
                 || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
-            throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
+            throw new IdentityServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
 
         Organisation foundOrganisation;
 
         try {
             foundOrganisation = getOrganisationById(organisationId);
-        } catch (OrganisationServiceException e) {
+        } catch (IdentityServiceException e) {
             targetExecutionContext.getLogger().log(Level.WARNING, UNKNOWN_ORGID_EXCEPTION_MSG, e);
             throw e;
         }
@@ -82,10 +82,10 @@ public class OrganisationService {
         return new Organisation(foundOrganisation.getId(), (verificationStatusToUpdate), nameToUpdate, profileToUpdate);
     }
 
-    public String deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
+    public String deleteOrganisationWithId(String organisationId) throws IdentityServiceException {
         if (null == organisationId || organisationId.isEmpty()
                 || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
-            throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
+            throw new IdentityServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return "";
     }
@@ -95,12 +95,12 @@ public class OrganisationService {
         if (true == userToCreate.isAccountVerified()) {
             targetExecutionContext.getLogger().log(Level.FINEST,
                     String.format("Failed attempt to create an already validated user."));
-            throw new OrganisationServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
+            throw new IdentityServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
         }
         if (null == parentOrgId || null == getOrganisationById(parentOrgId)) {
             targetExecutionContext.getLogger().log(Level.FINEST,
                     String.format("Failed attempt to create a user without an org."));
-            throw new OrganisationServiceException(ORG_LESS_NEW_USER_ERROR_MSG);
+            throw new IdentityServiceException(ORG_LESS_NEW_USER_ERROR_MSG);
         }
 
         return new User(UUID.randomUUID().toString(), userToCreate.isAccountVerified(), userToCreate.getName(),
@@ -120,7 +120,7 @@ public class OrganisationService {
         if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
             targetExecutionContext.getLogger().log(Level.WARNING,
                     String.format("UserId %s in Org %s could not be found", userId, expectedOrganisationId));
-            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+            throw new IdentityServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
         }
         return new User(userId, false, "a name", "https://domain.com/img.png", returnedOrgId);
     }
@@ -138,14 +138,14 @@ public class OrganisationService {
         if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
             targetExecutionContext.getLogger().log(Level.WARNING,
                     String.format("UserId %s in Org %s could not be found", userId, orgId));
-            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+            throw new IdentityServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
         }
 
         if (!isValidAccountModificationRequest(accountModificationRequest)) {
             String errorMessage = "One or more of the properties to update for the user are incorrect.";
             targetExecutionContext.getLogger().log(Level.WARNING,
                     String.format("UserId %s in Org %s could not be upated", userId, orgId));
-            throw new OrganisationServiceException(errorMessage);
+            throw new IdentityServiceException(errorMessage);
         }
 
         User foundUser = getUserInOrg(returnedOrgId, userId);
@@ -166,7 +166,7 @@ public class OrganisationService {
         if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
             targetExecutionContext.getLogger().log(Level.WARNING,
                     String.format("UserId %s in Org %s could not be found", userId, orgId));
-            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+            throw new IdentityServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
         }
 	}
 

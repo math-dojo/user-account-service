@@ -25,8 +25,8 @@ import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
-import io.mathdojo.useraccountservice.services.OrganisationService;
-import io.mathdojo.useraccountservice.services.OrganisationServiceException;
+import io.mathdojo.useraccountservice.services.IdentityService;
+import io.mathdojo.useraccountservice.services.IdentityServiceException;
 import io.mathdojo.useraccountservice.services.SystemService;
 
 @RunWith(SpringRunner.class)
@@ -122,12 +122,12 @@ public class UserAccountServiceApplicationTest {
                AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("unknownOrganisationId",
                         null,false, null, null);
                 when(mockExecContext.getFunctionName()).thenReturn("deleteOrganisationById");
-                OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+                IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
                         handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
                         handlerSpy.close();
                 });
 
-                assertThat(exception.getMessage()).isEqualTo(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG);
+                assertThat(exception.getMessage()).isEqualTo(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG);
 
         }
 
@@ -289,12 +289,12 @@ public class UserAccountServiceApplicationTest {
                 AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("someUserId",
                         "unknownOrganisationId",false, null, null);
                 when(mockExecContext.getFunctionName()).thenReturn("deleteUserFromOrg");
-                OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+                IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
                         handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
                         handlerSpy.close();
                 });
 
-                assertThat(exception.getMessage()).isEqualTo(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG);
+                assertThat(exception.getMessage()).isEqualTo(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG);
 
         }
 }

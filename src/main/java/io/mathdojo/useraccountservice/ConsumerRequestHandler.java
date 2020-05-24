@@ -15,7 +15,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
-import io.mathdojo.useraccountservice.services.OrganisationServiceException;
+import io.mathdojo.useraccountservice.services.IdentityServiceException;
 
 public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> {
     @FunctionName("deleteOrganisationById")
@@ -40,7 +40,7 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
                     .body("")
                     .build();
 
-            } catch (OrganisationServiceException e) {
+            } catch (IdentityServiceException e) {
                 return request.createResponseBuilder(HttpStatus.NOT_FOUND)
                     .body(e.getMessage())
                     .build();
@@ -75,7 +75,7 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
                     .body("")
                     .build();
 
-            } catch (OrganisationServiceException e) {
+            } catch (IdentityServiceException e) {
                 context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
                     context.getInvocationId(), context.getFunctionName()), e);
                 return request.createResponseBuilder(HttpStatus.NOT_FOUND)

@@ -15,14 +15,14 @@ import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
-import io.mathdojo.useraccountservice.services.OrganisationService;
+import io.mathdojo.useraccountservice.services.IdentityService;
 import reactor.core.publisher.Flux;
 
 @Configuration
 public class BeanRegistration {
 
     @Autowired
-    public OrganisationService organisationService;
+    public IdentityService organisationService;
 
     @Bean
     public Function<Flux<AccountRequest>, Flux<Organisation>> createOrganisation(ExecutionContext context) {

@@ -15,7 +15,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
-import io.mathdojo.useraccountservice.services.OrganisationServiceException;
+import io.mathdojo.useraccountservice.services.IdentityServiceException;
 
 public class BodyLessOrganisationsRequestHandler
         extends HTTPRequestSignatureVerificationEnabledHandler<String, Organisation> {
@@ -41,7 +41,7 @@ public class BodyLessOrganisationsRequestHandler
                     .body(createdOrg)
                     .build();
 
-            } catch (OrganisationServiceException e) {
+            } catch (IdentityServiceException e) {
                 return request.createResponseBuilder(HttpStatus.NOT_FOUND)
                     .body(e.getMessage())
                     .build();

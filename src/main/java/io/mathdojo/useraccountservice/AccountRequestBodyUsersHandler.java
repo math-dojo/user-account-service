@@ -18,8 +18,8 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
-import io.mathdojo.useraccountservice.services.OrganisationService;
-import io.mathdojo.useraccountservice.services.OrganisationServiceException;
+import io.mathdojo.useraccountservice.services.IdentityService;
+import io.mathdojo.useraccountservice.services.IdentityServiceException;
 
 public class AccountRequestBodyUsersHandler
         extends HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> {
@@ -47,7 +47,7 @@ public class AccountRequestBodyUsersHandler
             User createdUser = (User) handledRequest;
             return request.createResponseBuilder(HttpStatus.CREATED).body(createdUser).build();
 
-        } catch (ConstraintViolationException | OrganisationServiceException e) {
+        } catch (ConstraintViolationException | IdentityServiceException e) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             context.getLogger().log(Level.WARNING, "New user creation failed", e);
@@ -78,7 +78,7 @@ public class AccountRequestBodyUsersHandler
             User retrievedUser = (User) handledRequest;
             return request.createResponseBuilder(HttpStatus.OK).body(retrievedUser).build();
 
-        } catch (OrganisationServiceException e) {
+        } catch (IdentityServiceException e) {
             return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             context.getLogger().log(Level.WARNING, "User retrieval by Id failed", e);
@@ -106,11 +106,11 @@ public class AccountRequestBodyUsersHandler
                         finalResult.getId()))
                 .build();
 
-        } catch (ConstraintViolationException | OrganisationServiceException e) {
+        } catch (ConstraintViolationException | IdentityServiceException e) {
             context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
                 context.getInvocationId(), context.getFunctionName()), e);
-            if(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage() || 
-                OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG == e.getMessage()) {
+            if(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage() || 
+                IdentityService.UNKNOWN_USERID_EXCEPTION_MSG == e.getMessage()) {
                 return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
             }
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();

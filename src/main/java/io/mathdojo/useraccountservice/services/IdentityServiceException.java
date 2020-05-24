@@ -1,13 +1,13 @@
 package io.mathdojo.useraccountservice.services;
 
-public class OrganisationServiceException extends RuntimeException {
+public class IdentityServiceException extends RuntimeException {
     /**
      * Exception that represents some error in the operations within
-     * the Organisation Service.
+     * the Identity Service.
      */
     private static final long serialVersionUID = -1862566127632509952L;
 
-    public OrganisationServiceException(String message) {
+    public IdentityServiceException(String message) {
 		super(message);
 	};
 }

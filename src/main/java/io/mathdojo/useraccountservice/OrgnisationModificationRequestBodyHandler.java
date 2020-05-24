@@ -18,8 +18,8 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
-import io.mathdojo.useraccountservice.services.OrganisationService;
-import io.mathdojo.useraccountservice.services.OrganisationServiceException;
+import io.mathdojo.useraccountservice.services.IdentityService;
+import io.mathdojo.useraccountservice.services.IdentityServiceException;
 
 public class OrgnisationModificationRequestBodyHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, Organisation>{
     
@@ -42,8 +42,8 @@ public class OrgnisationModificationRequestBodyHandler extends HTTPRequestSignat
                 .header("Content-Location", "/organisations/"+finalResult.getId())
                 .body(finalResult).build();
 
-        } catch (ConstraintViolationException | OrganisationServiceException e) {
-            if(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage()) {
+        } catch (ConstraintViolationException | IdentityServiceException e) {
+            if(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage()) {
                 return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
             }
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
