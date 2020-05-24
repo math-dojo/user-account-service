@@ -46,6 +46,25 @@ stages:
               path: $(System.DefaultWorkingDirectory)
               artifact: workingDir
 
+  - stage: Run_Integration_Tests
+    condition: eq(variables['Build.Reason'], 'PullRequest')
+    jobs:
+      - job: Exec_Integration_Tests
+        steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: workingDir
+              path: $(System.DefaultWorkingDirectory)
+            displayName: Retrieve Stashed Artefacts
+          - script: |
+              cd ./integration-tests
+              npm test
+            displayName: Exec Npm Test
+          - task: PublishPipelineArtifact@1
+            inputs:
+              path: $(System.DefaultWorkingDirectory)
+              artifact: workingDir
+
   - stage: Deploy
     jobs:
       - job: Deploy_App_and_Setup_Monitoring
