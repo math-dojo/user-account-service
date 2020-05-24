@@ -442,12 +442,16 @@ public class IdentityServiceTest {
 
     @Test
     public void throwsNoErrorIfSettingValidPermissionsForValidUserInValidOrgId() {
-        Set<UserPermission> permissions = new HashSet<UserPermission>();
-            permissions.add(UserPermission.CONSUMER);
-            permissions.add(UserPermission.CREATOR);
-            permissions.add(UserPermission.ORG_ADMIN);
-        organisationService.updateUserPermissions("knownOrganisationId", "knownUserId",
-            permissions);
+        Set<UserPermission> permissionsToSet = new HashSet<UserPermission>();
+            permissionsToSet.add(UserPermission.CONSUMER);
+            permissionsToSet.add(UserPermission.CREATOR);
+            permissionsToSet.add(UserPermission.ORG_ADMIN);
+        User modifiedUser = organisationService.updateUserPermissions("knownOrganisationId", "knownUserId",
+            permissionsToSet);
+
+        Set<UserPermission> modifiedUserPermissions = modifiedUser.getPermissions();
+
+        assertEquals(permissionsToSet, modifiedUserPermissions);
     }
 
     @Test
