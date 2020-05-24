@@ -16,7 +16,7 @@ parameters:
 trigger:
   - master
   - develop
-#  - ft*
+  - ft*
 
 variables:
   - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
