@@ -114,7 +114,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testDeleteOrganisationThrowsOrgServiceExceptionIfUnsuccessful() {
+        public void testDeleteOrganisationThrowsIdServiceExceptionIfUnsuccessful() {
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
@@ -281,7 +281,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testDeleteThrowsOrgServiceExceptionIfUnsuccessful() {
+        public void testDeleteThrowsIdServiceExceptionIfUnsuccessful() {
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
