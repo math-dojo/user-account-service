@@ -1,7 +1,20 @@
 package io.mathdojo.useraccountservice.model.primitives;
 
+import com.google.gson.annotations.SerializedName;
+
 public enum UserPermission {
-    CONSUMER("consumer"), CREATOR("creator"), ORG_ADMIN("org-admin"), GLOBAL_ADMIN("global-admin");
+
+    @SerializedName("consumer")
+    CONSUMER("consumer"), 
+    
+    @SerializedName("creator")
+    CREATOR("creator"), 
+    
+    @SerializedName("org-admin")
+    ORG_ADMIN("org-admin"), 
+    
+    @SerializedName("global-admin")
+    GLOBAL_ADMIN("global-admin");
 
     private String value;
 
