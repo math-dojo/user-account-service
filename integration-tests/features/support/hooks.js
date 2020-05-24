@@ -21,7 +21,7 @@ processes.useraccountservice = {
  * a ```npm test``` or via the vscode debug mode.
  */
 BeforeAll({
-  timeout: 100000
+  timeout: 300000
 }, function () {
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
