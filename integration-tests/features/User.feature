@@ -65,26 +65,26 @@ Feature: Features related to User Management
     Then I should get a status code 404
 
   @updateUserPermissions
-  Scenario: PUT to /users/{userId}/permissions with pre-conditioned knownUserId and valid body returns 204
+  Scenario: PUT to /permissions with pre-conditioned knownUserId and valid body returns 204
     Given I generate a json payload called 'userPermissionsModificationRequest'
     When I make a PUT to the function at '/organisations/knownOrgId/users/knownUserId/permissions'
     Then I should get a status code 204
     And the response should have no body
 
   @updateUserPermissions @errorHandling
-  Scenario: PUT to /users/{userId} with pre-conditioned knownOrgId and invalid body returns 400
+  Scenario: PUT to /permissions with pre-conditioned knownOrgId and invalid body returns 400
     Given I generate a json payload called 'badUserPermissionsModificationRequest'
     When I make a PUT to the function at '/organisations/knownOrgId/users/knownUserId/permissions'
     Then I should get a status code 400
 
   @updateUserPermissions @errorHandling
-  Scenario: PUT to /users/{userId} with pre-conditioned unknownOrganisationId returns 404
+  Scenario: PUT to /permissions with pre-conditioned unknownOrganisationId returns 404
     Given I generate a json payload called 'userPermissionsModificationRequest'
     When I make a PUT to the function at '/organisations/unknownOrganisationId/users/knownUserId/permissions'
     Then I should get a status code 404
 
   @updateUserPermissions @errorHandling
-  Scenario: PUT to /users/{userId} with pre-conditioned unknownUserId returns 404
+  Scenario: PUT to /permissions with pre-conditioned unknownUserId returns 404
     Given I generate a json payload called 'userPermissionsModificationRequest'
     When I make a PUT to the function at '/organisations/knownOrganisationId/users/unknownUserId/permissions'
     Then I should get a status code 404
