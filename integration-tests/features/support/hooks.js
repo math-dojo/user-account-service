@@ -25,8 +25,12 @@ BeforeAll({
 }, function () {
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
-    const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw.cmd' : 'mvnw');
-    const args = [mavenScriptToRun, '--offline', 'azure-functions:run'];
+    const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw' : 'mvnw');
+    const args = (
+      process.platform == 'win32' ? 
+      ['/c', mavenScriptToRun, '--offline', 'azure-functions:run'] :
+      [mavenScriptToRun, '--offline', 'azure-functions:run']
+    );
     const azFunctionSpawnConfig = {
       cwd: path.parse(process.cwd()).dir,
     };
