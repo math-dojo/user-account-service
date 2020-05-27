@@ -19,6 +19,10 @@ trigger:
 #  - ft*
 
 variables:
+  - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: # only works if you have a master branch
+      functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
+  - ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: # only works if you have a master branch
+      functionAppName: "pr$(Build.SourceBranchName)"
   - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
       - template: environments/pre-production.yml
   - ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
@@ -39,27 +43,8 @@ stages:
       - job: Build_and_Exec_Unit_Tests
         steps:
           - script: |
-              mvnw -DfunctionAppName=user-account-service-$(Build.SourceBranchName) clean package
+              mvnw -DfunctionAppName=user-account-service-$(functionAppName) clean package
             displayName: Build package
-          - task: PublishPipelineArtifact@1
-            inputs:
-              path: $(System.DefaultWorkingDirectory)
-              artifact: workingDir
-
-  - stage: Run_Integration_Tests
-    condition: eq(variables['Build.Reason'], 'PullRequest')
-    jobs:
-      - job: Exec_Integration_Tests
-        steps:
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifact: workingDir
-              path: $(System.DefaultWorkingDirectory)
-            displayName: Retrieve Stashed Artefacts
-          - script: |
-              cd ./integration-tests
-              npm test
-            displayName: Exec Npm Test
           - task: PublishPipelineArtifact@1
             inputs:
               path: $(System.DefaultWorkingDirectory)
@@ -86,7 +71,7 @@ stages:
                 $xmlcontent
                 New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
                 cat .\.mvn\settings.xml
-                .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(Build.SourceBranchName) azure-functions:deploy
+                .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(functionAppName) azure-functions:deploy
 
           - task: AzureCLI@2
             displayName: "Set app insights key"
@@ -97,7 +82,7 @@ stages:
               scriptType: ps
               scriptLocation: inlineScript
               inlineScript: |
-                az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(APPINSIGHTS_INSTRUMENTATIONKEY)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
+                az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(APPINSIGHTS_INSTRUMENTATIONKEY)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
 
   - stage: Configure_App
     jobs:
@@ -113,4 +98,19 @@ stages:
                   scriptType: ps
                   scriptLocation: inlineScript
                   inlineScript: |
-                    az functionapp config appsettings set --name user-account-service-$(Build.SourceBranchName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.value }}=$(${{ item.value }})"
+                    az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.value }}=$(${{ item.value }})"
+
+  - stage: Run_Integration_Tests
+    condition: eq(variables['Build.Reason'], 'PullRequest')
+    jobs:
+      - job: Exec_Integration_Tests
+        steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: workingDir
+              path: $(System.DefaultWorkingDirectory)
+            displayName: Retrieve Stashed Artefacts
+          - script: |
+              cd ./integration-tests
+              npm test -- --world-parameters '{\"baseFunctionUri\":\"https://user-account-service-$(functionAppName).azurewebsites.net/api\", \"apiKey\":\"\"}'
+            displayName: Exec Npm Test
