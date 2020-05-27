@@ -19,9 +19,9 @@ trigger:
 #  - ft*
 
 variables:
-  - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: # only works if you have a master branch
+  ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: # only works if you have a master branch
     functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
-  - ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: # only works if you have a master branch
+  ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: # only works if you have a master branch
     functionAppName: "pr$(Build.SourceBranchName)"
   - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
       - template: environments/pre-production.yml
