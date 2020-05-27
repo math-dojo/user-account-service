@@ -96,12 +96,3 @@ AfterAll(function() {
     execSync('kill $(lsof -t -i :7071)');
   });
 });
-
-Before(function() {
-  // reset request and response objects
-  this.world.request = {};
-  this.world.request.headers = {};
-  this.world.request.body = {};
-  this.world.response = new Promise((resolve, reject) => {});
-
-});
