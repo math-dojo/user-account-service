@@ -10,6 +10,10 @@
             "name": "Debug Cucumber Tests",
             "program": "${workspaceFolder}/node_modules/.bin/cucumber-js",
             "cwd": "${workspaceFolder}",
+            "args": [
+                "--world-parameters",
+                "{\"baseFunctionUri\":\"http://localhost:7071/api\", \"apiKey\":\"\"}"
+            ],
             "console": "integratedTerminal"
         }
     ]
