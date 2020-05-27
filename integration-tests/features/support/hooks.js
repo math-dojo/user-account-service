@@ -2,6 +2,7 @@
 const {BeforeAll, Before, AfterAll} = require('cucumber');
 const { spawn, execSync } = require('child_process');
 const path = require('path');
+const processArgs = require('yargs').argv;
 
 let processes = {};
 processes.useraccountservice = {
@@ -15,6 +16,9 @@ processes.useraccountservice = {
     }
 };
 
+const paramsToWorld = JSON.parse(processArgs["world-parameters"]);
+const isLocalTest = (paramsToWorld.baseFunctionUri.includes('http://localhost') ?
+  true : false);
 /** 
  * Start up the azure function. The timeout has been set to 
  * a value that allows the function enough time to start up in
@@ -23,6 +27,9 @@ processes.useraccountservice = {
 BeforeAll({
   timeout: 300000
 }, function () {
+  if(!isLocalTest) {
+    return;
+  }
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
     const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw' : 'mvnw');
@@ -85,6 +92,9 @@ BeforeAll({
 });
 
 AfterAll(function() {
+  if(!isLocalTest) {
+    return;
+  }
   return new Promise((resolve, reject) => {
     console.info(`\nTerminating the functions process running with id ${processes.useraccountservice.functionapp.processEventEmitter.pid}`);
     resolve(process.kill(processes.useraccountservice.functionapp.processEventEmitter.pid));
