@@ -128,5 +128,5 @@ stages:
             displayName: Retrieve Stashed Artefacts
           - script: |
               cd ./integration-tests
-              npm test -- --world-parameters '{\"baseFunctionUri\":\"https://user-account-service-$(functionAppName).azurewebsites.net/api\", \"apiKey\":\"\"}'
+              npm test -- --world-parameters {\"baseFunctionUri\":\"https://user-account-service-$(functionAppName).azurewebsites.net/api\", \"apiKey\":\"\"}
             displayName: Exec Npm Test
