@@ -36,9 +36,9 @@ pool:
 stages:
   - stage: Build
     variables:
-      ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: # only works if you have a master branch
+      ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
-      ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: # only works if you have a master branch
+      ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
         functionAppName: "pr$(Build.SourceBranchName)"
     jobs:
       - job: Build_and_Exec_Unit_Tests
@@ -53,9 +53,9 @@ stages:
 
   - stage: Deploy
     variables:
-      ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: # only works if you have a master branch
+      ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
-      ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: # only works if you have a master branch
+      ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
         functionAppName: "pr$(Build.SourceBranchName)"
     jobs:
       - job: Deploy_App_and_Setup_Monitoring
@@ -92,9 +92,9 @@ stages:
 
   - stage: Configure_App
     variables:
-      ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: # only works if you have a master branch
+      ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
-      ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: # only works if you have a master branch
+      ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
         functionAppName: "pr$(Build.SourceBranchName)"
     jobs:
       - job: Configure_Function_Parameters
@@ -113,9 +113,9 @@ stages:
 
   - stage: Run_Integration_Tests
     variables:
-      ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: # only works if you have a master branch
+      ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
-      ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: # only works if you have a master branch
+      ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
         functionAppName: "pr$(Build.SourceBranchName)"
     condition: eq(variables['Build.Reason'], 'PullRequest')
     jobs:
