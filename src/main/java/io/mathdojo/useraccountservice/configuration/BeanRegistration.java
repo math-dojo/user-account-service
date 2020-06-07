@@ -1,5 +1,7 @@
 package io.mathdojo.useraccountservice.configuration;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -13,16 +15,17 @@ import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
-import io.mathdojo.useraccountservice.services.OrganisationService;
+import io.mathdojo.useraccountservice.services.IdentityService;
 import reactor.core.publisher.Flux;
 
 @Configuration
 public class BeanRegistration {
 
     @Autowired
-    public OrganisationService organisationService;
+    public IdentityService organisationService;
 
     @Bean
     public Function<Flux<AccountRequest>, Flux<Organisation>> createOrganisation(ExecutionContext context) {
@@ -112,5 +115,14 @@ public class BeanRegistration {
     public Consumer<AccountModificationRequest> deleteUserFromOrg() {
         return deletionRequest -> organisationService.deleteUserFromOrg(
                     deletionRequest.getParentOrgId(), deletionRequest.getAccountId());
+    }
+
+    @Bean
+    public Consumer<AccountModificationRequest> updateUserPermissions() {
+        return permissionRequest -> organisationService
+            .updateUserPermissions(
+                permissionRequest.getParentOrgId(), permissionRequest.getAccountId(),
+                new HashSet<UserPermission>(Arrays.asList(permissionRequest.getUserPermissions()))
+            );
     }
 }

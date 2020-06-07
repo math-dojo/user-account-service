@@ -15,7 +15,8 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
-import io.mathdojo.useraccountservice.services.OrganisationServiceException;
+import io.mathdojo.useraccountservice.services.IdentityService;
+import io.mathdojo.useraccountservice.services.IdentityServiceException;
 
 public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> {
     @FunctionName("deleteOrganisationById")
@@ -40,7 +41,7 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
                     .body("")
                     .build();
 
-            } catch (OrganisationServiceException e) {
+            } catch (IdentityServiceException e) {
                 return request.createResponseBuilder(HttpStatus.NOT_FOUND)
                     .body(e.getMessage())
                     .build();
@@ -75,7 +76,7 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
                     .body("")
                     .build();
 
-            } catch (OrganisationServiceException e) {
+            } catch (IdentityServiceException e) {
                 context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
                     context.getInvocationId(), context.getFunctionName()), e);
                 return request.createResponseBuilder(HttpStatus.NOT_FOUND)
@@ -88,5 +89,47 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
                     .build();
             }
 
-    }    
+    }
+
+    @FunctionName("updateUserPermissions")
+    public HttpResponseMessage executeUpdateUserPermissions(
+        @HttpTrigger(
+            name = "request", 
+            methods = { HttpMethod.PUT }, 
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "organisations/{orgId:alpha}/users/{userId:alpha}/permissions"
+            ) HttpRequestMessage<Optional<AccountModificationRequest>> request,
+        @BindingName("orgId") String orgId,
+        @BindingName("userId") String userId,
+        ExecutionContext context) {
+
+            try {
+                AccountModificationRequest permissionModRequest = AccountModificationRequest
+                    .Builder.createBuilder().withAccountId(userId).withParentOrgId(orgId)
+                    .withUserPermissions(request.getBody().get().getUserPermissions())
+                    .build();
+                Object handledRequest = handleRequest(request, permissionModRequest, context);
+                if(handledRequest instanceof HttpResponseMessage) {
+                    return (HttpResponseMessage) handledRequest;
+                }
+                return request.createResponseBuilder(HttpStatus.NO_CONTENT)
+                    .body("")
+                    .build();
+
+            } catch (IdentityServiceException e) {
+                context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
+                    context.getInvocationId(), context.getFunctionName()), e);
+                if(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage() || 
+                    IdentityService.UNKNOWN_USERID_EXCEPTION_MSG == e.getMessage()) {
+                    return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+                }
+                return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
+            } catch (Exception e) {
+                context.getLogger().log(Level.WARNING, String.format("A system error occured while processing request %s to function %s",
+                    context.getInvocationId(), context.getFunctionName()), e);
+                return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+            }
+
+    }  
 }

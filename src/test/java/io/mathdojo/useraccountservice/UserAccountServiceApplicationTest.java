@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.microsoft.azure.functions.ExecutionContext;
@@ -22,11 +24,12 @@ import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
-import io.mathdojo.useraccountservice.services.OrganisationService;
-import io.mathdojo.useraccountservice.services.OrganisationServiceException;
+import io.mathdojo.useraccountservice.services.IdentityService;
+import io.mathdojo.useraccountservice.services.IdentityServiceException;
 import io.mathdojo.useraccountservice.services.SystemService;
 
 @RunWith(SpringRunner.class)
@@ -114,7 +117,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testDeleteOrganisationThrowsOrgServiceExceptionIfUnsuccessful() {
+        public void testDeleteOrganisationThrowsIdServiceExceptionIfUnsuccessful() {
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
@@ -122,12 +125,12 @@ public class UserAccountServiceApplicationTest {
                AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("unknownOrganisationId",
                         null,false, null, null);
                 when(mockExecContext.getFunctionName()).thenReturn("deleteOrganisationById");
-                OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+                IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
                         handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
                         handlerSpy.close();
                 });
 
-                assertThat(exception.getMessage()).isEqualTo(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG);
+                assertThat(exception.getMessage()).isEqualTo(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG);
 
         }
 
@@ -281,7 +284,7 @@ public class UserAccountServiceApplicationTest {
         }
 
         @Test
-        public void testDeleteThrowsOrgServiceExceptionIfUnsuccessful() {
+        public void testDeleteThrowsIdServiceExceptionIfUnsuccessful() {
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
@@ -289,12 +292,59 @@ public class UserAccountServiceApplicationTest {
                 AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("someUserId",
                         "unknownOrganisationId",false, null, null);
                 when(mockExecContext.getFunctionName()).thenReturn("deleteUserFromOrg");
-                OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+                IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
                         handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
                         handlerSpy.close();
                 });
 
-                assertThat(exception.getMessage()).isEqualTo(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG);
+                assertThat(exception.getMessage()).isEqualTo(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG);
+
+        }
+
+        @Test
+        public void testUpdatePermissionsThrowsNoErrorIfSuccessful() {
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
+                Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+                UserPermission[] permissionsToSet = { UserPermission.CONSUMER,
+                                UserPermission.CREATOR
+                        ,UserPermission.ORG_ADMIN};
+                AccountModificationRequest permissionsModificationRequest = AccountModificationRequest
+                        .Builder.createBuilder()
+                        .withAccountId("someValidUserId")
+                        .withParentOrgId("validOrgId")
+                        .withUserPermissions(permissionsToSet)
+                        .build();
+                when(mockExecContext.getFunctionName()).thenReturn("updateUserPermissions");
+                assertDoesNotThrow(() -> {
+                        handlerSpy.handleRequest(mockMessage, permissionsModificationRequest, mockExecContext);
+                        handlerSpy.close();
+                });
+        }
+
+        @Test
+        public void testUpdatePermissionsThrowsErrorIfUnsuccessful() {
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handler = new HTTPRequestSignatureVerificationEnabledHandler<>(
+                                UserAccountServiceApplication.class);
+                HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
+                Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+                UserPermission[] permissionsToSet = {};
+                AccountModificationRequest permissionsModificationRequest = AccountModificationRequest
+                        .Builder.createBuilder()
+                        .withAccountId("someValidUserId")
+                        .withParentOrgId("validOrgId")
+                        .withUserPermissions(permissionsToSet)
+                        .build();
+                when(mockExecContext.getFunctionName()).thenReturn("updateUserPermissions");
+                IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+                        handlerSpy.handleRequest(mockMessage, permissionsModificationRequest, mockExecContext);
+                        handlerSpy.close();
+                });
+
+                assertThat(exception.getMessage()).isEqualTo(IdentityService.BAD_PERMISSIONS_EXCEPTION_MSG);
 
         }
 }

@@ -5,9 +5,10 @@
   "scripts": {
     "local:pretest": "cd ../ && ./mvnw clean package",
     "local:runsuite": "./node_modules/.bin/cucumber-js",
-    "local:runnamedtags": "./node_modules/.bin/cucumber-js --tags \"(@deleteUserById)\"",
+    "local:runnamedtags": "./node_modules/.bin/cucumber-js --tags \"(@updateUserPermissions)\"",
     "local:test-subset": "npm run local:pretest && npm run local:runnamedtags",
     "local:test": "npm run local:pretest && npm run local:runsuite",
+    "pretest": "npm install --production",
     "test": "./node_modules/.bin/cucumber-js"
   },
   "author": "",

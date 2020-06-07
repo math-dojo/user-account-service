@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import com.microsoft.azure.functions.ExecutionContext;
@@ -64,6 +65,29 @@ public class ConsumerRequestHandlerTest {
             any(HttpRequestMessage.class), any(AccountModificationRequest.class), any(ExecutionContext.class));
 
         HttpResponseMessage actualResponseMessage = handlerSpy.executeDeleteByIdForUser(
+            mockMessage, "orgId", "userId", mockExecContext);
+        handlerSpy.close();
+
+        assertEquals(expectedResponseFromSignatureVerifier.getStatus(), actualResponseMessage.getStatus());
+
+    }
+
+    @Test
+    public void testUpdateUserPermissionsReturns401FromVerificationFailure() {
+        ConsumerRequestHandler handler = new ConsumerRequestHandler();
+        ConsumerRequestHandler handlerSpy = Mockito.spy(handler);
+
+        HttpResponseMessage expectedResponseFromSignatureVerifier = mock(HttpResponseMessage.class);
+        when(expectedResponseFromSignatureVerifier.getStatus()).thenReturn(HttpStatus.UNAUTHORIZED);
+
+        AccountModificationRequest mockAccountRequest = mock(AccountModificationRequest.class);
+        Optional<AccountModificationRequest> mockAccountRequestOptional = Optional.of(mockAccountRequest);
+        when(mockMessage.getBody()).thenReturn(mockAccountRequestOptional);
+
+        doReturn(expectedResponseFromSignatureVerifier).when(handlerSpy).handleRequest(
+            any(HttpRequestMessage.class), any(AccountModificationRequest.class), any(ExecutionContext.class));
+
+        HttpResponseMessage actualResponseMessage = handlerSpy.executeUpdateUserPermissions(
             mockMessage, "orgId", "userId", mockExecContext);
         handlerSpy.close();
 

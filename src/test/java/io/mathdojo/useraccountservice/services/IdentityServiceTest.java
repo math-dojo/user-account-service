@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.validation.ConstraintViolationException;
@@ -22,16 +24,17 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
+import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OrganisationServiceTest {
+public class IdentityServiceTest {
 
     @Mock
     private ExecutionContext targetExecutionContext;
 
     @InjectMocks
-    private OrganisationService organisationService = new OrganisationService();
+    private IdentityService organisationService = new IdentityService();
 
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
     private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
@@ -43,7 +46,7 @@ public class OrganisationServiceTest {
     }
 
     @Test
-    public void createNewOrganisationIfAccountRequestParamsValid() throws OrganisationServiceException {
+    public void createNewOrganisationIfAccountRequestParamsValid() throws IdentityServiceException {
         boolean accountVerificationStatus = false;
         String name = "fizz buzz";
         String profileImageLink = "https://my.image.domain/super.gif";
@@ -82,7 +85,7 @@ public class OrganisationServiceTest {
 
         AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink);
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
+        RuntimeException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.createNewOrganisation(newRequest);
         });
 
@@ -94,7 +97,7 @@ public class OrganisationServiceTest {
     @Test
     public void throwsExceptionIfDeleteForNull() {
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
+        RuntimeException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.deleteOrganisationWithId(null);
         });
 
@@ -106,7 +109,7 @@ public class OrganisationServiceTest {
     @Test
     public void throwsExceptionIfGetOrganisationWithNullOrgId() {
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
+        RuntimeException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.getOrganisationById(null);
         });
 
@@ -118,7 +121,7 @@ public class OrganisationServiceTest {
     @Test
     public void throwsExceptionIfDeleteForPreconditionedNonExistentOrg() {
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
+        RuntimeException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.deleteOrganisationWithId(PRECONDITIONED_UNKNOWN_ORG_ID);
         });
 
@@ -129,7 +132,7 @@ public class OrganisationServiceTest {
     @Test
     public void throwsExceptionIfGetOrganisationWithPreconditionedUnknownOrgId() {
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
+        RuntimeException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.getOrganisationById("unknownOrganisationId");
         });
 
@@ -169,7 +172,7 @@ public class OrganisationServiceTest {
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
         AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
 
-        RuntimeException exception = assertThrows(OrganisationServiceException.class, () -> {
+        RuntimeException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.updateOrganisationWithId(PRECONDITIONED_UNKNOWN_ORG_ID, accountModificationRequest);
         });
 
@@ -211,12 +214,12 @@ public class OrganisationServiceTest {
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.createUserInOrg("randomParentOrgId", userToCreate);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG, exceptionMessage);
+        assertEquals(IdentityService.NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG, exceptionMessage);
 
     }
 
@@ -228,12 +231,12 @@ public class OrganisationServiceTest {
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.createUserInOrg(null, userToCreate);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.ORG_LESS_NEW_USER_ERROR_MSG, exceptionMessage);
+        assertEquals(IdentityService.ORG_LESS_NEW_USER_ERROR_MSG, exceptionMessage);
 
     }
 
@@ -245,12 +248,12 @@ public class OrganisationServiceTest {
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.createUserInOrg(PRECONDITIONED_UNKNOWN_ORG_ID, userToCreate);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+        assertEquals(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
 
     }
 
@@ -289,12 +292,12 @@ public class OrganisationServiceTest {
         String expectedOrganisationId = PRECONDITIONED_UNKNOWN_ORG_ID;
         String userId = "knownUserId";
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.getUserInOrg(expectedOrganisationId, userId);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+        assertEquals(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
 
     }
 
@@ -304,12 +307,12 @@ public class OrganisationServiceTest {
         String expectedOrganisationId = "aKnownOrg";
         String userId = PRECONDITIONED_UNKNOWN_USER_ID;
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.getUserInOrg(expectedOrganisationId, userId);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+        assertEquals(IdentityService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
 
     }
 
@@ -375,13 +378,13 @@ public class OrganisationServiceTest {
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
         AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.updateUserWithId(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId",
                     accountModificationRequest);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+        assertEquals(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
     }
 
     @Test
@@ -390,20 +393,20 @@ public class OrganisationServiceTest {
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
         AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.updateUserWithId("knownOrg", PRECONDITIONED_UNKNOWN_USER_ID,
                     accountModificationRequest);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+        assertEquals(IdentityService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
     }
 
     @Test
     public void throwsErrorIfAttemptToUpdateValidUserWithNullParams() {
         AccountRequest accountModificationRequest = new AccountRequest(false, null, null);
 
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.updateUserWithId("knownOrg", "knownUserId",
                     accountModificationRequest);
         });
@@ -419,21 +422,108 @@ public class OrganisationServiceTest {
 
     @Test
     public void throwsErrorIfDeletingUserForInvalidOrgId() {
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.deleteUserFromOrg(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId");
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+        assertEquals(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
     }
 
     @Test
     public void throwsErrorIfDeletingNonExistentUserId() {
-        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.deleteUserFromOrg("knownOrgId", PRECONDITIONED_UNKNOWN_USER_ID);
         });
 
         String exceptionMessage = exception.getMessage();
-        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+        assertEquals(IdentityService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsNoErrorIfSettingValidPermissionsForValidUserInValidOrgId() {
+        Set<UserPermission> permissionsToSet = new HashSet<UserPermission>();
+            permissionsToSet.add(UserPermission.CONSUMER);
+            permissionsToSet.add(UserPermission.CREATOR);
+            permissionsToSet.add(UserPermission.ORG_ADMIN);
+        User modifiedUser = organisationService.updateUserPermissions("knownOrganisationId", "knownUserId",
+            permissionsToSet);
+
+        Set<UserPermission> modifiedUserPermissions = modifiedUser.getPermissions();
+
+        assertEquals(permissionsToSet, modifiedUserPermissions);
+    }
+
+    @Test
+    public void throwsErrorIfAnyPermissionInvalid() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+            permissions.add(UserPermission.CREATOR);
+            permissions.add(null);
+
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions("knownOrg", "knownUserId",
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("One or more of the permissions to update for the user are incorrect.", exceptionMessage);
+    }
+
+    @Test
+    public void denySettingOfGlobalAdminPermissionAlongWithAllOthers() {
+       Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+            permissions.add(UserPermission.CREATOR);
+            permissions.add(UserPermission.GLOBAL_ADMIN);
+
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions("knownOrg", "knownUserId",
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("A user can only hold global-admin privileges exclusive of all others.", exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfEmptySetOfPermissionsSuppliedForUpdate() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions("knownOrg", "knownUserId",
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("One or more of the permissions to update for the user are incorrect.", exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfSettingPermissionsForInvalidOrgId() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+            
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId",
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfSettingPermissionsOnNonExistentUserId() {
+        Set<UserPermission> permissions = new HashSet<UserPermission>();
+            permissions.add(UserPermission.CONSUMER);
+
+        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
+            organisationService.updateUserPermissions("knownOrgId", PRECONDITIONED_UNKNOWN_USER_ID,
+                permissions);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(IdentityService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
     }
 }
