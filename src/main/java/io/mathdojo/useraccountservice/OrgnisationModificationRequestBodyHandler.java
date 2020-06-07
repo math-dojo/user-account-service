@@ -39,7 +39,7 @@ public class OrgnisationModificationRequestBodyHandler extends HTTPRequestSignat
             }
             Organisation finalResult = (Organisation) handledRequest;
             return request.createResponseBuilder(HttpStatus.NO_CONTENT)
-                .header("Content-Type", "/organisations/"+finalResult.getId())
+                .header("Content-Location", "/organisations/"+finalResult.getId())
                 .body(finalResult).build();
 
         } catch (ConstraintViolationException | OrganisationServiceException e) {

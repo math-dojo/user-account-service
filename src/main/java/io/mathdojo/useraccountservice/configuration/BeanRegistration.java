@@ -1,5 +1,6 @@
 package io.mathdojo.useraccountservice.configuration;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.microsoft.azure.functions.ExecutionContext;
@@ -54,13 +55,9 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Function<Flux<String>, Flux<String>> deleteOrganisationById(final ExecutionContext context) {
-        return organisationIdFluxEntity -> {
-            return organisationIdFluxEntity.map(orgId -> {
-                context.getLogger().info("About to delete organisation: " + orgId);
-                return organisationService.deleteOrganisationWithId(orgId);
-            });
-        };
+    public Consumer<AccountModificationRequest> deleteOrganisationById(final ExecutionContext context) {
+        return deletionRequest -> organisationService.deleteOrganisationWithId(
+            deletionRequest.getAccountId());
     }
 
     @Bean
@@ -93,8 +90,27 @@ public class BeanRegistration {
             return retrieveUserRequestFluxEntity.map(retrieveUserRequest -> {
                 context.getLogger().info(String.format("About to retrieve user %s from org: %s",
                         retrieveUserRequest.getAccountId(), retrieveUserRequest.getParentOrgId()));
-                return organisationService.getUserInOrg(retrieveUserRequest.getParentOrgId(), retrieveUserRequest.getAccountId());
+                return organisationService.getUserInOrg(retrieveUserRequest.getParentOrgId(),
+                        retrieveUserRequest.getAccountId());
             });
         };
+    }
+
+    @Bean
+    public Function<Flux<AccountModificationRequest>, Flux<User>> updateUserInOrg(ExecutionContext context) {
+        return updateUserRequestFluxEntity -> {
+            return updateUserRequestFluxEntity.map(updateUserRequest -> {
+                context.getLogger().info(String.format("About to update user %s from org: %s",
+                        updateUserRequest.getAccountId(), updateUserRequest.getParentOrgId()));
+                return organisationService.updateUserWithId(updateUserRequest.getParentOrgId(),
+                        updateUserRequest.getAccountId(), updateUserRequest);
+            });
+        };
+    }
+
+    @Bean
+    public Consumer<AccountModificationRequest> deleteUserFromOrg() {
+        return deletionRequest -> organisationService.deleteUserFromOrg(
+                    deletionRequest.getParentOrgId(), deletionRequest.getAccountId());
     }
 }

@@ -12,6 +12,7 @@ import javax.validation.ConstraintViolationException;
 import com.microsoft.azure.functions.ExecutionContext;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -310,5 +311,129 @@ public class OrganisationServiceTest {
         String exceptionMessage = exception.getMessage();
         assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
 
+    }
+
+    @Test
+    public void updateUserWithIdReturnsResultIfOrgAndAllParamsFilledAndValid() {
+        String orgId = "knownOrg";
+
+        AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
+                "https://my.custom.domain/image-i-dont-like.png");
+        User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
+
+        String newName = "aName iWillNotChange";
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        User modifiedUser = organisationService.updateUserWithId(orgId, oldUser.getId(),
+                    accountModificationRequest);
+
+        assertEquals(oldUser.getId(), modifiedUser.getId());
+        assertEquals(newName, modifiedUser.getName());
+        assertEquals(newProfileImageLink, modifiedUser.getProfileImageLink());
+        
+    }
+
+    // TODO: #18 Add unit test coverage for partial filling of user account modification params
+
+    @Ignore
+    public void updateUserWithIdUpdatesOnlyNonNullFields() {
+        String orgId = "knownOrg";
+
+        AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
+                "https://my.custom.domain/image-i-dont-like.png");
+        User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
+
+        String newName = null;
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        User modifiedUser = organisationService.updateUserWithId(orgId, oldUser.getId(),
+                    accountModificationRequest);
+
+        assertEquals(oldUser.getId(), modifiedUser.getId());
+        assertEquals(oldUser.getName(), modifiedUser.getName());
+        assertEquals(newProfileImageLink, modifiedUser.getProfileImageLink());
+
+        String secondNewName = "newerName";
+        String secondNewProfileImageLink = null;
+        AccountRequest secondAccountModificationRequest = new AccountRequest(true, secondNewName, secondNewProfileImageLink);
+
+        User secondModifiedUser = organisationService.updateUserWithId(orgId, modifiedUser.getId(),
+            secondAccountModificationRequest);
+
+        assertEquals(modifiedUser.getId(), secondModifiedUser.getId());
+        assertEquals(secondNewName, secondModifiedUser.getName());
+        assertEquals(modifiedUser.getProfileImageLink(), secondModifiedUser.getProfileImageLink());
+        
+
+    }
+
+    @Test
+    public void throwsErrorIfAttemptToUpdateUserInNonExistentOrg() {
+        String newName = "aName iWillNotChange";
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.updateUserWithId(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId",
+                    accountModificationRequest);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfAttemptToUpdateNonExistentUserInValidOrg() {
+        String newName = "aName iWillNotChange";
+        String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.updateUserWithId("knownOrg", PRECONDITIONED_UNKNOWN_USER_ID,
+                    accountModificationRequest);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfAttemptToUpdateValidUserWithNullParams() {
+        AccountRequest accountModificationRequest = new AccountRequest(false, null, null);
+
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.updateUserWithId("knownOrg", "knownUserId",
+                    accountModificationRequest);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals("One or more of the properties to update for the user are incorrect.", exceptionMessage);
+    }
+
+    @Test
+    public void throwsNoErrorIfDeletingForValidUserInValidOrgId() {
+        organisationService.deleteUserFromOrg("knownOrganisationId", "knownUserId");
+    }
+
+    @Test
+    public void throwsErrorIfDeletingUserForInvalidOrgId() {
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.deleteUserFromOrg(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId");
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG, exceptionMessage);
+    }
+
+    @Test
+    public void throwsErrorIfDeletingNonExistentUserId() {
+        OrganisationServiceException exception = assertThrows(OrganisationServiceException.class, () -> {
+            organisationService.deleteUserFromOrg("knownOrgId", PRECONDITIONED_UNKNOWN_USER_ID);
+        });
+
+        String exceptionMessage = exception.getMessage();
+        assertEquals(OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
     }
 }

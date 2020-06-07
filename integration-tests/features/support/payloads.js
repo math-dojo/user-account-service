@@ -25,5 +25,13 @@ module.exports.payloads = {
         accountVerified: true,
         name: "",
         profileImageLink: "https://my.image.domain.com/it.jpg"
-    }
+    },
+    userModificationRequest: {
+        accountVerified: true,
+        name: "some Newname",
+        profileImageLink: "https://my.image.domain.com/new-image.jpg"
+    },
+    badUserModificationRequest: {
+        invalidParam: "ivalidValue"
+    },
 };

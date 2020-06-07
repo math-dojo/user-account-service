@@ -40,7 +40,8 @@ public class OrganisationService {
     }
 
     public Organisation getOrganisationById(String organisationId) throws OrganisationServiceException {
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
+        if (null == organisationId || organisationId.isEmpty()
+                || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return new Organisation(organisationId, false, UUID.randomUUID().toString(),
@@ -48,14 +49,14 @@ public class OrganisationService {
     }
 
     public Organisation updateOrganisationWithId(String organisationId, AccountRequest accountModificationRequest) {
-        try {
-            validateAccountModificationRequest(accountModificationRequest);
-        } catch (OrganisationServiceException e) {
-            targetExecutionContext.getLogger().log(Level.WARNING, e.getMessage(), e);
-            throw e;
+        if (!isValidAccountModificationRequest(accountModificationRequest)) {
+            String errorMessage = "The name, profileImageLink and accountVerified cannot all be empty in a modification request.";
+            targetExecutionContext.getLogger().log(Level.WARNING, errorMessage);
+            throw new OrganisationServiceException(errorMessage);
         }
 
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
+        if (null == organisationId || organisationId.isEmpty()
+                || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
 
@@ -82,7 +83,8 @@ public class OrganisationService {
     }
 
     public String deleteOrganisationWithId(String organisationId) throws OrganisationServiceException {
-        if (null == organisationId || organisationId.isEmpty() || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
+        if (null == organisationId || organisationId.isEmpty()
+                || organisationId.equals(PRECONDITIONED_UNKNOWN_ORGANISATION_ID)) {
             throw new OrganisationServiceException(UNKNOWN_ORGID_EXCEPTION_MSG);
         }
         return "";
@@ -105,12 +107,12 @@ public class OrganisationService {
                 userToCreate.getProfileImageLink(), parentOrgId);
     }
 
-    private void validateAccountModificationRequest(AccountRequest request) throws OrganisationServiceException {
+    private boolean isValidAccountModificationRequest(AccountRequest request) {
         if (null == request.getName() && null == request.getProfileImageLink()
                 && request.isAccountVerified() == false) {
-            throw new OrganisationServiceException(
-                    "The name, profileImageLink and accountVerified cannot all be empty in a modification request.");
+            return false;
         }
+        return true;
     }
 
     public User getUserInOrg(String expectedOrganisationId, String userId) {
@@ -122,6 +124,51 @@ public class OrganisationService {
         }
         return new User(userId, false, "a name", "https://domain.com/img.png", returnedOrgId);
     }
+
+    /**
+     * @param orgId                      - the id of the org where the user can be
+     *                                   found
+     * @param userId                     - the user's id
+     * @param accountModificationRequest - object containing the desired parameters
+     *                                   to be modified.
+     * @return 
+     */
+    public User updateUserWithId(String orgId, String userId, AccountRequest accountModificationRequest) {
+        String returnedOrgId = (getOrganisationById(orgId)).getId();
+        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
+            targetExecutionContext.getLogger().log(Level.WARNING,
+                    String.format("UserId %s in Org %s could not be found", userId, orgId));
+            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+        }
+
+        if (!isValidAccountModificationRequest(accountModificationRequest)) {
+            String errorMessage = "One or more of the properties to update for the user are incorrect.";
+            targetExecutionContext.getLogger().log(Level.WARNING,
+                    String.format("UserId %s in Org %s could not be upated", userId, orgId));
+            throw new OrganisationServiceException(errorMessage);
+        }
+
+        User foundUser = getUserInOrg(returnedOrgId, userId);
+		String nameToUpdate = (null == accountModificationRequest.getName()
+                || accountModificationRequest.getName().isEmpty()) ? foundUser.getName()
+                        : accountModificationRequest.getName();
+        String profileToUpdate = (null == accountModificationRequest.getProfileImageLink()
+                || accountModificationRequest.getProfileImageLink().isEmpty()) ? foundUser.getProfileImageLink()
+                        : accountModificationRequest.getProfileImageLink();
+        boolean verificationStatusToUpdate = (!foundUser.isAccountVerified()
+                && accountModificationRequest.isAccountVerified()) ? accountModificationRequest.isAccountVerified()
+                        : foundUser.isAccountVerified();
+        return new User(userId, verificationStatusToUpdate, nameToUpdate, profileToUpdate, returnedOrgId);
+    }
+
+	public void deleteUserFromOrg(String orgId, String userId) {
+        String returnedOrgId = (getOrganisationById(orgId)).getId();
+        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
+            targetExecutionContext.getLogger().log(Level.WARNING,
+                    String.format("UserId %s in Org %s could not be found", userId, orgId));
+            throw new OrganisationServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
+        }
+	}
 
     @Override
     public String toString() {
@@ -137,10 +184,7 @@ public class OrganisationService {
      * Convert the given object to string with each line indented by 4 spaces
      * (except the first line).
      */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+    private String toIndentedString(Object o) {
+        return o == null ? "null" : o.toString().replace("\n", "\n    ");
     }
 }

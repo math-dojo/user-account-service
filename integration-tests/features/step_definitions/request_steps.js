@@ -5,7 +5,11 @@ const axios = require('axios').default;
 const { payloads } = require('../support/payloads.js');
 
 Given(/I generate a json payload called \'(.*)\'/, function (payloadIdentifier) {
-  this.world.request.body = payloads[payloadIdentifier];
+  if(payloads[payloadIdentifier]) {
+    this.world.request.body = payloads[payloadIdentifier];
+  } else {
+    throw new Error(`the required payload ${payloadIdentifier} is not defined in features/support/payloads.js`);
+  }
 });
 
 When(/I make a (\w+) to the function at \'(.*)\'/, function (httpMethod, path) {

@@ -18,6 +18,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountModificationRequest;
 import io.mathdojo.useraccountservice.security.HTTPRequestSignatureVerificationEnabledHandler;
+import io.mathdojo.useraccountservice.services.OrganisationService;
 import io.mathdojo.useraccountservice.services.OrganisationServiceException;
 
 public class AccountRequestBodyUsersHandler
@@ -43,8 +44,8 @@ public class AccountRequestBodyUsersHandler
             if (handledRequest instanceof HttpResponseMessage) {
                 return (HttpResponseMessage) handledRequest;
             }
-            User createdOrg = (User) handledRequest;
-            return request.createResponseBuilder(HttpStatus.CREATED).body(createdOrg).build();
+            User createdUser = (User) handledRequest;
+            return request.createResponseBuilder(HttpStatus.CREATED).body(createdUser).build();
 
         } catch (ConstraintViolationException | OrganisationServiceException e) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
@@ -53,7 +54,6 @@ public class AccountRequestBodyUsersHandler
             return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
     @FunctionName("getUserInOrg")
     public HttpResponseMessage executeGetForUserInOrg(
@@ -75,13 +75,49 @@ public class AccountRequestBodyUsersHandler
             if (handledRequest instanceof HttpResponseMessage) {
                 return (HttpResponseMessage) handledRequest;
             }
-            User createdOrg = (User) handledRequest;
-            return request.createResponseBuilder(HttpStatus.OK).body(createdOrg).build();
+            User retrievedUser = (User) handledRequest;
+            return request.createResponseBuilder(HttpStatus.OK).body(retrievedUser).build();
 
         } catch (OrganisationServiceException e) {
             return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             context.getLogger().log(Level.WARNING, "User retrieval by Id failed", e);
+            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @FunctionName("updateUserInOrg")
+    public HttpResponseMessage executePutUserInOrg(@HttpTrigger(name = "request", methods = {
+            HttpMethod.PUT }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}/users/{userId:alpha}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
+            @BindingName("orgId") String orgId, @BindingName("userId") String userId, ExecutionContext context) {
+
+        try {
+            AccountModificationRequest requestBody = request.getBody().get();
+            AccountModificationRequest modificationRequest = new AccountModificationRequest(userId, orgId,
+                    requestBody.isAccountVerified(), requestBody.getName(), requestBody.getProfileImageLink());
+            Object handledRequest = handleRequest(request, modificationRequest, context);
+            if (handledRequest instanceof HttpResponseMessage) {
+                return (HttpResponseMessage) handledRequest;
+            }
+            User finalResult = (User) handledRequest;
+            return request.createResponseBuilder(HttpStatus.NO_CONTENT)
+                .header("Content-Location", String
+                    .format("/organisations/%s/users/%s", finalResult.getBelongsToOrgWithId(), 
+                        finalResult.getId()))
+                .build();
+
+        } catch (ConstraintViolationException | OrganisationServiceException e) {
+            context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
+                context.getInvocationId(), context.getFunctionName()), e);
+            if(OrganisationService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage() || 
+                OrganisationService.UNKNOWN_USERID_EXCEPTION_MSG == e.getMessage()) {
+                return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+            }
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
+
+        } catch (Exception e) {
+            context.getLogger().log(Level.WARNING, String.format("A system error occured while processing request %s to function %s",
+                context.getInvocationId(), context.getFunctionName()), e);            
             return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
