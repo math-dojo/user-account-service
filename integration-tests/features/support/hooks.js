@@ -28,10 +28,10 @@ BeforeAll({
   timeout: 300000
 }, function () {
   if(!isLocalTest) {
-    console.info("Test is not against a locally running function. Skipping function init.");
+    console.info("\nTest is not against a locally running function. Skipping function init.\n");
     return;
   }
-  console.info("Test is against a locally running function. Skipping function init.");
+  console.info("\nTest is against a locally running function. Skipping function init.\n");
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
     const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw' : 'mvnw');
@@ -95,10 +95,10 @@ BeforeAll({
 
 AfterAll(function() {
   if(!isLocalTest) {
-    console.info("Test is not against a locally running function. Skipping function teardown.");
+    console.info("\nTest is not against a locally running function. Skipping function teardown.\n");
     return;
   }
-  console.info("Test is against a locally running function. Tearing down the function.");
+  console.info("\nTest is against a locally running function. Tearing down the function.\n");
   return new Promise((resolve, reject) => {
     console.info(`\nTerminating the functions process running with id ${processes.useraccountservice.functionapp.processEventEmitter.pid}`);
     resolve(process.kill(processes.useraccountservice.functionapp.processEventEmitter.pid));
