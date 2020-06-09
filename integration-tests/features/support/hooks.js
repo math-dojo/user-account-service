@@ -2,6 +2,7 @@
 const {BeforeAll, Before, AfterAll} = require('cucumber');
 const { spawn, execSync } = require('child_process');
 const path = require('path');
+const processArgs = require('yargs').argv;
 
 let processes = {};
 processes.useraccountservice = {
@@ -15,18 +16,30 @@ processes.useraccountservice = {
     }
 };
 
+const paramsToWorld = JSON.parse(processArgs["world-parameters"]);
+const isLocalTest = (paramsToWorld.baseFunctionUri.includes('http://localhost') ?
+  true : false);
 /** 
  * Start up the azure function. The timeout has been set to 
  * a value that allows the function enough time to start up in
  * a ```npm test``` or via the vscode debug mode.
  */
 BeforeAll({
-  timeout: 100000
+  timeout: 300000
 }, function () {
+  if(!isLocalTest) {
+    console.info("\nTest is not against a locally running function. Skipping function init.\n");
+    return;
+  }
+  console.info("\nTest is against a locally running function. Skipping function init.\n");
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
-    const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw.cmd' : 'mvnw');
-    const args = [mavenScriptToRun, '--offline', 'azure-functions:run'];
+    const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw' : 'mvnw');
+    const args = (
+      process.platform == 'win32' ? 
+      ['/c', mavenScriptToRun, '--offline', 'azure-functions:run'] :
+      [mavenScriptToRun, '--offline', 'azure-functions:run']
+    );
     const azFunctionSpawnConfig = {
       cwd: path.parse(process.cwd()).dir,
     };
@@ -53,6 +66,8 @@ BeforeAll({
           /ERROR\]?/.test(data)
         ){
           reject(data);
+        } else {
+          console.log(`Function App stdout: ${data}`);
         }
       });
       
@@ -79,6 +94,11 @@ BeforeAll({
 });
 
 AfterAll(function() {
+  if(!isLocalTest) {
+    console.info("\nTest is not against a locally running function. Skipping function teardown.\n");
+    return;
+  }
+  console.info("\nTest is against a locally running function. Tearing down the function.\n");
   return new Promise((resolve, reject) => {
     console.info(`\nTerminating the functions process running with id ${processes.useraccountservice.functionapp.processEventEmitter.pid}`);
     resolve(process.kill(processes.useraccountservice.functionapp.processEventEmitter.pid));
@@ -89,13 +109,4 @@ AfterAll(function() {
     processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
     execSync('kill $(lsof -t -i :7071)');
   });
-});
-
-Before(function() {
-  // reset request and response objects
-  this.world.request = {};
-  this.world.request.headers = {};
-  this.world.request.body = {};
-  this.world.response = new Promise((resolve, reject) => {});
-
 });
