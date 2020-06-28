@@ -1,0 +1,360 @@
+openapi: "3.0.0"
+info: 
+  title: "User Account Service API"
+  description: "This is the API for the User Account Service. It describes the models it employs and data it returns"
+  version: "1.0.0"
+servers:
+- url: https://mathdojoio.cloud.tyk.io/user-account-service-test
+  description: Feature Development Server
+- url: https://mathdojoio.cloud.tyk.io/user-account-service-np
+  description: Development server
+- url: https://mathdojoio.cloud.tyk.io/user-account-service-pp
+  description: Staging server
+- url: https://mathdojoio.cloud.tyk.io/user-account-service-pr
+  description: Production server
+paths:
+  /organisations/{organisationId}:
+    parameters:
+      - $ref: '#/components/parameters/organisationIdUrlParam'
+    get:
+      summary: "returns an organisation with the matching id"
+      responses: 
+        '200':
+          description: the returned organisation
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+        '404':
+          description: An organisation with the specified ID was not found
+    put:
+      summary: "updates the organisation with the specific id"
+      description: Updates the non-protected properties of an existing organisation
+      requestBody:
+        $ref: '#/components/requestBodies/OrganisationRequestBody'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                bad-request-body:
+                  summary: Error response if one or more properties are illegal
+                  value: "Bad request: One or more parameters and their types are not permitted in a organisation"
+                update-error:
+                  summary: Error response if one or more properties cannot be updated
+                  value: "Bad request: One or more parameters could not be updated"
+        '401':
+          description: Unauthorized
+        '404':
+          description: A organisation with the specified ID was not found
+    delete:
+      summary: "deletes an organisation with the matching id"
+      responses: 
+        '204':
+          description: The organisation was successfully deleted
+        '401':
+          description: Forbidden
+        '404':
+          description: A organisation with the specified ID was not found
+  /organisations:
+    post:
+      summary: "creates a new organisation"
+      requestBody:
+        $ref: '#/components/requestBodies/OrganisationRequestBody'
+      responses: 
+        '201':
+          description: the created organisation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                duplicate-organisation-creation-attempt:
+                  summary: Error response for attempting to duplicate an existing organisation 
+                  value: "Bad request: Organisation with this name already exists"
+                bad-request-body:
+                  summary: Error response for incorrectly specifying the organisation to create 
+                  value: "Bad request: Bad parameters in request body"
+        '401':
+          description: Forbidden
+  /organisations/{organisationId}/users:
+    parameters:
+      - $ref: '#/components/parameters/organisationIdUrlParam'
+    post:
+      summary: "creates a new user in an organisation"
+      requestBody:
+        $ref: '#/components/requestBodies/UserRequestBody'
+      responses: 
+        '201':
+          description: the created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                duplicate-user-creation-attempt:
+                  summary: Error response for attempting to duplicate an existing user 
+                  value: "Bad request: This user already exists"
+                bad-request-body:
+                  summary: Error response for incorrectly specifying the user to create 
+                  value: "Bad request: Bad parameters in request body"
+        '401':
+          description: Forbidden  
+  /organisations/{organisationId}/users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/organisationIdUrlParam'
+      - $ref: '#/components/parameters/userIdUrlParam'
+    get:
+      summary: "returns a user with the matching id in the specified organisation"
+      responses: 
+        '200':
+          description: the returned user
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: A user or organisation with the specified ID was not found
+    put:
+      summary: "updates the details of a user with the matching id in the specified organisation"
+      description: Updates the non-protected properties of an existing user
+      requestBody:
+        $ref: '#/components/requestBodies/UserRequestBody'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                bad-request-body:
+                  summary: Error response if one or more properties are illegal
+                  value: "Bad request: One or more parameters and their types are not permitted in a organisation"
+                update-error:
+                  summary: Error response if one or more properties cannot be updated
+                  value: "Bad request: One or more parameters could not be updated"
+        '401':
+          description: Forbidden
+        '404':
+          description: A user or organisation with the specified ID was not found
+    delete:
+      summary: "deletes a user with the matching id in the specified organisation"
+      responses: 
+        '204':
+          description: The user was successfully deleted from the organisation
+        '401':
+          description: Forbidden
+        '404':
+          description: A user or organisation with the specified ID was not found in the organisation
+  /organisations/{organisationId}/users/{userId}/permissions:
+    parameters:
+      - $ref: '#/components/parameters/organisationIdUrlParam'
+      - $ref: '#/components/parameters/userIdUrlParam'
+    put:
+      summary: "modifies the permissions for the user with the matching id"
+      requestBody:
+        $ref: '#/components/requestBodies/UserPermissionsRequestBody'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                bad-request-body:
+                  summary: Error response if one or more properties are illegal
+                  value: "Bad request: One or more parameters and their types are not permitted in a organisation"
+                update-error:
+                  summary: Error response if one or more properties cannot be updated
+                  value: "Bad request: One or more parameters could not be updated"
+        '401':
+          description: Forbidden
+        '404':
+          description: A user or organisation with the specified ID was not found
+components:
+  #-------------------------------
+  # Reusable schemas (data models)
+  #-------------------------------
+  schemas:
+    Organisation:
+      allOf:
+        - $ref: '#/components/schemas/AccountHolder'
+        - type: object
+          properties:
+            accountType:
+              example: 'organisation'
+            adminUsers:
+              type: object
+              additionalProperties:
+                $ref: '#/components/schemas/User'
+              example:
+                user-id-xyz:
+                  id: 'some-user-id'
+                  accountVerified: true
+                  name: 'fizz buzz'
+                  profileImageLink: 'https://secure-domain.com/myimage.png'
+                  accountType: 'user'
+                  permissions: 
+                    - "org-admin"
+                  belongsToOrgWithId: 'this-org-id'
+            billingDetails:
+              type: object
+              properties:
+                billingAccountType:
+                  type: string
+                  enum:
+                    - "corporate"
+                    - "educator"
+                    - "free"
+                paymentProcessor:
+                  type: string
+                  enum:
+                    - "stripe"
+                idOnPaymentProcessor:
+                  type: string
+    User:
+      allOf:
+        - $ref: '#/components/schemas/AccountHolder'
+        - type: object
+          properties:
+            permissions:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserPermission'
+            belongsToOrgWithId:
+              type: string
+              description: "The id of the organisation to which the user belongs."
+            accountType:
+              example: 'user'
+            activityHistory:
+              type: object
+              required:
+                - practiceHistory
+              properties:
+                practiceHistory:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/PracticeQuestionAttemptRecord'
+                  example:
+                    question-id-xyz:
+                      $ref: '#/components/schemas/PracticeQuestionAttemptRecord/example'
+    AccountHolder:
+      type: object
+      required:
+        - accountType
+        - id
+        - accountVerified
+        - name
+      properties:
+        id: 
+          type: string
+        accountVerified:
+          type: boolean
+        name:
+          type: string
+        profileImageLink:
+          type: string
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+    PracticeQuestionAttemptRecord:
+      type: object
+      properties:
+        solved:
+          type: boolean
+        numberOfAttempts:
+          type: integer
+          format: int32
+      example:
+        solved: true
+        numberOfAttempts: 5
+    AccountType:
+      type: string
+      enum:
+        - "USER"
+        - "ORGANISATION"
+    UserPermission:
+      type: string
+      enum:
+        - "consumer"
+        - "creator"
+        - "org-admin"
+        - "global-admin"
+  requestBodies:
+    OrganisationRequestBody:
+      description: A JSON object containing organisation information
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accountVerified:
+                type: boolean
+              name:
+                type: string
+              profileImageLink:
+                type: string
+    UserRequestBody:
+      description: A JSON object containing user information
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accountVerified:
+                type: boolean
+              name:
+                type: string
+              profileImageLink:
+                type: string
+    UserPermissionsRequestBody:
+      description: A JSON object containing the permissions to set for a user
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              permissions:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPermission'
+  parameters:
+    organisationIdUrlParam:
+      name: organisationId
+      in: "path"
+      description: "Id of organisation to be found."
+      required: true
+      schema:
+        type: string
+    userIdUrlParam:
+      name: userId
+      in: "path"
+      description: "Id of the user to be found."
+      required: true
+      schema:
+        type: string

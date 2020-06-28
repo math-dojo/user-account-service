@@ -1,4 +1,4 @@
-package io.mathdojo.security;
+package io.mathdojo.useraccountservice.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

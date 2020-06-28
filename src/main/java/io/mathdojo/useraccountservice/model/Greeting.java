@@ -1,4 +1,4 @@
-package io.mathdojo.model;
+package io.mathdojo.useraccountservice.model;
 
 public class Greeting {
 

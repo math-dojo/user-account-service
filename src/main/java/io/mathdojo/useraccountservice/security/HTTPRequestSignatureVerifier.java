@@ -1,4 +1,4 @@
-package io.mathdojo.security;
+package io.mathdojo.useraccountservice.security;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
