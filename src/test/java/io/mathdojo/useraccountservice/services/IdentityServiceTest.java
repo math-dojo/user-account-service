@@ -11,8 +11,6 @@ import java.util.logging.Logger;
 
 import javax.validation.ConstraintViolationException;
 
-import com.microsoft.azure.functions.ExecutionContext;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,10 +20,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.microsoft.azure.functions.ExecutionContext;
+
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
+import io.mathdojo.useraccountservice.services.IdentityService.MathDojoUserRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IdentityServiceTest {
@@ -33,16 +34,23 @@ public class IdentityServiceTest {
     @Mock
     private ExecutionContext targetExecutionContext;
 
+    @Mock
+    private MathDojoUserRepository userRepo;
+
     @InjectMocks
     private IdentityService organisationService = new IdentityService();
 
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
     private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
+    private User testUser = new User("id", false, "fizz buzz", "https://domain.com/cool.png", "randomParentOrgId");
+
 
     @Before
     public void setUp() {
         Logger testLogger = mock(Logger.class);
         Mockito.when(targetExecutionContext.getLogger()).thenReturn(testLogger);
+        Mockito.when(userRepo.save(Mockito.any(User.class))).thenReturn(testUser);
+
     }
 
     @Test
