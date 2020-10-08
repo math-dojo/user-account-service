@@ -4,9 +4,12 @@
   "description": "A series of integration tests send HTTP requests to the user-account-service function on port 7071.",
   "scripts": {
     "local:pretest": "cd ../ && ./mvnw clean package",
-    "local:runsuite": "./node_modules/.bin/cucumber-js --world-parameters '{\"baseFunctionUri\":\"http://localhost:7071/api\", \"apiKey\":\"\"}'",
-    "local:runnamedtags": "./node_modules/.bin/cucumber-js --tags \"(@updateUserPermissions)\" --world-parameters '{\"baseFunctionUri\":\"http://localhost:7071/api\", \"apiKey\":\"\"}'",
+    "local:pretest:windows": "cd ../ && .\\mvnw.cmd clean package",
+    "local:runsuite": "./node_modules/.bin/cucumber-js --world-parameters '{\"baseFunctionUri\":\"http://localhost:7071/api\",\"apiKey\":\"\"}'",
+    "local:runsuite:windows": "./node_modules/.bin/cucumber-js --world-parameters {\\\"baseFunctionUri\\\":\\\"http://localhost:7071/api\\\",\\\"apiKey\\\":\\\"\\\"}",
+    "local:runnamedtags": "./node_modules/.bin/cucumber-js --tags \"(@updateUserPermissions)\" --world-parameters '{\"baseFunctionUri\":\"http://localhost:7071/api\",\"apiKey\":\"\"}'",
     "local:test-subset": "npm run local:pretest && npm run local:runnamedtags",
+    "local:test:windows": "npm run local:pretest:windows && npm run local:runsuite:windows",
     "local:test": "npm run local:pretest && npm run local:runsuite",
     "pretest": "npm install --production",
     "test": "./node_modules/.bin/cucumber-js"
