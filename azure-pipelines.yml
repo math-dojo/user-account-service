@@ -46,6 +46,11 @@ stages:
           - script: |
               mvnw -DfunctionAppName=user-account-service-$(functionAppName) clean package
             displayName: Build package
+          - script: |
+              cd ./integration-tests
+              npm run pretest
+              npm run local:test:windows
+            displayName: Run Local Integration Tests
           - task: PublishPipelineArtifact@1
             inputs:
               path: $(System.DefaultWorkingDirectory)
