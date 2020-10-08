@@ -39,7 +39,7 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
-        functionAppName: "pr$(Build.SourceBranchName)"
+        functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Build_and_Exec_Unit_Tests
         steps:
@@ -56,7 +56,7 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
-        functionAppName: "pr$(Build.SourceBranchName)"
+        functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Deploy_App_and_Setup_Monitoring
         steps:
@@ -95,7 +95,7 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
-        functionAppName: "pr$(Build.SourceBranchName)"
+        functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Configure_Function_Parameters
         steps:
@@ -116,7 +116,7 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
-        functionAppName: "pr$(Build.SourceBranchName)"
+        functionAppName: "$(Build.SourceBranchName)"
     condition: eq(variables['Build.Reason'], 'PullRequest')
     jobs:
       - job: Exec_Integration_Tests
