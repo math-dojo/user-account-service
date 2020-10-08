@@ -128,5 +128,5 @@ stages:
             displayName: Retrieve Stashed Artefacts
           - script: |
               cd ./integration-tests
-              npm test -- --world-parameters {\"baseFunctionUri\":\"https://mathdojoio.cloud.tyk.io/user-account-service-np-test/api\",\"apiKey\":\"\"}
+              npm test -- --world-parameters {\"baseFunctionUri\":\"https://mathdojoio.cloud.tyk.io/user-account-service-np-test/api\",\"apiKey\":\"\", \"xApiVersion\":\"$(functionAppName)\"}
             displayName: Exec Npm Test
