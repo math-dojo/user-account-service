@@ -22,11 +22,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.microsoft.azure.functions.ExecutionContext;
 
+import io.mathdojo.useraccountservice.MathDojoUserRepository;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
-import io.mathdojo.useraccountservice.services.IdentityService.MathDojoUserRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IdentityServiceTest {

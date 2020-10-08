@@ -5,12 +5,11 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.microsoft.azure.functions.ExecutionContext;
 
+import io.mathdojo.useraccountservice.MathDojoUserRepository;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
@@ -201,10 +200,7 @@ public class IdentityService {
         return sb.toString();
     }
 
-    @Repository
-    public interface MathDojoUserRepository extends MongoRepository<User, String> {
-
-    }
+    
 
     /**
      * Convert the given object to string with each line indented by 4 spaces
