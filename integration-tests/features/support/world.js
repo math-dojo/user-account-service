@@ -12,6 +12,7 @@ class CustomWorld {
     this.world.request = {};
     this.world.request.headers = {};
     this.world.request.headers.apiKey = parameters.apiKey ? parameters.apiKey: "";
+    this.world.request.headers["X-Api-Version"] = parameters.xApiVersion ? parameters.xApiVersion: "";
     this.world.request.body = {};
     this.world.response = new Promise((resolve, reject) => {});
 
