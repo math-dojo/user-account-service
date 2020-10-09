@@ -1,0 +1,19 @@
+variables:
+- name: MATH_DOJO_ENV_NAME
+  value: 'local'
+  readonly: true
+- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
+  value: ''
+  readonly: true
+- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
+  value: ''
+  readonly: true
+- name: appInsightsKey
+  value: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
+  readonly: true
+- name: APPINSIGHTS_INSTRUMENTATIONKEY
+  value: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
+  readonly: true
+- name: appInsightsKey
+  value: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
+  readonly: true
