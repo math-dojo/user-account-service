@@ -31,7 +31,7 @@ BeforeAll({
     console.info("\nTest is not against a locally running function. Skipping function init.\n");
     return;
   }
-  console.info("\nTest is against a locally running function. Skipping function init.\n");
+  console.info("\nTest is against a locally running function. Starting function.\n");
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
     const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw' : 'mvnw');
@@ -107,6 +107,13 @@ AfterAll(function() {
     processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
     processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
     processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
-    execSync('kill $(lsof -t -i :7071)');
+    console.info("Attempting to clean-up any other processes using the function port");
+    if(process.platform == 'win32') {
+      const processName = execSync('netstat -ano | findstr :7071');
+      const processId = (processName.toString().match(/(?:LISTENING\s+)(\d+)/))[1];
+      execSync(`taskkill /F /PID ${processId}`);
+    } else {
+      execSync('kill $(lsof -t -i :7071)');
+    }
   });
 });
