@@ -20,7 +20,8 @@ When(/I make a (\w+) to the function at \'(.*)\'/, function (httpMethod, path) {
     method: httpMethod,
     validateStatus: function (status) {
       return status >= 200 && status < 503; // default
-    }
+    },
+    headers: this.world.request.headers
   });
 });
 
