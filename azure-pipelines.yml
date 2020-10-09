@@ -54,10 +54,6 @@ stages:
         variables:
           - template: environments/local.yml
         steps:
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifact: workingDir
-              path: $(System.DefaultWorkingDirectory)
           - script: |
               npm i -g azure-functions-core-tools@3 --unsafe-perm true
             displayName: Install Azure Func Core Tools
