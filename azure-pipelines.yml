@@ -51,7 +51,7 @@ stages:
               path: $(System.DefaultWorkingDirectory)
               artifact: workingDir
           - script: |
-              cd ./integration-tests
+              cd ./integration-tests && npm i -g azure-functions-core-tools@3 --unsafe-perm true
               npm run pretest && npm run local:test:windows
             displayName: Run Local Integration Tests
 
