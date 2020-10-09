@@ -53,6 +53,11 @@ stages:
           - script: |
               npm i -g azure-functions-core-tools@3 --unsafe-perm true
             displayName: Install Azure Func Core Tools
+          - bash: |
+              echo "##vso[task.setvariable variable=MATH_DOJO_ENV_NAME]local"
+              echo "##vso[task.setvariable variable=MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID]"
+              echo "##vso[task.setvariable variable=MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY]"
+              displayName: Temporarily Set App Vars for Local
           - script: |
               cd ./integration-tests
               npm run pretest && npm run local:test:windows
