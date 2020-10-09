@@ -48,8 +48,7 @@ stages:
             displayName: Build package
           - script: |
               cd ./integration-tests
-              npm run pretest
-              npm run local:test:windows
+              npm run pretest && npm run local:test:windows
             displayName: Run Local Integration Tests
           - task: PublishPipelineArtifact@1
             inputs:
