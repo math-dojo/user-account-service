@@ -50,10 +50,6 @@ stages:
             inputs:
               path: $(System.DefaultWorkingDirectory)
               artifact: workingDir
-          - script: |
-              cd ./integration-tests
-              npm run pretest && npm run local:test:windows
-            displayName: Run Local Integration Tests
       - job: Local_Integ_Tests
         variables:
           - template: environments/local.yml
