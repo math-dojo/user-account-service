@@ -29,15 +29,15 @@ This is just a "Hello, world", but it uses domain objects so it's easy to extend
 - Grab the mongo image from Docker: `docker pull mongo`
 - Start the container on 27017: 
 ```ps
-docker run -p 27018:27017 --name user-acc-svc-mongo -d mongo:latest
+docker run -p 27017:27017 --name user-acc-svc-mongo -d mongo:latest
 ```
 - Build the project and run its unit tests **for windows**
 ```ps
-$env:MATH_DOJO_MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27018'; .\mvnw -ntp clean package
+$env:MATH_DOJO_MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017'; .\mvnw -ntp clean package
 ```
 - Build the project and run its unit tests **for linux**
 ```sh
-export MATH_DOJO_MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27018' && ./mvnw -ntp clean package
+export MATH_DOJO_MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017' && ./mvnw -ntp clean package
 ```
 ### Quickstart
 
