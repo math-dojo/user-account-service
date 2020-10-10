@@ -39,11 +39,18 @@ $env:MATH_DOJO_MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017'; .\mvnw 
 ```sh
 export MATH_DOJO_MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017' && ./mvnw -ntp clean package
 ```
+
+Note: the `src\main\azure\local.settings.json` file is not read during unit tests, this why the mongoUri needs to be passed in as a separate environment variable.
+
 ### Quickstart
 
 Once the application is built, you can run it locally using the Azure Function Maven plug-in:
 
-`./mvnw azure-functions:run`
+```sh
+./mvnw azure-functions:run
+```
+
+❗❗❗ **IMPORTANT** ❗❗❗ - The Azure Functions Worker will take any environment vars in the current shell session into the app. These **will** take precedence over anything set in `src\main\azure\local.settings.json`.
 
 And you can test it using a cURL command:
 
