@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "A series of integration tests send HTTP requests to the user-account-service function on port 7071.",
   "scripts": {
-    "local:pretest": "cd ../ && ./mvnw clean package",
-    "local:pretest:windows": "cd ../ && .\\mvnw.cmd clean package",
+    "local:pretest": "cd ../ && ./mvnw --no-transfer-progress clean package",
+    "local:pretest:windows": "cd ../ && .\\mvnw.cmd --no-transfer-progress clean package",
     "local:runsuite": "./node_modules/.bin/cucumber-js --world-parameters '{\"baseFunctionUri\":\"http://localhost:7071/api\",\"apiKey\":\"\"}'",
     "local:runsuite:windows": "./node_modules/.bin/cucumber-js --world-parameters {\\\"baseFunctionUri\\\":\\\"http://localhost:7071/api\\\",\\\"apiKey\\\":\\\"\\\"}",
     "local:runnamedtags": "./node_modules/.bin/cucumber-js --tags \"(@updateUserPermissions)\" --world-parameters '{\"baseFunctionUri\":\"http://localhost:7071/api\",\"apiKey\":\"\"}'",
