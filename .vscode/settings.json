@@ -3,7 +3,7 @@
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.test.config": {
         "env": {
-            "MATH_DOJO_MONGO_DB_CONNECTION_STRING": "mongodb://localhost:27018"
+            "MATH_DOJO_MONGO_DB_CONNECTION_STRING": "mongodb://localhost:27017"
         }
     }
 }
