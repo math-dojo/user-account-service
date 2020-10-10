@@ -33,7 +33,7 @@ public class SystemService {
 	}
 
 	public String getMongoUrl() {
-		return System.getenv("MATH_DOJO_MONGO_DB_CONNECTION_STRING");
+		return System.getenv("MATH_DOJO_MONGO_DB_CONNECTION_STRING").trim();
 	}
 
 }
