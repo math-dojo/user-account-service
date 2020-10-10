@@ -21,14 +21,19 @@ trigger:
 variables:
   - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
       - template: environments/pre-production.yml
+      - group: 'secrets.pre-production'
   - ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
       - template: environments/non-production.yml
+      - group: 'secrets.non-production'
   - ${{ if contains(variables['Build.SourceBranchName'], 'ft') }}: # only works if you have a feature branch
       - template: environments/non-production.yml
+      - group: 'secrets.non-production'
   - ${{ if contains(variables['Build.SourceBranchName'], 'merge') }}: # only works if you have a PR branch
       - template: environments/non-production.yml
+      - group: 'secrets.non-production'
   - ${{ if contains(variables['Build.SourceBranchName'], 'rl') }}: # only works if you have a release branch
       - template: environments/production.yml
+      - group: 'secrets.production'
 
 pool:
   vmImage: "windows-2019"
