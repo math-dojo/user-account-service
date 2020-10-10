@@ -32,4 +32,8 @@ public class SystemService {
 		return System.getenv("MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID");
 	}
 
+	public String getMongoUrl() {
+		return System.getenv("MATH_DOJO_MONGO_DB_CONNECTION_STRING");
+	}
+
 }
