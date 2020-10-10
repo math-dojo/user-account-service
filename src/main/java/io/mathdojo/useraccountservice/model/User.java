@@ -6,10 +6,12 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import io.mathdojo.useraccountservice.model.primitives.AccountType;
 import io.mathdojo.useraccountservice.model.primitives.UserActivityHistory;
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
-
+@Document(collection = "users")
 public class User extends AccountHolder {
 
     @NotNull
