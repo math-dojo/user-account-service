@@ -44,7 +44,7 @@ stages:
       - job: Build_and_Exec_Unit_Tests
         steps:
           - script: |
-              mvnw -DfunctionAppName=user-account-service-$(functionAppName) clean package
+              mvnw --no-transfer-progress -DfunctionAppName=user-account-service-$(functionAppName) clean package
             displayName: Build package
           - task: PublishPipelineArtifact@1
             inputs:
@@ -88,7 +88,7 @@ stages:
                 $xmlcontent
                 New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
                 cat .\.mvn\settings.xml
-                .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(functionAppName) azure-functions:deploy
+                .\mvnw --settings .\.mvn\settings.xml --no-transfer-progress -DfunctionAppName=user-account-service-$(functionAppName) azure-functions:deploy
 
           - task: AzureCLI@2
             displayName: "Set app insights key"
