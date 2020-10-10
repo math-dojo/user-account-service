@@ -8,9 +8,9 @@ description: "This is a sample applicaiton to showcase the use of Spring Cloud F
 urlFragment: hello-spring-function-azure
 ---
 
-# Example "Hello, world" Spring Boot application that runs on Azure Functions
+# User Account Service
 
-This is a sample applicaiton to showcase the use of Spring Cloud Function on top of Azure Functions.
+This is the user account service for the Math-Dojo platform. It is deployed as a serverless function on Azure.
 
 ## Features
 
@@ -20,12 +20,15 @@ This is just a "Hello, world", but it uses domain objects so it's easy to extend
 
 ### Prerequisites
 
-This project uses the Maven Wrapper, so all you need is Java installed.
+1. Java SDK 1.8+ - The project uses maven wrapper.
+2. Docker - The project requires a working mongoDb installation. By default it will look for a database on localhost:27017.
 
 ### Installation
 
-- Clone the project: `git clone https://github.com/Azure-Samples/hello-spring-function-azure.git`
-- Build the project: `./mvnw clean package`
+- Clone the project
+- Grab the mongo image from Docker: `docker pull mongo`
+- Start the container on 27017: ` docker run -p 27017:27017 --name user-acc-svc-mongo -d mongo:latest`
+- Build the project and run its unit tests: `./mvnw clean package`
 
 ### Quickstart
 
@@ -35,10 +38,14 @@ Once the application is built, you can run it locally using the Azure Function M
 
 And you can test it using a cURL command:
 
-`curl http://localhost:7071/api/hello -d "{\"name\":\"Azure\"}"`
+```sh
+curl --location --request PUT 'http://localhost:7071/api/organisations/unknownOrganisationId/users/knownUserId/permissions' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "permissions": ["CONSUMER", "CREATOR"]
+}'
+```
 
 ## Deploying to Azure Function
 
-Deploying the application on Azure Function with the Azure Function Maven plug-in:
-
-`./mvnw azure-functions:deploy`
+This is done via the Azure Pipelines yaml file in the root
