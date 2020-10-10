@@ -1,15 +1,15 @@
 package io.mathdojo.useraccountservice.services;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import com.microsoft.azure.functions.ExecutionContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.microsoft.azure.functions.ExecutionContext;
+
+import io.mathdojo.useraccountservice.MathDojoUserRepository;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
@@ -29,6 +29,9 @@ public class IdentityService {
 
     @Autowired
     private ExecutionContext targetExecutionContext;
+
+    @Autowired
+    private MathDojoUserRepository userRepo;
 
     public String aString = "hii";
 
@@ -106,9 +109,9 @@ public class IdentityService {
                     String.format("Failed attempt to create a user without an org."));
             throw new IdentityServiceException(ORG_LESS_NEW_USER_ERROR_MSG);
         }
-
-        return new User(UUID.randomUUID().toString(), userToCreate.isAccountVerified(), userToCreate.getName(),
-                userToCreate.getProfileImageLink(), parentOrgId);
+        		
+        return userRepo.save(new User(UUID.randomUUID().toString(), userToCreate.isAccountVerified(), userToCreate.getName(),
+                userToCreate.getProfileImageLink(), parentOrgId));
     }
 
     private boolean isValidAccountModificationRequest(AccountRequest request) {
@@ -197,6 +200,8 @@ public class IdentityService {
         return sb.toString();
     }
 
+    
+
     /**
      * Convert the given object to string with each line indented by 4 spaces
      * (except the first line).
@@ -204,4 +209,5 @@ public class IdentityService {
     private String toIndentedString(Object o) {
         return o == null ? "null" : o.toString().replace("\n", "\n    ");
     }
+
 }
