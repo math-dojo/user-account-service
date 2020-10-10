@@ -50,6 +50,17 @@ stages:
             inputs:
               path: $(System.DefaultWorkingDirectory)
               artifact: workingDir
+      - job: Local_Integ_Tests
+        variables:
+          - template: environments/local.yml
+        steps:
+          - script: |
+              npm i -g azure-functions-core-tools@3 --unsafe-perm true
+            displayName: Install Azure Func Core Tools
+          - script: |
+              cd ./integration-tests
+              npm run pretest && npm run local:test:windows
+            displayName: Run Local Integration Tests
 
   - stage: Deploy
     variables:
