@@ -42,6 +42,9 @@ stages:
         functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Build_and_Exec_Unit_Tests
+        variables:
+          - name: MATH_DOJO_MONGO_DB_CONNECTION_STRING
+            value: 'mongodb://localhost:27017'
         steps:
           - script: |
               mvnw --no-transfer-progress -DfunctionAppName=user-account-service-$(functionAppName) clean package
@@ -109,6 +112,7 @@ stages:
         functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Configure_Function_Parameters
+        displayName: Set Non-secret Env Params
         steps:
           - ${{ each item in parameters }}:
               - task: AzureCLI@2
