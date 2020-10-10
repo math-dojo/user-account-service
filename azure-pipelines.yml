@@ -117,8 +117,20 @@ stages:
         functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Configure_Function_Parameters
-        displayName: Set Non-secret Env Params
+        displayName: Set Env Params
         steps:
+          - task: AzureCLI@2
+            displayName: "Set Secret Mongo Uri on App"
+            env:
+              MATH_DOJO_MONGO_DB_CONNECTION_STRING: $(mongodbUri)
+            inputs:
+              addSpnToEnvironment: true
+              failOnStandardError: true
+              azureSubscription: user-account-service-hzprod-rg-access
+              scriptType: ps
+              scriptLocation: inlineScript
+              inlineScript: |
+                az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "MATH_DOJO_MONGO_DB_CONNECTION_STRING=$env:MY_MAPPED_ENV_VAR"
           - ${{ each item in parameters }}:
               - task: AzureCLI@2
                 displayName: "Set app param: ${{ item.value }}"
