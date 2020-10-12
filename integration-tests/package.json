@@ -9,8 +9,8 @@
     "local:runsuite:windows": "./node_modules/.bin/cucumber-js --world-parameters {\\\"baseFunctionUri\\\":\\\"http://localhost:7071/api\\\",\\\"apiKey\\\":\\\"\\\"}",
     "local:runnamedtags": "./node_modules/.bin/cucumber-js --tags \"(@updateUserPermissions)\" --world-parameters '{\"baseFunctionUri\":\"http://localhost:7071/api\",\"apiKey\":\"\"}'",
     "local:test-subset": "npm run local:pretest && npm run local:runnamedtags",
-    "local:test:windows": "set SPRING_DATA_MONGODB_URI=mongodb://localhost:27017 && npm run local:pretest:windows && npm run local:runsuite:windows",
-    "local:test": "export SPRING_DATA_MONGODB_URI=mongodb://localhost:27017 && npm run local:pretest && npm run local:runsuite",
+    "local:test:windows": "set SPRING_DATA_MONGODB_URI=mongodb://localhost:27017&& set SPRING_DATA_MONGODB_DATABASE=test&& npm run local:pretest:windows && npm run local:runsuite:windows",
+    "local:test": "export SPRING_DATA_MONGODB_URI=mongodb://localhost:27017 && export SPRING_DATA_MONGODB_DATABASE=test && npm run local:pretest && npm run local:runsuite",
     "pretest": "npm install --production",
     "test": "./node_modules/.bin/cucumber-js"
   },
