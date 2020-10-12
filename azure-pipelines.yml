@@ -48,7 +48,7 @@ stages:
     jobs:
       - job: Build_and_Exec_Unit_Tests
         variables:
-          - name: MATH_DOJO_MONGO_DB_CONNECTION_STRING
+          - name: SPRING_DATA_MONGODB_URI
             value: 'mongodb://localhost:27017'
         steps:
           - script: |
@@ -122,7 +122,7 @@ stages:
           - task: AzureCLI@2
             displayName: "Set Secret Mongo Uri on App"
             env:
-              MATH_DOJO_MONGO_DB_CONNECTION_STRING: $(mongodbUri)
+              SPRING_DATA_MONGODB_URI: $(mongodbUri)
             inputs:
               addSpnToEnvironment: true
               failOnStandardError: true
@@ -130,7 +130,7 @@ stages:
               scriptType: ps
               scriptLocation: inlineScript
               inlineScript: |
-                az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "MATH_DOJO_MONGO_DB_CONNECTION_STRING=$env:MATH_DOJO_MONGO_DB_CONNECTION_STRING" | Out-Null
+                az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "SPRING_DATA_MONGODB_URI=$env:SPRING_DATA_MONGODB_URI" | Out-Null
           - ${{ each item in parameters }}:
               - task: AzureCLI@2
                 displayName: "Set app param: ${{ item.value }}"

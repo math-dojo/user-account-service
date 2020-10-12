@@ -33,11 +33,11 @@ docker run -p 27017:27017 --name user-acc-svc-mongo -d mongo:latest
 ```
 - Build the project and run its unit tests **for windows**
 ```ps
-$env:MATH_DOJO_MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017'; .\mvnw -ntp clean package
+$env:SPRING_DATA_MONGODB_URI = 'mongodb://localhost:27017'; .\mvnw -ntp clean package
 ```
 - Build the project and run its unit tests **for linux**
 ```sh
-export MATH_DOJO_MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017' && ./mvnw -ntp clean package
+export SPRING_DATA_MONGODB_URI = 'mongodb://localhost:27017' && ./mvnw -ntp clean package
 ```
 
 Note: the `src\main\azure\local.settings.json` file is not read during unit tests, this why the mongoUri needs to be passed in as a separate environment variable.
