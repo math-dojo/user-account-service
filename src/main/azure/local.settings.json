@@ -9,6 +9,7 @@
         "MATH_DOJO_ENV_NAME": "local",
         "MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID": "",
         "MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY": "",
-        "SPRING_DATA_MONGODB_URI": "mongodb://localhost:27017"
+        "SPRING_DATA_MONGODB_URI": "mongodb://localhost:27017",
+        "SPRING_DATA_MONGODB_DATABASE": "test"
     }
 }

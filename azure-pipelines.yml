@@ -12,6 +12,9 @@ parameters:
   - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
     default: "MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY"
     type: string
+  - name: SPRING_DATA_MONGODB_DATABASE
+    default: "SPRING_DATA_MONGODB_DATABASE"
+    type: string
 
 trigger:
   - master
