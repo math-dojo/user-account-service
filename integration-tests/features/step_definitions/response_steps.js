@@ -9,7 +9,7 @@ const expect = chai.expect;
 const { payloads } = require('../support/payloads');
 
 Then(/I should get a status code (\d{3})/, {
-    timeout: 20000
+    timeout: 60000
 },function (expectedCode) {
     return Promise.all([
         expect(this.world.response).to.eventually.have.deep.own.
