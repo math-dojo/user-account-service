@@ -131,7 +131,7 @@ stages:
               scriptType: ps
               scriptLocation: inlineScript
               inlineScript: |
-                az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings \""SPRING_DATA_MONGODB_URI=$env:SPRING_DATA_MONGODB_URI"\" | Out-Null
+                az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "SPRING_DATA_MONGODB_URI="$env:SPRING_DATA_MONGODB_URI"" | Out-Null
           - ${{ each item in parameters }}:
               - task: AzureCLI@2
                 displayName: "Set app param: ${{ item.value }}"
