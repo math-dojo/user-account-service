@@ -110,6 +110,7 @@ stages:
                 az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "APPINSIGHTS_INSTRUMENTATIONKEY=$(APPINSIGHTS_INSTRUMENTATIONKEY)" "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
 
   - stage: Configure_App
+    condition: True
     variables:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
@@ -144,12 +145,14 @@ stages:
                     az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.value }}=$(${{ item.value }})" | Out-Null
 
   - stage: Run_Integration_Tests
+    dependsOn:
+    - Configure_App
     variables:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
         functionAppName: "$(Build.SourceBranchName)"
-    condition: eq(variables['Build.Reason'], 'PullRequest')
+    condition: and(eq(variables['Build.Reason'], 'PullRequest'),succeeded('Configure_App'))
     jobs:
       - job: Exec_Integration_Tests
         steps:
