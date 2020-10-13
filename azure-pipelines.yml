@@ -51,8 +51,7 @@ stages:
     jobs:
       - job: Build_and_Exec_Unit_Tests
         variables:
-          - name: SPRING_DATA_MONGODB_URI
-            value: 'mongodb://localhost:27017'
+          - template: environments/local.yml
         steps:
           - script: |
               mvnw --no-transfer-progress -DfunctionAppName=user-account-service-$(functionAppName) clean package
@@ -61,10 +60,6 @@ stages:
             inputs:
               path: $(System.DefaultWorkingDirectory)
               artifact: workingDir
-      - job: Local_Integ_Tests
-        variables:
-          - template: environments/local.yml
-        steps:
           - script: |
               npm i -g azure-functions-core-tools@3 --unsafe-perm true
             displayName: Install Azure Func Core Tools
