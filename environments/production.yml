@@ -1,0 +1,22 @@
+variables:
+- name: MATH_DOJO_ENV_NAME
+  value: 'production'
+  readonly: true
+- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_EXPECTED_KEYID
+  value: ''
+  readonly: true
+- name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
+  value: ''
+  readonly: true
+- name: appInsightsKey
+  value: ''
+  readonly: true
+- name: APPINSIGHTS_INSTRUMENTATIONKEY
+  value: ''
+  readonly: true
+- name: appInsightsKey
+  value: ''
+  readonly: true
+- name: SPRING_DATA_MONGODB_DATABASE
+  value: 'production'
+  readonly: true

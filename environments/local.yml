@@ -17,3 +17,7 @@ variables:
 - name: appInsightsKey
   value: '847d7f9e-408c-44ec-9bb5-e1f99872d8f2'
   readonly: true
+- name: SPRING_DATA_MONGODB_DATABASE
+  value: 'test'
+  readonly: true
+  
