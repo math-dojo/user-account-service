@@ -12,6 +12,9 @@ parameters:
   - name: MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY
     default: "MATH_DOJO_HTTP_REQUEST_SIGNATURE_B64_DER_PUBLIC_KEY"
     type: string
+  - name: SPRING_DATA_MONGODB_DATABASE
+    default: "SPRING_DATA_MONGODB_DATABASE"
+    type: string
 
 trigger:
   - master
@@ -21,14 +24,19 @@ trigger:
 variables:
   - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: # only works if you have a master branch
       - template: environments/pre-production.yml
+      - group: 'secrets.pre-production'
   - ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: # only works if you have a develop branch
       - template: environments/non-production.yml
+      - group: 'secrets.non-production'
   - ${{ if contains(variables['Build.SourceBranchName'], 'ft') }}: # only works if you have a feature branch
       - template: environments/non-production.yml
+      - group: 'secrets.non-production'
   - ${{ if contains(variables['Build.SourceBranchName'], 'merge') }}: # only works if you have a PR branch
       - template: environments/non-production.yml
+      - group: 'secrets.non-production'
   - ${{ if contains(variables['Build.SourceBranchName'], 'rl') }}: # only works if you have a release branch
       - template: environments/production.yml
+      - group: 'secrets.production'
 
 pool:
   vmImage: "windows-2019"
@@ -39,24 +47,33 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
-        functionAppName: "pr$(Build.SourceBranchName)"
+        functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Build_and_Exec_Unit_Tests
+        variables:
+          - template: environments/local.yml
         steps:
           - script: |
-              mvnw -DfunctionAppName=user-account-service-$(functionAppName) clean package
+              mvnw --no-transfer-progress -DfunctionAppName=user-account-service-$(functionAppName) clean package
             displayName: Build package
           - task: PublishPipelineArtifact@1
             inputs:
               path: $(System.DefaultWorkingDirectory)
               artifact: workingDir
+          - script: |
+              npm i -g azure-functions-core-tools@3 --unsafe-perm true
+            displayName: Install Azure Func Core Tools
+          - script: |
+              cd ./integration-tests
+              npm run pretest && npm run local:test:windows
+            displayName: Run Local Integration Tests
 
   - stage: Deploy
     variables:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
-        functionAppName: "pr$(Build.SourceBranchName)"
+        functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Deploy_App_and_Setup_Monitoring
         steps:
@@ -77,7 +94,7 @@ stages:
                 $xmlcontent
                 New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
                 cat .\.mvn\settings.xml
-                .\mvnw --settings .\.mvn\settings.xml -DfunctionAppName=user-account-service-$(functionAppName) azure-functions:deploy
+                .\mvnw --settings .\.mvn\settings.xml --no-transfer-progress -DfunctionAppName=user-account-service-$(functionAppName) azure-functions:deploy
 
           - task: AzureCLI@2
             displayName: "Set app insights key"
@@ -95,10 +112,23 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
-        functionAppName: "pr$(Build.SourceBranchName)"
+        functionAppName: "$(Build.SourceBranchName)"
     jobs:
       - job: Configure_Function_Parameters
+        displayName: Set Env Params
         steps:
+          - task: AzureCLI@2
+            displayName: "Set Secret Mongo Uri on App"
+            env:
+              SPRING_DATA_MONGODB_URI: $(mongodbUri)
+            inputs:
+              addSpnToEnvironment: true
+              failOnStandardError: true
+              azureSubscription: user-account-service-hzprod-rg-access
+              scriptType: ps
+              scriptLocation: inlineScript
+              inlineScript: |
+                az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings `SPRING_DATA_MONGODB_URI=$env:SPRING_DATA_MONGODB_URI` | Out-Null
           - ${{ each item in parameters }}:
               - task: AzureCLI@2
                 displayName: "Set app param: ${{ item.value }}"
@@ -109,15 +139,17 @@ stages:
                   scriptType: ps
                   scriptLocation: inlineScript
                   inlineScript: |
-                    az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.value }}=$(${{ item.value }})"
+                    az functionapp config appsettings set --name user-account-service-$(functionAppName) --resource-group math-dojo-hzprod-user-account-service --settings "${{ item.value }}=$(${{ item.value }})" | Out-Null
 
   - stage: Run_Integration_Tests
+    dependsOn:
+    - Configure_App
     variables:
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}: 
         functionAppName: "pr$(System.PullRequest.PullRequestNumber)"
       ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}: 
-        functionAppName: "pr$(Build.SourceBranchName)"
-    condition: eq(variables['Build.Reason'], 'PullRequest')
+        functionAppName: "$(Build.SourceBranchName)"
+    condition: and(eq(variables['Build.Reason'], 'PullRequest'),succeeded('Configure_App'))
     jobs:
       - job: Exec_Integration_Tests
         steps:
@@ -128,5 +160,5 @@ stages:
             displayName: Retrieve Stashed Artefacts
           - script: |
               cd ./integration-tests
-              npm test -- --world-parameters {\"baseFunctionUri\":\"https://mathdojoio.cloud.tyk.io/user-account-service-np-test/api\",\"apiKey\":\"\"}
+              npm test -- --world-parameters {\"baseFunctionUri\":\"https://mathdojoio.cloud.tyk.io/user-account-service-np-test/api\",\"apiKey\":\"\",\"xApiVersion\":\"$(functionAppName)\"}
             displayName: Exec Npm Test
