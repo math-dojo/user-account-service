@@ -9,6 +9,8 @@ public class AccountRequest {
 
     @NotEmpty
     private String name;
+    
+    protected String id;
 
     private String profileImageLink;
 
@@ -17,7 +19,7 @@ public class AccountRequest {
     }
 
     /**
-     * Creates an instance of the AccountRequest class
+     * Creates an instance of the AccountRequest class with a null id
      * <p>
      * 
      * @param accountVerified  the status of the account being created
@@ -26,12 +28,27 @@ public class AccountRequest {
      * 
      */
     public AccountRequest(boolean accountVerified, String name, String profileImageLink) {
-        this.accountVerified = accountVerified;
-        this.name = name;
-        this.profileImageLink = profileImageLink;
+        this(accountVerified, name, profileImageLink, null);
     }
+    /**
+     * Creates an instance of the AccountRequest class
+     * <p>
+     * 
+     * @param accountVerified  the status of the account being created
+     * @param name             the name of the prospective account holder
+     * @param profileImageLink an image of the profile user to be created
+     * @param id  the id of the account being created
+     * 
+     */
+    public AccountRequest(boolean accountVerified, String name,String profileImageLink, String id) {
+		super();
+		this.accountVerified = accountVerified;
+		this.name = name;
+		this.id = id;
+		this.profileImageLink = profileImageLink;
+	}
 
-    public boolean isAccountVerified() {
+	public boolean isAccountVerified() {
         return accountVerified;
     }
 
@@ -50,8 +67,16 @@ public class AccountRequest {
     public String getProfileImageLink() {
         return profileImageLink;
     }
+    
+    public String getId() {
+		return id;
+	}
 
-    public void setProfileImageLink(String profileImageLink) {
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setProfileImageLink(String profileImageLink) {
         this.profileImageLink = profileImageLink;
     }
 

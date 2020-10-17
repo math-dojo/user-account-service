@@ -32,7 +32,7 @@ public class User extends AccountHolder {
      */
     public User(String id, boolean accountVerified, String name, String profileImageLink, String belongsToOrgWithId) {
         super(id, accountVerified, name, profileImageLink, AccountType.USER);
-        permissions = new HashSet<>();
+        permissions = UserPermission.getDefaultPermissionSet();
         activityHistory = new UserActivityHistory();
         this.belongsToOrgWithId = belongsToOrgWithId;
     }

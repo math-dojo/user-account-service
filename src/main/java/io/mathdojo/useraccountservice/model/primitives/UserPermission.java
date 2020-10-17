@@ -1,5 +1,8 @@
 package io.mathdojo.useraccountservice.model.primitives;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.gson.annotations.SerializedName;
 
 public enum UserPermission {
@@ -33,5 +36,10 @@ public enum UserPermission {
             }
         }
         return null;
+    }
+    public static Set<UserPermission> getDefaultPermissionSet() {
+    	Set<UserPermission> retVal = new HashSet<>();
+    	retVal.add(CONSUMER);
+    	return retVal; 
     }
 }
