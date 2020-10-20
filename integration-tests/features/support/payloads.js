@@ -20,7 +20,6 @@ module.exports.payloads = {
         accountVerified: false,
         name: "some name",
         profileImageLink: "https://my.image.domain.com/it.jpg",
-        	id:"user id"
     }, 
     badNewUserRequest: {
         accountVerified: true,
