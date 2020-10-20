@@ -81,7 +81,6 @@ public class User extends AccountHolder {
         StringBuilder sb = new StringBuilder();
         sb.append("class User {\n");
         sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-        sb.append("    id: ").append(toIndentedString(this.id)).append("\n");
         sb.append("    permissions: ").append(toIndentedString(permissions)).append("\n");
         sb.append("    belongsToOrgWithId: ").append(toIndentedString(belongsToOrgWithId)).append("\n");
         sb.append("    activityHistory: ").append(toIndentedString(activityHistory)).append("\n");

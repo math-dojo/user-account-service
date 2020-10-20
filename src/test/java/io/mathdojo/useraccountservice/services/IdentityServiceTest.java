@@ -229,7 +229,7 @@ public class IdentityServiceTest {
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink, id);
         User createdUser = organisationService.createUserInOrg("randomParentOrgId", userToCreate);
 		assertEquals(id, createdUser.getId());
-		assertEquals(createdUser.getPermissions(), UserPermission.CONSUMER);
+		assertTrue(createdUser.getPermissions().contains(UserPermission.CONSUMER));
 
     }
 
