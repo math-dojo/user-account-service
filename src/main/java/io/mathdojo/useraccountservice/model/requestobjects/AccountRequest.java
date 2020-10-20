@@ -103,6 +103,7 @@ public class AccountRequest {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class AccountRequest {\n");
+        sb.append("    id: ").append(toIndentedString(id)).append("\n");
         sb.append("    accountVerified: ").append(toIndentedString(accountVerified)).append("\n");
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    profileImageLink: ").append(toIndentedString(profileImageLink)).append("\n");
