@@ -4,12 +4,14 @@ import java.util.Objects;
 
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.data.annotation.Id;
+
 public class AccountRequest {
     private boolean accountVerified;
 
     @NotEmpty
     private String name;
-    
+    @Id
     protected String id;
 
     private String profileImageLink;
