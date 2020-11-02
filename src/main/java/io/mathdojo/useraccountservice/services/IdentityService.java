@@ -109,9 +109,7 @@ public class IdentityService {
                     String.format("Failed attempt to create a user without an org."));
             throw new IdentityServiceException(ORG_LESS_NEW_USER_ERROR_MSG);
         }
-        		
-        return userToCreate.getId() == null ? userRepo.save(new User(UUID.randomUUID().toString(), userToCreate.isAccountVerified(), userToCreate.getName(),
-                userToCreate.getProfileImageLink(), parentOrgId)) :  userRepo.save(new User(userToCreate.getId(), userToCreate.isAccountVerified(), userToCreate.getName(),
+        return userRepo.save(new User(userToCreate.getId(), userToCreate.isAccountVerified(), userToCreate.getName(),
                         userToCreate.getProfileImageLink(), parentOrgId));
     }
 

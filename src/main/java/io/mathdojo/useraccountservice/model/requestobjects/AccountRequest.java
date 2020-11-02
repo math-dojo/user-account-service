@@ -1,17 +1,19 @@
 package io.mathdojo.useraccountservice.model.requestobjects;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.validation.constraints.NotEmpty;
 
-import org.springframework.data.annotation.Id;
+
+import org.springframework.data.mongodb.core.mapping.Field;
 
 public class AccountRequest {
     private boolean accountVerified;
 
     @NotEmpty
     private String name;
-    @Id
+    @Field("id")
     protected String id;
 
     private String profileImageLink;
@@ -21,7 +23,7 @@ public class AccountRequest {
     }
 
     /**
-     * Creates an instance of the AccountRequest class with a null id
+     * Creates an instance of the AccountRequest class with a random id
      * <p>
      * 
      * @param accountVerified  the status of the account being created
@@ -30,7 +32,7 @@ public class AccountRequest {
      * 
      */
     public AccountRequest(boolean accountVerified, String name, String profileImageLink) {
-        this(accountVerified, name, profileImageLink, null);
+        this(accountVerified, name, profileImageLink, UUID.randomUUID().toString());
     }
     /**
      * Creates an instance of the AccountRequest class
@@ -42,8 +44,7 @@ public class AccountRequest {
      * @param id  the id of the account being created
      * 
      */
-    public AccountRequest(boolean accountVerified, String name,String profileImageLink, String id) {
-		super();
+    public AccountRequest(boolean accountVerified, String name, String profileImageLink, String id) {
 		this.accountVerified = accountVerified;
 		this.name = name;
 		this.id = id;
