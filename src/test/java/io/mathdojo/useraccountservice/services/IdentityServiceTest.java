@@ -65,7 +65,7 @@ public class IdentityServiceTest {
         String name = "fizz buzz";
         String profileImageLink = "https://my.image.domain/super.gif";
 
-        AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink);
+        AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink, null);
 
         Organisation testOrg = organisationService.createNewOrganisation(newRequest);
 
@@ -81,7 +81,7 @@ public class IdentityServiceTest {
         String name = null;
         String profileImageLink = "https://my.image.domain/super.gif";
 
-        AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink);
+        AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink, null);
 
         Exception exception = assertThrows(ConstraintViolationException.class, () -> {
             organisationService.createNewOrganisation(newRequest);
@@ -97,7 +97,7 @@ public class IdentityServiceTest {
         String name = "bob yourunclde";
         String profileImageLink = "https://my.image.domain/super.gif";
 
-        AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink);
+        AccountRequest newRequest = new AccountRequest(accountVerificationStatus, name, profileImageLink, null);
 
         RuntimeException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.createNewOrganisation(newRequest);
@@ -163,12 +163,12 @@ public class IdentityServiceTest {
     @Test
     public void updateOrgWithIdReturnsModificationResultIfAllParamsFilledAndValid() {
         AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
-                "https://my.custom.domain/image-i-dont-like.png");
+                "https://my.custom.domain/image-i-dont-like.png", null);
         Organisation oldOrganisation = organisationService.createNewOrganisation(accountCreationRequest);
 
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
-        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink, null);
         Organisation modificationResult = organisationService.updateOrganisationWithId(oldOrganisation.getId(),
                 accountModificationRequest);
 
@@ -184,7 +184,7 @@ public class IdentityServiceTest {
     public void throwsExceptionIfUpdateForPreconditionedNonExistentOrg() {
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
-        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink, null);
 
         RuntimeException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.updateOrganisationWithId(PRECONDITIONED_UNKNOWN_ORG_ID, accountModificationRequest);
@@ -211,7 +211,7 @@ public class IdentityServiceTest {
         boolean accountVerified = false;
         String name = "fizz buzz";
         String profileImageLink = "https://domain.com/cool.png";
-        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink, null);
         User createdUser = organisationService.createUserInOrg("randomParentOrgId", userToCreate);
 
         assertEquals(accountVerified, createdUser.isAccountVerified());
@@ -240,7 +240,7 @@ public class IdentityServiceTest {
         boolean accountVerified = true;
         String name = "fizz buzz";
         String profileImageLink = "https://domain.com/cool.png";
-        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink, null);
 
         IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.createUserInOrg("randomParentOrgId", userToCreate);
@@ -257,7 +257,7 @@ public class IdentityServiceTest {
         boolean accountVerified = false;
         String name = "fizz buzz";
         String profileImageLink = "https://domain.com/cool.png";
-        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink, null);
 
         IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.createUserInOrg(null, userToCreate);
@@ -274,7 +274,7 @@ public class IdentityServiceTest {
         boolean accountVerified = false;
         String name = "fizz buzz";
         String profileImageLink = "https://domain.com/cool.png";
-        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink, null);
 
         IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.createUserInOrg(PRECONDITIONED_UNKNOWN_ORG_ID, userToCreate);
@@ -291,7 +291,7 @@ public class IdentityServiceTest {
         boolean accountVerified = false;
         String name = "";
         String profileImageLink = "https://domain.com/cool.png";
-        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink, null);
 
         ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
             organisationService.createUserInOrg("someKnownOrgId", userToCreate);
@@ -349,12 +349,12 @@ public class IdentityServiceTest {
         String orgId = "knownOrg";
 
         AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
-                "https://my.custom.domain/image-i-dont-like.png");
+                "https://my.custom.domain/image-i-dont-like.png", null);
         User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
 
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
-        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink, null);
 
         User modifiedUser = organisationService.updateUserWithId(orgId, oldUser.getId(),
                     accountModificationRequest);
@@ -372,12 +372,12 @@ public class IdentityServiceTest {
         String orgId = "knownOrg";
 
         AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
-                "https://my.custom.domain/image-i-dont-like.png");
+                "https://my.custom.domain/image-i-dont-like.png", null);
         User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
 
         String newName = null;
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
-        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink, null);
 
         User modifiedUser = organisationService.updateUserWithId(orgId, oldUser.getId(),
                     accountModificationRequest);
@@ -388,7 +388,7 @@ public class IdentityServiceTest {
 
         String secondNewName = "newerName";
         String secondNewProfileImageLink = null;
-        AccountRequest secondAccountModificationRequest = new AccountRequest(true, secondNewName, secondNewProfileImageLink);
+        AccountRequest secondAccountModificationRequest = new AccountRequest(true, secondNewName, secondNewProfileImageLink, null);
 
         User secondModifiedUser = organisationService.updateUserWithId(orgId, modifiedUser.getId(),
             secondAccountModificationRequest);
@@ -404,7 +404,7 @@ public class IdentityServiceTest {
     public void throwsErrorIfAttemptToUpdateUserInNonExistentOrg() {
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
-        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink, null);
 
         IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.updateUserWithId(PRECONDITIONED_UNKNOWN_ORG_ID, "knownUserId",
@@ -419,7 +419,7 @@ public class IdentityServiceTest {
     public void throwsErrorIfAttemptToUpdateNonExistentUserInValidOrg() {
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
-        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
+        AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink, null);
 
         IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.updateUserWithId("knownOrg", PRECONDITIONED_UNKNOWN_USER_ID,
@@ -432,7 +432,7 @@ public class IdentityServiceTest {
 
     @Test
     public void throwsErrorIfAttemptToUpdateValidUserWithNullParams() {
-        AccountRequest accountModificationRequest = new AccountRequest(false, null, null);
+        AccountRequest accountModificationRequest = new AccountRequest(false, null, null, null);
 
         IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
             organisationService.updateUserWithId("knownOrg", "knownUserId",

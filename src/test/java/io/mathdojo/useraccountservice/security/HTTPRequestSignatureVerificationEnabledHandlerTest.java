@@ -76,7 +76,7 @@ public class HTTPRequestSignatureVerificationEnabledHandlerTest {
         
         when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
         String profileImageLink = "https://profileImageLink";
-        HttpResponseMessage responseMessage = (HttpResponseMessage) handlerSpy.handleRequest(mockMessage, new AccountRequest(false, "foo", profileImageLink), mockExecContext);
+        HttpResponseMessage responseMessage = (HttpResponseMessage) handlerSpy.handleRequest(mockMessage, new AccountRequest(false, "foo", profileImageLink, null), mockExecContext);
         handler.close();
         assertThat(responseMessage.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }

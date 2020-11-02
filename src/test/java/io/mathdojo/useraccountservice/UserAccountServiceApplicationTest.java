@@ -77,7 +77,7 @@ public class UserAccountServiceApplicationTest {
                 when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
                 String profileImageLink = "https://profileImageLink";
                 Organisation result = (Organisation) handlerSpy.handleRequest(mockMessage,
-                                new AccountRequest(false, "foo", profileImageLink), mockExecContext);
+                                new AccountRequest(false, "foo", profileImageLink, null), mockExecContext);
                 handlerSpy.close();
                 assertThat(result.getName()).isEqualTo("foo");
                 assertThat(result.getProfileImageLink()).isEqualTo(profileImageLink);
@@ -148,7 +148,7 @@ public class UserAccountServiceApplicationTest {
                 when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
                 String profileImageLink = "https://profileImageLink";
                 Organisation oldResult = (Organisation) createOrgHandlerSpy.handleRequest(mockMessage,
-                                new AccountRequest(false, "foo", profileImageLink), mockExecContext);
+                                new AccountRequest(false, "foo", profileImageLink, null), mockExecContext);
                 createOrgHandlerSpy.close();
 
                 /**
