@@ -25,15 +25,9 @@ public class AccountRequestBodyUsersHandler
         extends HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, User> {
 
     @FunctionName("createUserInOrg")
-    public HttpResponseMessage executePostForNewUserInOrg(
-        @HttpTrigger(
-            name = "request", 
-            methods = { HttpMethod.POST }, 
-            authLevel = AuthorizationLevel.ANONYMOUS, 
-            route = "organisations/{orgId:alpha}/users"
-            ) HttpRequestMessage<Optional<AccountModificationRequest>> request,
-        @BindingName("orgId") String orgId,
-        ExecutionContext context) {
+    public HttpResponseMessage executePostForNewUserInOrg(@HttpTrigger(name = "request", methods = {
+            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}/users") HttpRequestMessage<Optional<AccountModificationRequest>> request,
+            @BindingName("orgId") String orgId, ExecutionContext context) {
 
         try {
             AccountModificationRequest requestBody = request.getBody().get();
@@ -56,21 +50,13 @@ public class AccountRequestBodyUsersHandler
     }
 
     @FunctionName("getUserInOrg")
-    public HttpResponseMessage executeGetForUserInOrg(
-        @HttpTrigger(
-            name = "request", 
-            methods = { HttpMethod.GET }, 
-            authLevel = AuthorizationLevel.ANONYMOUS, 
-            route = "organisations/{orgId:alpha}/users/{userId:alpha}"
-            ) HttpRequestMessage<Optional<AccountModificationRequest>> request,
-        @BindingName("orgId") String orgId,
-        @BindingName("userId") String userId,
-        ExecutionContext context) {
+    public HttpResponseMessage executeGetForUserInOrg(@HttpTrigger(name = "request", methods = {
+            HttpMethod.GET }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}/users/{userId:alpha}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
+            @BindingName("orgId") String orgId, @BindingName("userId") String userId, ExecutionContext context) {
 
         try {
-            AccountModificationRequest modificationRequest = new AccountModificationRequest(
-                userId, orgId, false, null, null
-            );
+            AccountModificationRequest modificationRequest = new AccountModificationRequest(userId, orgId, false, null,
+                    null);
             Object handledRequest = handleRequest(request, modificationRequest, context);
             if (handledRequest instanceof HttpResponseMessage) {
                 return (HttpResponseMessage) handledRequest;
@@ -100,24 +86,26 @@ public class AccountRequestBodyUsersHandler
                 return (HttpResponseMessage) handledRequest;
             }
             User finalResult = (User) handledRequest;
-            return request.createResponseBuilder(HttpStatus.NO_CONTENT)
-                .header("Content-Location", String
-                    .format("/organisations/%s/users/%s", finalResult.getBelongsToOrgWithId(), 
-                        finalResult.getId()))
-                .build();
+            return request.createResponseBuilder(HttpStatus.NO_CONTENT).header("Content-Location", String
+                    .format("/organisations/%s/users/%s", finalResult.getBelongsToOrgWithId(), finalResult.getId()))
+                    .build();
 
         } catch (ConstraintViolationException | IdentityServiceException e) {
-            context.getLogger().log(Level.INFO, String.format("A user error in request %s to function %s caused a failure",
-                context.getInvocationId(), context.getFunctionName()), e);
-            if(IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage() || 
-                IdentityService.UNKNOWN_USERID_EXCEPTION_MSG == e.getMessage()) {
+            context.getLogger().log(Level.INFO,
+                    String.format("A user error in request %s to function %s caused a failure",
+                            context.getInvocationId(), context.getFunctionName()),
+                    e);
+            if (IdentityService.UNKNOWN_ORGID_EXCEPTION_MSG == e.getMessage()
+                    || IdentityService.UNKNOWN_USERID_EXCEPTION_MSG == e.getMessage()) {
                 return request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
             }
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).build();
 
         } catch (Exception e) {
-            context.getLogger().log(Level.WARNING, String.format("A system error occured while processing request %s to function %s",
-                context.getInvocationId(), context.getFunctionName()), e);            
+            context.getLogger().log(Level.WARNING,
+                    String.format("A system error occured while processing request %s to function %s",
+                            context.getInvocationId(), context.getFunctionName()),
+                    e);
             return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
