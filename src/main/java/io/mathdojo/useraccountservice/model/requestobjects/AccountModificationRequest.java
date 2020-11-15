@@ -21,7 +21,7 @@ public class AccountModificationRequest extends AccountRequest {
      * 
      */
     public AccountModificationRequest(String accountId, boolean accountVerified, String name, String profileImageLink) {
-        super(accountVerified, name, profileImageLink, null);
+        super(accountVerified, name, profileImageLink);
         this.accountId = accountId;
     }
 
@@ -39,13 +39,13 @@ public class AccountModificationRequest extends AccountRequest {
      * 
      */
     public AccountModificationRequest(String accountId, String parentOrgId, boolean accountVerified, String name, String profileImageLink) {
-        super(accountVerified, name, profileImageLink, null);
+        super(accountVerified, name, profileImageLink);
         this.accountId = accountId;
         this.parentOrgId = parentOrgId;
     }
 
     public AccountModificationRequest(Builder builder) {
-        super(builder.accountVerified, builder.name, builder.profileImageLink, null);
+        super(builder.accountVerified, builder.name, builder.profileImageLink);
         this.accountId = builder.accountId;
         this.parentOrgId = builder.parentOrgId;
         this.permissions = builder.userPermissions;

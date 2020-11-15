@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import io.mathdojo.useraccountservice.model.primitives.AccountType;
@@ -19,6 +20,10 @@ public class User extends AccountHolder {
     private Set<UserPermission> permissions;
 
     private UserActivityHistory activityHistory;
+    
+    @Id
+    private String id;
+
 
     /***
      * Creates a user in a parent organisation
@@ -34,6 +39,7 @@ public class User extends AccountHolder {
         permissions = UserPermission.getDefaultPermissionSet();
         activityHistory = new UserActivityHistory();
         this.belongsToOrgWithId = belongsToOrgWithId;
+        this.id = id;
     }
 
     public String getBelongsToOrgWithId() {
