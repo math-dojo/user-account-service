@@ -38,7 +38,7 @@ public class AccountRequestBodyUsersHandler
         try {
             AccountModificationRequest requestBody = request.getBody().get();
             AccountModificationRequest modificationRequest = new AccountModificationRequest(
-                null, orgId, requestBody.isAccountVerified(), requestBody.getName(), requestBody.getProfileImageLink()
+            		requestBody.getId(), orgId, requestBody.isAccountVerified(), requestBody.getName(), requestBody.getProfileImageLink()
             );
             Object handledRequest = handleRequest(request, modificationRequest, context);
             if (handledRequest instanceof HttpResponseMessage) {

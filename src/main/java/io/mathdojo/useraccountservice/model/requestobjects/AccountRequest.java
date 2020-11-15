@@ -47,7 +47,7 @@ public class AccountRequest {
     	
 		this.accountVerified = accountVerified;
 		this.name = name;
-		this.id = id;
+		this.id = id != null ? id : UUID.randomUUID().toString();
 		this.profileImageLink = profileImageLink;
 	}
 
