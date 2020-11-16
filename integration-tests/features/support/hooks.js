@@ -25,7 +25,7 @@ const isLocalTest = (paramsToWorld.baseFunctionUri.includes('http://localhost') 
  * a ```npm test``` or via the vscode debug mode.
  */
 BeforeAll({
-  timeout: 300000
+  timeout: 400000
 }, function () {
   if(!isLocalTest) {
     console.info("\nTest is not against a locally running function. Skipping function init.\n");
