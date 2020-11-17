@@ -21,8 +21,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <azure.functions.maven.plugin.version>1.3.2</azure.functions.maven.plugin.version>
-        <azure.functions.java.library.version>1.3.0</azure.functions.java.library.version>
+        <azure.functions.maven.plugin.version>1.9.0</azure.functions.maven.plugin.version>
+        <azure.functions.java.library.version>1.4.0</azure.functions.java.library.version>
         <functionAppName>user-account-service-function</functionAppName>
         <functionAppRegion>uksouth</functionAppRegion>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
@@ -59,7 +59,7 @@
         <dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
-			<version>3.11.2</version>
+			<version>3.12.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.data</groupId>
