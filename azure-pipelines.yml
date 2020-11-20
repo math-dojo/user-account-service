@@ -61,7 +61,7 @@ stages:
               path: $(System.DefaultWorkingDirectory)
               artifact: workingDir
           - script: |
-              npm i -g azure-functions-core-tools@3.0.2996 --unsafe-perm true
+              npm i -g azure-functions-core-tools@3 --unsafe-perm true
             displayName: Install Azure Func Core Tools
           - script: |
               cd ./integration-tests
