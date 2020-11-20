@@ -7,16 +7,16 @@ import com.google.gson.annotations.SerializedName;
 
 public enum UserPermission {
 
-    @SerializedName("consumer")
+    @SerializedName("CONSUMER")
     CONSUMER("consumer"), 
     
-    @SerializedName("creator")
+    @SerializedName("CREATOR")
     CREATOR("creator"), 
     
-    @SerializedName("org-admin")
+    @SerializedName("ORG-ADMIN")
     ORG_ADMIN("org-admin"), 
     
-    @SerializedName("global-admin")
+    @SerializedName("GLOBAL-ADMIN")
     GLOBAL_ADMIN("global-admin");
 
     private String value;
