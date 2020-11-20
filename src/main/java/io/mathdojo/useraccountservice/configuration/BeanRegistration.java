@@ -60,7 +60,7 @@ public class BeanRegistration {
     @Bean
     public Consumer<AccountModificationRequest> deleteOrganisationById(final ExecutionContext context) {
         return deletionRequest -> organisationService.deleteOrganisationWithId(
-            deletionRequest.getAccountId());
+            deletionRequest.getId());
     }
 
     @Bean
@@ -70,8 +70,8 @@ public class BeanRegistration {
         return accountRequestFluxEntity -> {
             return accountRequestFluxEntity.map(accountRequest -> {
                 context.getLogger()
-                        .info(String.format("About to update an org with id: %s", accountRequest.getAccountId()));
-                return organisationService.updateOrganisationWithId(accountRequest.getAccountId(), accountRequest);
+                        .info(String.format("About to update an org with id: %s", accountRequest.getId()));
+                return organisationService.updateOrganisationWithId(accountRequest.getId(), accountRequest);
             });
         };
     }
@@ -92,9 +92,9 @@ public class BeanRegistration {
         return retrieveUserRequestFluxEntity -> {
             return retrieveUserRequestFluxEntity.map(retrieveUserRequest -> {
                 context.getLogger().info(String.format("About to retrieve user %s from org: %s",
-                        retrieveUserRequest.getAccountId(), retrieveUserRequest.getParentOrgId()));
+                        retrieveUserRequest.getId(), retrieveUserRequest.getParentOrgId()));
                 return organisationService.getUserInOrg(retrieveUserRequest.getParentOrgId(),
-                        retrieveUserRequest.getAccountId());
+                        retrieveUserRequest.getId());
             });
         };
     }
@@ -104,9 +104,9 @@ public class BeanRegistration {
         return updateUserRequestFluxEntity -> {
             return updateUserRequestFluxEntity.map(updateUserRequest -> {
                 context.getLogger().info(String.format("About to update user %s from org: %s",
-                        updateUserRequest.getAccountId(), updateUserRequest.getParentOrgId()));
+                        updateUserRequest.getId(), updateUserRequest.getParentOrgId()));
                 return organisationService.updateUserWithId(updateUserRequest.getParentOrgId(),
-                        updateUserRequest.getAccountId(), updateUserRequest);
+                        updateUserRequest.getId(), updateUserRequest);
             });
         };
     }
@@ -114,14 +114,14 @@ public class BeanRegistration {
     @Bean
     public Consumer<AccountModificationRequest> deleteUserFromOrg() {
         return deletionRequest -> organisationService.deleteUserFromOrg(
-                    deletionRequest.getParentOrgId(), deletionRequest.getAccountId());
+                    deletionRequest.getParentOrgId(), deletionRequest.getId());
     }
 
     @Bean
     public Consumer<AccountModificationRequest> updateUserPermissions() {
         return permissionRequest -> organisationService
             .updateUserPermissions(
-                permissionRequest.getParentOrgId(), permissionRequest.getAccountId(),
+                permissionRequest.getParentOrgId(), permissionRequest.getId(),
                 new HashSet<UserPermission>(Arrays.asList(permissionRequest.getUserPermissions()))
             );
     }

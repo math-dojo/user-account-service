@@ -6,9 +6,11 @@ import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 
 public class AccountModificationRequest extends AccountRequest {
 
-    private String accountId;
+ 
     private String parentOrgId;
     private UserPermission[] permissions;
+    
+    
 
     /**
      * Creates an instance of the AccountModificationRequest class
@@ -22,7 +24,6 @@ public class AccountModificationRequest extends AccountRequest {
      */
     public AccountModificationRequest(String accountId, boolean accountVerified, String name, String profileImageLink) {
         super(accountVerified, name, profileImageLink, accountId);
-        this.accountId = accountId;
     }
 
     /**
@@ -40,20 +41,15 @@ public class AccountModificationRequest extends AccountRequest {
      */
     public AccountModificationRequest(String accountId, String parentOrgId, boolean accountVerified, String name, String profileImageLink) {
         super(accountVerified, name, profileImageLink, accountId);
-        this.accountId = accountId;
         this.parentOrgId = parentOrgId;
     }
 
     public AccountModificationRequest(Builder builder) {
         super(builder.accountVerified, builder.name, builder.profileImageLink, builder.accountId);
-        this.accountId = builder.accountId;
         this.parentOrgId = builder.parentOrgId;
         this.permissions = builder.userPermissions;
     }
 
-    public String getAccountId() {
-        return accountId;
-    }
 
     public String getParentOrgId() {
         return parentOrgId;
@@ -73,14 +69,13 @@ public class AccountModificationRequest extends AccountRequest {
         }
         AccountModificationRequest accountModRequest = (AccountModificationRequest) o;
         return super.equals(o)
-                && Objects.equals(this.accountId, accountModRequest.accountId)
                 && Objects.equals(this.parentOrgId, accountModRequest.parentOrgId)
                 && Objects.equals(this.permissions, accountModRequest.permissions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountId, parentOrgId, permissions, super.hashCode());
+        return Objects.hash(parentOrgId, permissions, super.hashCode());
     }
 
     @Override
@@ -88,7 +83,6 @@ public class AccountModificationRequest extends AccountRequest {
         StringBuilder sb = new StringBuilder();
         sb.append("class AccountModificationRequest {\n");
         sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-        sb.append("    accountId: ").append(toIndentedString(accountId)).append("\n");
         sb.append("    parentOrgId: ").append(toIndentedString(parentOrgId)).append("\n");
         sb.append("    userPermissions: ").append(toIndentedString(permissions)).append("\n");
         sb.append("}");
