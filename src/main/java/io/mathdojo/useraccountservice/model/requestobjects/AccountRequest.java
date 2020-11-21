@@ -1,7 +1,6 @@
 package io.mathdojo.useraccountservice.model.requestobjects;
 
 import java.util.Objects;
-import java.util.UUID;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -22,7 +21,7 @@ public class AccountRequest {
     }
 
     /**
-     * Creates an instance of the AccountRequest class with a random id
+     * Creates an instance of the AccountRequest class with a null id
      * <p>
      * 
      * @param accountVerified  the status of the account being created
@@ -31,7 +30,7 @@ public class AccountRequest {
      * 
      */
     public AccountRequest(boolean accountVerified, String name, String profileImageLink) {
-        this(accountVerified, name, profileImageLink, UUID.randomUUID().toString());
+        this(accountVerified, name, profileImageLink, null);
     }
     /**
      * Creates an instance of the AccountRequest class
@@ -47,7 +46,7 @@ public class AccountRequest {
     	
 		this.accountVerified = accountVerified;
 		this.name = name;
-		this.id = id != null ? id : UUID.randomUUID().toString();
+		this.id = id;
 		this.profileImageLink = profileImageLink;
 	}
 

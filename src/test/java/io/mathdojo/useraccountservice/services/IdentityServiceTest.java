@@ -217,7 +217,6 @@ public class IdentityServiceTest {
         assertEquals(accountVerified, createdUser.isAccountVerified());
         assertEquals(name, createdUser.getName());
         assertEquals(profileImageLink, createdUser.getProfileImageLink());
-        assertNotNull(createdUser.getId());
 
     }
     @Test
