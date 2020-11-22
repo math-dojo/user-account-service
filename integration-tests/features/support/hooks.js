@@ -25,7 +25,7 @@ const isLocalTest = (paramsToWorld.baseFunctionUri.includes('http://localhost') 
  * a ```npm test``` or via the vscode debug mode.
  */
 BeforeAll({
-  timeout: 300000
+  timeout: 400000
 }, function () {
   if(!isLocalTest) {
     console.info("\nTest is not against a locally running function. Skipping function init.\n");
@@ -49,7 +49,7 @@ BeforeAll({
   
     processes.useraccountservice.functionapp
       .processEventEmitter.stdout.on('data', (data) => {
-        if( /Application started\. Press Ctrl\+C to shut down./.test(data)) {
+        if (/Host lock lease acquired by instance ID./.test(data)) {
           console.log(`Function App stdout: ${data}`);
           processes.useraccountservice.functionapp.promiseResolved = true;
 
@@ -59,12 +59,12 @@ BeforeAll({
           processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
 
           resolve("Function App Ready!");
-        } else if(/((Starting)|(istening))/.test(data)){
+        } else if (/((Starting)|(istening))/.test(data)) {
           console.log(`Function App stdout: ${data}`);
-        } else if(
-          (!processes.useraccountservice.functionapp.promiseResolved) && 
+        } else if (
+          !processes.useraccountservice.functionapp.promiseResolved &&
           /ERROR\]?/.test(data)
-        ){
+        ) {
           reject(data);
         } else {
           console.log(`Function App stdout: ${data}`);

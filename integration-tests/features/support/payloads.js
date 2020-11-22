@@ -17,9 +17,10 @@ module.exports.payloads = {
         invalidParam: "ivalidValue"
     },
     newUserRequest: {
+    	id: "user-identifier-for-mongo",
         accountVerified: false,
         name: "some name",
-        profileImageLink: "https://my.image.domain.com/it.jpg"
+        profileImageLink: "https://my.image.domain.com/it.jpg"     
     }, 
     badNewUserRequest: {
         accountVerified: true,

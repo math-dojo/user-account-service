@@ -1,6 +1,7 @@
 package io.mathdojo.useraccountservice.services;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -18,7 +19,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import com.microsoft.azure.functions.ExecutionContext;
 
@@ -42,14 +45,17 @@ public class IdentityServiceTest {
 
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
     private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
-    private User testUser = new User("id", false, "fizz buzz", "https://domain.com/cool.png", "randomParentOrgId");
 
 
     @Before
     public void setUp() {
         Logger testLogger = mock(Logger.class);
         Mockito.when(targetExecutionContext.getLogger()).thenReturn(testLogger);
-        Mockito.when(userRepo.save(Mockito.any(User.class))).thenReturn(testUser);
+        Mockito.when(userRepo.save(Mockito.any(User.class))).thenAnswer(new Answer<User>() {
+            public User answer(InvocationOnMock invocation) {
+                return (User) invocation.getArguments()[0];
+            }
+        });
 
     }
 
@@ -211,6 +217,19 @@ public class IdentityServiceTest {
         assertEquals(accountVerified, createdUser.isAccountVerified());
         assertEquals(name, createdUser.getName());
         assertEquals(profileImageLink, createdUser.getProfileImageLink());
+
+    }
+    @Test
+    public void createUserInOrgRetainsIdIfSpecified() {
+    	String id = "testId";
+        boolean accountVerified = false;
+        String name = "fizz buzz";
+        String profileImageLink = "https://domain.com/cool.png";
+        AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink, id);
+        User createdUser = organisationService.createUserInOrg("randomParentOrgId", userToCreate);
+		assertEquals(id, createdUser.getId());
+		assertEquals(createdUser.getPermissions().size(), 1);
+		assertTrue(createdUser.getPermissions().contains(UserPermission.CONSUMER));
 
     }
 
@@ -534,4 +553,5 @@ public class IdentityServiceTest {
         String exceptionMessage = exception.getMessage();
         assertEquals(IdentityService.UNKNOWN_USERID_EXCEPTION_MSG, exceptionMessage);
     }
+    
 }

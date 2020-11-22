@@ -92,7 +92,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/organisationIdUrlParam'
     post:
-      summary: "creates a new user in an organisation"
+      summary: "creates a new user with a specified/randomly generated id in an organisation"
       requestBody:
         $ref: '#/components/requestBodies/UserRequestBody'
       responses: 
