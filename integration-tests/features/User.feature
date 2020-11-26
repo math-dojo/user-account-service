@@ -6,6 +6,12 @@ Feature: Features related to User Management
     When I make a POST to the function at '/organisations/validOrg/users'
     Then I should get a status code 201
     And the response should be a superset of all the keys and values set from 'newUserRequest'
+    
+  @getUserFromOrg @createdUserInOrg
+  Scenario: GET to /users/{userId} with valid userId returns user
+   When I make a GET to the function at '/organisations/validOrg/users/newUser'
+   Then I should get a status code 200
+   And the response should be a superset of all the keys and values set from 'newUserRequest'
 
   @createUserInOrg @errorHandling
   Scenario: POST to /users with invalid body returns bad request

@@ -210,7 +210,7 @@ public class UserAccountServiceApplicationTest {
 
                 when(mockExecContext.getFunctionName()).thenReturn("getUserInOrg");
                 String parentOrgId = "customOrgId";
-                String userId = "my coolName";
+                String userId = "knownUserId";
                 User result = (User) handlerSpy.handleRequest(mockMessage,
                                 new AccountModificationRequest(userId, parentOrgId, false, null, null),
                                 mockExecContext);
@@ -313,7 +313,7 @@ public class UserAccountServiceApplicationTest {
                         ,UserPermission.ORG_ADMIN};
                 AccountModificationRequest permissionsModificationRequest = AccountModificationRequest
                         .Builder.createBuilder()
-                        .withAccountId("someValidUserId")
+                        .withAccountId("knownUserId")
                         .withParentOrgId("validOrgId")
                         .withUserPermissions(permissionsToSet)
                         .build();

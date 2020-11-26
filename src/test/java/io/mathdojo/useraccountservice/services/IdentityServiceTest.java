@@ -1,12 +1,12 @@
 package io.mathdojo.useraccountservice.services;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -56,6 +56,7 @@ public class IdentityServiceTest {
                 return (User) invocation.getArguments()[0];
             }
         });
+
 
     }
 
@@ -345,12 +346,11 @@ public class IdentityServiceTest {
 
     @Test
     public void updateUserWithIdReturnsResultIfOrgAndAllParamsFilledAndValid() {
-        String orgId = "knownOrg";
+        String orgId = "aKnownOrg";
 
         AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
-                "https://my.custom.domain/image-i-dont-like.png");
+                "https://my.custom.domain/image-i-dont-like.png", "knownUserId");
         User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
-
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
         AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
@@ -473,7 +473,7 @@ public class IdentityServiceTest {
             permissionsToSet.add(UserPermission.CONSUMER);
             permissionsToSet.add(UserPermission.CREATOR);
             permissionsToSet.add(UserPermission.ORG_ADMIN);
-        User modifiedUser = organisationService.updateUserPermissions("knownOrganisationId", "knownUserId",
+        User modifiedUser = organisationService.updateUserPermissions("aKnownOrg", "knownUserId",
             permissionsToSet);
 
         Set<UserPermission> modifiedUserPermissions = modifiedUser.getPermissions();
