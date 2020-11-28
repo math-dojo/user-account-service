@@ -1,15 +1,16 @@
 package io.mathdojo.useraccountservice.model;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import io.mathdojo.useraccountservice.model.primitives.AccountType;
 import io.mathdojo.useraccountservice.model.primitives.UserActivityHistory;
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
-
+@Document(collection = "users")
 public class User extends AccountHolder {
 
     @NotNull
@@ -18,6 +19,8 @@ public class User extends AccountHolder {
     private Set<UserPermission> permissions;
 
     private UserActivityHistory activityHistory;
+    
+
 
     /***
      * Creates a user in a parent organisation
@@ -30,7 +33,7 @@ public class User extends AccountHolder {
      */
     public User(String id, boolean accountVerified, String name, String profileImageLink, String belongsToOrgWithId) {
         super(id, accountVerified, name, profileImageLink, AccountType.USER);
-        permissions = new HashSet<>();
+        permissions = UserPermission.getDefaultPermissionSet();
         activityHistory = new UserActivityHistory();
         this.belongsToOrgWithId = belongsToOrgWithId;
     }

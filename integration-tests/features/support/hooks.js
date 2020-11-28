@@ -25,13 +25,13 @@ const isLocalTest = (paramsToWorld.baseFunctionUri.includes('http://localhost') 
  * a ```npm test``` or via the vscode debug mode.
  */
 BeforeAll({
-  timeout: 300000
+  timeout: 400000
 }, function () {
   if(!isLocalTest) {
     console.info("\nTest is not against a locally running function. Skipping function init.\n");
     return;
   }
-  console.info("\nTest is against a locally running function. Skipping function init.\n");
+  console.info("\nTest is against a locally running function. Starting function.\n");
   return new Promise((resolve, reject) => {
     const command = ( process.platform == 'win32' ? 'cmd.exe' : 'bash');
     const mavenScriptToRun = ( process.platform == 'win32' ? 'mvnw' : 'mvnw');
@@ -49,7 +49,7 @@ BeforeAll({
   
     processes.useraccountservice.functionapp
       .processEventEmitter.stdout.on('data', (data) => {
-        if( /Application started\. Press Ctrl\+C to shut down./.test(data)) {
+        if (/Host lock lease acquired by instance ID./.test(data)) {
           console.log(`Function App stdout: ${data}`);
           processes.useraccountservice.functionapp.promiseResolved = true;
 
@@ -59,12 +59,12 @@ BeforeAll({
           processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
 
           resolve("Function App Ready!");
-        } else if(/((Starting)|(istening))/.test(data)){
+        } else if (/((Starting)|(istening))/.test(data)) {
           console.log(`Function App stdout: ${data}`);
-        } else if(
-          (!processes.useraccountservice.functionapp.promiseResolved) && 
+        } else if (
+          !processes.useraccountservice.functionapp.promiseResolved &&
           /ERROR\]?/.test(data)
-        ){
+        ) {
           reject(data);
         } else {
           console.log(`Function App stdout: ${data}`);
@@ -107,6 +107,13 @@ AfterAll(function() {
     processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
     processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
     processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
-    execSync('kill $(lsof -t -i :7071)');
+    console.info("Attempting to clean-up any other processes using the function port");
+    if(process.platform == 'win32') {
+      const processName = execSync('netstat -ano | findstr :7071');
+      const processId = (processName.toString().match(/(?:LISTENING\s+)(\d+)/))[1];
+      execSync(`taskkill /F /PID ${processId}`);
+    } else {
+      execSync('kill $(lsof -t -i :7071)');
+    }
   });
 });

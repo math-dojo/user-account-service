@@ -14,31 +14,16 @@ import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
  */
 public abstract class AccountHolder extends AccountRequest {
 
-    private String id;
+
 
     private AccountType accountType;
 
     public AccountHolder(String id, boolean accountVerified, String name, String profileImageLink,
             AccountType accountType) {
-        super(accountVerified, name, profileImageLink);
-        this.id = id;
+        super(accountVerified, name, profileImageLink, id);
         this.accountType = accountType;
     }
 
-    /**
-     * Get id
-     * 
-     * @return id
-     **/
-    @NotNull
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     /**
      * Get accountType
