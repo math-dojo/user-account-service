@@ -234,19 +234,21 @@ public class IdentityServiceTest {
     }
 
     @Test
-    public void throwErrorIfAttemptToCreateVerifiedUser() {
+    public void allowCreationOfVerifiedUser() {
 
+        // Given 
         boolean accountVerified = true;
         String name = "fizz buzz";
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
-            organisationService.createUserInOrg("randomParentOrgId", userToCreate);
-        });
+        // When
+        User createdUser = organisationService.createUserInOrg("randomParentOrgId", userToCreate);
 
-        String exceptionMessage = exception.getMessage();
-        assertEquals(IdentityService.NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG, exceptionMessage);
+        // Then
+        assertEquals(accountVerified, createdUser.isAccountVerified());
+        assertEquals(name, createdUser.getName());
+        assertEquals(profileImageLink, createdUser.getProfileImageLink());
 
     }
 
