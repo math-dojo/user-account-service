@@ -41,14 +41,17 @@ public class IdentityServiceTest {
     private MathDojoUserRepository userRepo;
 
     @InjectMocks
-    private IdentityService organisationService = new IdentityService();
+    private IdentityService organisationService;
 
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
     private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
+    private String PRECONDITIONED_KNOWN_USER_ID = "aKnownUser";
+    private String PRECONDITIONED_KNOWN_ORG_ID = "aKnownOrg";
 
 
     @Before
     public void setUp() {
+    	
         Logger testLogger = mock(Logger.class);
         Mockito.when(targetExecutionContext.getLogger()).thenReturn(testLogger);
         Mockito.when(userRepo.save(Mockito.any(User.class))).thenAnswer(new Answer<User>() {
@@ -56,7 +59,7 @@ public class IdentityServiceTest {
                 return (User) invocation.getArguments()[0];
             }
         });
-
+        Mockito.when(userRepo.findById(PRECONDITIONED_KNOWN_USER_ID)).thenReturn(Optional.of(new User(PRECONDITIONED_KNOWN_USER_ID, false, "", "", PRECONDITIONED_KNOWN_ORG_ID)));
 
     }
 
@@ -304,12 +307,9 @@ public class IdentityServiceTest {
 
     @Test
     public void returnsUserWithMatchingIdIfPossibleToFindInOrg() {
-
         String expectedOrganisationId = "aKnownOrg";
-        String userId = "knownUserId";
-
+        String userId = "aKnownUser";
         User createdUser = organisationService.getUserInOrg(expectedOrganisationId, userId);
-
         assertEquals(expectedOrganisationId, createdUser.getBelongsToOrgWithId());
 
     }
@@ -349,7 +349,7 @@ public class IdentityServiceTest {
         String orgId = "aKnownOrg";
 
         AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
-                "https://my.custom.domain/image-i-dont-like.png", "knownUserId");
+                "https://my.custom.domain/image-i-dont-like.png", "aKnownUser");
         User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
@@ -444,7 +444,7 @@ public class IdentityServiceTest {
 
     @Test
     public void throwsNoErrorIfDeletingForValidUserInValidOrgId() {
-        organisationService.deleteUserFromOrg("knownOrganisationId", "knownUserId");
+        organisationService.deleteUserFromOrg("aKnownOrg", "aKnownUser");
     }
 
     @Test
@@ -473,7 +473,7 @@ public class IdentityServiceTest {
             permissionsToSet.add(UserPermission.CONSUMER);
             permissionsToSet.add(UserPermission.CREATOR);
             permissionsToSet.add(UserPermission.ORG_ADMIN);
-        User modifiedUser = organisationService.updateUserPermissions("aKnownOrg", "knownUserId",
+        User modifiedUser = organisationService.updateUserPermissions("aKnownOrg", "aKnownUser",
             permissionsToSet);
 
         Set<UserPermission> modifiedUserPermissions = modifiedUser.getPermissions();

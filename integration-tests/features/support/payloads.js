@@ -22,6 +22,24 @@ module.exports.payloads = {
         name: "some name",
         profileImageLink: "https://my.image.domain.com/it.jpg"     
     }, 
+    newUserToBeUpdatedRequest: {
+    	id: "newUserToBeUpdated",
+        accountVerified: false,
+        name: "some name",
+        profileImageLink: "https://my.image.domain.com/it.jpg"     
+    }, 
+    newUserRequestWithSpecificId: {
+    	id: "specificId",
+        accountVerified: false,
+        name: "some name",
+        profileImageLink: "https://my.image.domain.com/it.jpg"     
+    },
+    userWithKnownId: {
+    	id: "knownUserId",
+        accountVerified: false,
+        name: "some name",
+        profileImageLink: "https://my.image.domain.com/it.jpg"     
+    },
     badNewUserRequest: {
         accountVerified: true,
         name: "",
