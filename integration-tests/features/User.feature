@@ -22,14 +22,6 @@ Feature: Features related to User Management
     When I make a POST to the function at '/organisations/validOrg/users'
     Then I should get a status code 400
 
-  @getUserFromOrg
-  Scenario: GET to /users/{userId} with valid userId returns user
-    Given I generate a json payload called 'userWithKnownId'
-    And I make a POST to the function at '/organisations/validOrg/users'
-    Given I make a GET to the function at '/organisations/validOrg/users/knownUserId'
-    Then I should get a status code 200
-    And the response should contain a key 'id' with value 'knownUserId'
-
   @getUserFromOrg @errorHandling
   Scenario: GET to /users/{userId} with invalid userId returns 404
     When I make a GET to the function at '/organisations/validOrg/users/unknownUserId'
