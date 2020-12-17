@@ -11,8 +11,7 @@ Feature: Features related to User Management
   Scenario: GET to /users/{userId} with valid userId returns user
    Given I generate a json payload called 'newUserRequestWithSpecificId'
    And I make a POST to the function at '/organisations/validOrg/users'
-   And the response should be a superset of all the keys and values set from 'newUserRequestWithSpecificId'
-   Given I make a GET to the function at '/organisations/validOrg/users/specificId'
+   When I make a GET to the function at '/organisations/validOrg/users/specificId'
    Then I should get a status code 200
    And the response should be a superset of all the keys and values set from 'newUserRequestWithSpecificId'
 
@@ -31,8 +30,8 @@ Feature: Features related to User Management
   Scenario: PUT to /users/{userId} with pre-conditioned knownUserId and valid body returns 204
     Given I generate a json payload called 'userWithKnownId'
     And I make a POST to the function at '/organisations/validOrg/users'
-    And I generate a json payload called 'userModificationRequest'
-    Given I make a PUT to the function at '/organisations/validOrg/users/knownUserId'
+    Given I generate a json payload called 'userModificationRequest'
+    When I make a PUT to the function at '/organisations/validOrg/users/knownUserId'
     Then I should get a status code 204
     And the response should have no body
 
@@ -75,8 +74,8 @@ Feature: Features related to User Management
   Scenario: PUT to /permissions with pre-conditioned knownUserId and valid body returns 204
 	Given I generate a json payload called 'newUserToBeUpdatedRequest'
 	And I make a POST to the function at '/organisations/knownOrgId/users'
-	And I generate a json payload called 'userPermissionsModificationRequest'
-	Given I make a PUT to the function at '/organisations/knownOrgId/users/newUserToBeUpdated/permissions'
+	Given I generate a json payload called 'userPermissionsModificationRequest'
+	When I make a PUT to the function at '/organisations/knownOrgId/users/newUserToBeUpdated/permissions'
 	Then I should get a status code 204
 	And the response should have no body  
 
