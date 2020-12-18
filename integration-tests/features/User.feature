@@ -1,5 +1,9 @@
 Feature: Features related to User Management
-
+  Background: Create pre-configured user
+   Given I generate a json payload called 'userWithKnownId'
+   And I make a POST to the function at '/organisations/validOrg/users'	
+  
+   
   @createUserInOrg
   Scenario: POST to /users with valid body returns created user
     Given I generate a json payload called 'newUserRequest'
@@ -7,13 +11,11 @@ Feature: Features related to User Management
     Then I should get a status code 201
     And the response should be a superset of all the keys and values set from 'newUserRequest'
        
-  @getUserFromOrg @createdUserInOrg
+  @getUserFromOrg
   Scenario: GET to /users/{userId} with valid userId returns user
-   Given I generate a json payload called 'newUserRequestWithSpecificId'
-   And I make a POST to the function at '/organisations/validOrg/users'
-   When I make a GET to the function at '/organisations/validOrg/users/specificId'
+   When I make a GET to the function at '/organisations/validOrg/users/knownUserId'
    Then I should get a status code 200
-   And the response should be a superset of all the keys and values set from 'newUserRequestWithSpecificId'
+   And the response should be a superset of all the keys and values set from 'userWithKnownId'
 
   @createUserInOrg @errorHandling
   Scenario: POST to /users with invalid body returns bad request
@@ -28,8 +30,6 @@ Feature: Features related to User Management
 
   @updateUserById
   Scenario: PUT to /users/{userId} with pre-conditioned knownUserId and valid body returns 204
-    Given I generate a json payload called 'userWithKnownId'
-    And I make a POST to the function at '/organisations/validOrg/users'
     Given I generate a json payload called 'userModificationRequest'
     When I make a PUT to the function at '/organisations/validOrg/users/knownUserId'
     Then I should get a status code 204
@@ -55,8 +55,6 @@ Feature: Features related to User Management
 
   @deleteUserById
   Scenario: DELETE to /users/{userId} with pre-conditioned knownOrgId and valid userId returns 204
-    Given I generate a json payload called 'userWithKnownId'
-    And I make a POST to the function at '/organisations/validOrg/users'
     Given I make a DELETE to the function at '/organisations/validOrg/users/knownUserId'
     Then I should get a status code 204
 
@@ -71,11 +69,9 @@ Feature: Features related to User Management
     Then I should get a status code 404
   
   @updateUserPermissions
-  Scenario: PUT to /permissions with pre-conditioned knownUserId and valid body returns 204
-	Given I generate a json payload called 'newUserToBeUpdatedRequest'
-	And I make a POST to the function at '/organisations/knownOrgId/users'
+  Scenario: PUT to /permissions with pre-conditioned knownUserId and valid body returns 204	
 	Given I generate a json payload called 'userPermissionsModificationRequest'
-	When I make a PUT to the function at '/organisations/knownOrgId/users/newUserToBeUpdated/permissions'
+	When I make a PUT to the function at '/organisations/validOrg/users/knownUserId/permissions'
 	Then I should get a status code 204
 	And the response should have no body  
 
