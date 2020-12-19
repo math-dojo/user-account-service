@@ -37,7 +37,7 @@ $env:SPRING_DATA_MONGODB_URI = 'mongodb://localhost:27017'; .\mvnw -ntp clean pa
 ```
 - Build the project and run its unit tests **for linux**
 ```sh
-export SPRING_DATA_MONGODB_URI = 'mongodb://localhost:27017' && ./mvnw -ntp clean package
+export SPRING_DATA_MONGODB_URI='mongodb://localhost:27017' && ./mvnw -ntp clean package
 ```
 
 Note: the `src\main\azure\local.settings.json` file is not read during unit tests, this why the mongoUri needs to be passed in as a separate environment variable.
