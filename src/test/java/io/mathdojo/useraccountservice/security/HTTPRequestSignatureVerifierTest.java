@@ -1,7 +1,7 @@
 package io.mathdojo.useraccountservice.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,8 +22,8 @@ import java.util.Map;
 
 import com.microsoft.azure.functions.HttpMethod;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class HTTPRequestSignatureVerifierTest {
 
@@ -36,7 +36,7 @@ public class HTTPRequestSignatureVerifierTest {
     private static String B64_REPRESENTATION_OF_KEY_1;
     private static HTTPRequestSignatureVerifier verifier;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         KEYPAIR1_KEY_PAIR = keyGen.generateKeyPair();
