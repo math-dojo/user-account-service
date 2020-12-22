@@ -7,18 +7,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
@@ -32,14 +30,14 @@ import io.mathdojo.useraccountservice.services.IdentityService;
 import io.mathdojo.useraccountservice.services.IdentityServiceException;
 import io.mathdojo.useraccountservice.services.SystemService;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class UserAccountServiceApplicationTest {
 
         private ExecutionContext mockExecContext;
         private HttpRequestMessage mockMessage;
         private SystemService mockSystemService;
 
-        @Before
+        @BeforeEach
         public void setUp() {
                 Logger testLogger = mock(Logger.class);
                 mockExecContext = mock(ExecutionContext.class);

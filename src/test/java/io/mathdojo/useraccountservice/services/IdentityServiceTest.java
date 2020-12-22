@@ -1,7 +1,6 @@
 package io.mathdojo.useraccountservice.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -12,18 +11,18 @@ import java.util.logging.Logger;
 
 import javax.validation.ConstraintViolationException;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.microsoft.azure.functions.ExecutionContext;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-
-import com.microsoft.azure.functions.ExecutionContext;
 
 import io.mathdojo.useraccountservice.MathDojoUserRepository;
 import io.mathdojo.useraccountservice.model.Organisation;
@@ -31,7 +30,7 @@ import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class IdentityServiceTest {
 
     @Mock
@@ -46,12 +45,11 @@ public class IdentityServiceTest {
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
     private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
 
-
-    @Before
+    @BeforeEach
     public void setUp() {
         Logger testLogger = mock(Logger.class);
-        Mockito.when(targetExecutionContext.getLogger()).thenReturn(testLogger);
-        Mockito.when(userRepo.save(Mockito.any(User.class))).thenAnswer(new Answer<User>() {
+        Mockito.lenient().when(targetExecutionContext.getLogger()).thenReturn(testLogger);
+        Mockito.lenient().when(userRepo.save(Mockito.any(User.class))).thenAnswer(new Answer<User>() {
             public User answer(InvocationOnMock invocation) {
                 return (User) invocation.getArguments()[0];
             }
@@ -234,19 +232,21 @@ public class IdentityServiceTest {
     }
 
     @Test
-    public void throwErrorIfAttemptToCreateVerifiedUser() {
+    public void allowCreationOfVerifiedUser() {
 
+        // Given 
         boolean accountVerified = true;
         String name = "fizz buzz";
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
-            organisationService.createUserInOrg("randomParentOrgId", userToCreate);
-        });
+        // When
+        User createdUser = organisationService.createUserInOrg("randomParentOrgId", userToCreate);
 
-        String exceptionMessage = exception.getMessage();
-        assertEquals(IdentityService.NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG, exceptionMessage);
+        // Then
+        assertEquals(accountVerified, createdUser.isAccountVerified());
+        assertEquals(name, createdUser.getName());
+        assertEquals(profileImageLink, createdUser.getProfileImageLink());
 
     }
 
@@ -366,7 +366,7 @@ public class IdentityServiceTest {
 
     // TODO: #18 Add unit test coverage for partial filling of user account modification params
 
-    @Ignore
+    @Disabled
     public void updateUserWithIdUpdatesOnlyNonNullFields() {
         String orgId = "knownOrg";
 

@@ -73,8 +73,12 @@ BeforeAll({
       
     processes.useraccountservice.functionapp
       .processEventEmitter.stderr.on('data', (data) => {
-        console.error(`Function App stderr: ${data}`);
-        reject(data);
+        if(/WARNING/.test(data)) {
+          console.warn(`Function App warning: ${data}`)
+        } else {
+          console.error(`Function App stderr: ${data}`);
+          reject(data);
+        }
       });
   })
   .catch(err => {
