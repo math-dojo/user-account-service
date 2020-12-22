@@ -1,11 +1,13 @@
 package io.mathdojo.useraccountservice.services;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -40,13 +42,16 @@ public class IdentityServiceTest {
     private MathDojoUserRepository userRepo;
 
     @InjectMocks
-    private IdentityService organisationService = new IdentityService();
+    private IdentityService organisationService;
 
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
     private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
+    private String PRECONDITIONED_KNOWN_USER_ID = "aKnownUser";
+    private String PRECONDITIONED_KNOWN_ORG_ID = "aKnownOrg";
 
     @BeforeEach
     public void setUp() {
+    	
         Logger testLogger = mock(Logger.class);
         Mockito.lenient().when(targetExecutionContext.getLogger()).thenReturn(testLogger);
         Mockito.lenient().when(userRepo.save(Mockito.any(User.class))).thenAnswer(new Answer<User>() {
@@ -54,6 +59,7 @@ public class IdentityServiceTest {
                 return (User) invocation.getArguments()[0];
             }
         });
+        Mockito.lenient().when(userRepo.findById(PRECONDITIONED_KNOWN_USER_ID)).thenReturn(Optional.of(new User(PRECONDITIONED_KNOWN_USER_ID, false, "", "", PRECONDITIONED_KNOWN_ORG_ID)));
 
     }
 
@@ -303,12 +309,9 @@ public class IdentityServiceTest {
 
     @Test
     public void returnsUserWithMatchingIdIfPossibleToFindInOrg() {
-
         String expectedOrganisationId = "aKnownOrg";
-        String userId = "knownUserId";
-
+        String userId = "aKnownUser";
         User createdUser = organisationService.getUserInOrg(expectedOrganisationId, userId);
-
         assertEquals(expectedOrganisationId, createdUser.getBelongsToOrgWithId());
 
     }
@@ -345,12 +348,11 @@ public class IdentityServiceTest {
 
     @Test
     public void updateUserWithIdReturnsResultIfOrgAndAllParamsFilledAndValid() {
-        String orgId = "knownOrg";
+        String orgId = "aKnownOrg";
 
         AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
-                "https://my.custom.domain/image-i-dont-like.png");
+                "https://my.custom.domain/image-i-dont-like.png", "aKnownUser");
         User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
-
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
         AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
@@ -444,7 +446,7 @@ public class IdentityServiceTest {
 
     @Test
     public void throwsNoErrorIfDeletingForValidUserInValidOrgId() {
-        organisationService.deleteUserFromOrg("knownOrganisationId", "knownUserId");
+        organisationService.deleteUserFromOrg("aKnownOrg", "aKnownUser");
     }
 
     @Test
@@ -473,7 +475,7 @@ public class IdentityServiceTest {
             permissionsToSet.add(UserPermission.CONSUMER);
             permissionsToSet.add(UserPermission.CREATOR);
             permissionsToSet.add(UserPermission.ORG_ADMIN);
-        User modifiedUser = organisationService.updateUserPermissions("knownOrganisationId", "knownUserId",
+        User modifiedUser = organisationService.updateUserPermissions("aKnownOrg", "aKnownUser",
             permissionsToSet);
 
         Set<UserPermission> modifiedUserPermissions = modifiedUser.getPermissions();

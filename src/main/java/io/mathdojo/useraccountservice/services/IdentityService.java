@@ -1,5 +1,6 @@
 package io.mathdojo.useraccountservice.services;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -18,8 +19,6 @@ import io.mathdojo.useraccountservice.model.validators.ValidatorSingleton;
 
 @Service
 public class IdentityService {
-
-    private static final String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
     private static final String PRECONDITIONED_UNKNOWN_ORGANISATION_ID = "unknownOrganisationId";
     public static final String NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG = "a new organisation cannot be created with a true verification status";
     public static final String ORG_LESS_NEW_USER_ERROR_MSG = "a new user cannot be made without specifying a valid parent org";
@@ -30,7 +29,7 @@ public class IdentityService {
     @Autowired
     private ExecutionContext targetExecutionContext;
 
-    @Autowired
+    @Autowired    
     private MathDojoUserRepository userRepo;
 
     public String aString = "hii";
@@ -117,13 +116,14 @@ public class IdentityService {
     }
 
     public User getUserInOrg(String expectedOrganisationId, String userId) {
-        String returnedOrgId = (getOrganisationById(expectedOrganisationId)).getId();
-        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
+    	String returnedOrgId = (getOrganisationById(expectedOrganisationId)).getId();
+        Optional<User> userToReturn = userRepo.findById(userId);
+        if (!userToReturn.isPresent() || !returnedOrgId.equals(userToReturn.get().getBelongsToOrgWithId())) {
             targetExecutionContext.getLogger().log(Level.WARNING,
                     String.format("UserId %s in Org %s could not be found", userId, expectedOrganisationId));
             throw new IdentityServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
         }
-        return new User(userId, false, "a name", "https://domain.com/img.png", returnedOrgId);
+        return  userToReturn.get();
     }
 
     /**
@@ -136,11 +136,6 @@ public class IdentityService {
      */
     public User updateUserWithId(String orgId, String userId, AccountRequest accountModificationRequest) {
         String returnedOrgId = (getOrganisationById(orgId)).getId();
-        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
-            targetExecutionContext.getLogger().log(Level.WARNING,
-                    String.format("UserId %s in Org %s could not be found", userId, orgId));
-            throw new IdentityServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
-        }
 
         if (!isValidAccountModificationRequest(accountModificationRequest)) {
             String errorMessage = "One or more of the properties to update for the user are incorrect.";
@@ -159,16 +154,13 @@ public class IdentityService {
         boolean verificationStatusToUpdate = (!foundUser.isAccountVerified()
                 && accountModificationRequest.isAccountVerified()) ? accountModificationRequest.isAccountVerified()
                         : foundUser.isAccountVerified();
-        return new User(userId, verificationStatusToUpdate, nameToUpdate, profileToUpdate, returnedOrgId);
+        return userRepo.save(new User(userId, verificationStatusToUpdate, nameToUpdate, profileToUpdate, returnedOrgId));
     }
 
 	public void deleteUserFromOrg(String orgId, String userId) {
-        String returnedOrgId = (getOrganisationById(orgId)).getId();
-        if (PRECONDITIONED_UNKNOWN_USER_ID.equals(userId)) {
-            targetExecutionContext.getLogger().log(Level.WARNING,
-                    String.format("UserId %s in Org %s could not be found", userId, orgId));
-            throw new IdentityServiceException(UNKNOWN_USERID_EXCEPTION_MSG);
-        }
+        User retrievedUser = getUserInOrg(orgId, userId);
+        userRepo.delete(retrievedUser);
+        
 	}
 
 	public User updateUserPermissions(String orgId, String userId, final Set<UserPermission> permissions) {
@@ -177,11 +169,10 @@ public class IdentityService {
         } else if (permissions.contains(UserPermission.GLOBAL_ADMIN) && (permissions.size() > 1)) {
             throw new IdentityServiceException("A user can only hold global-admin privileges exclusive of all others.");
         }
-
         User retrievedUser = getUserInOrg(orgId, userId);
         retrievedUser.setPermissions(permissions);
 
-        return retrievedUser;
+        return userRepo.save(retrievedUser);
 	}
 
     @Override
