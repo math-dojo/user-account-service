@@ -98,13 +98,8 @@ public class IdentityService {
 
     public User createUserInOrg(String parentOrgId, AccountRequest userToCreate) {
         ValidatorSingleton.validateObject(userToCreate);
-        if (true == userToCreate.isAccountVerified()) {
-            targetExecutionContext.getLogger().log(Level.FINEST,
-                    String.format("Failed attempt to create an already validated user."));
-            throw new IdentityServiceException(NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG);
-        }
         if (null == parentOrgId || null == getOrganisationById(parentOrgId)) {
-            targetExecutionContext.getLogger().log(Level.FINEST,
+            targetExecutionContext.getLogger().log(Level.WARNING,
                     String.format("Failed attempt to create a user without an org."));
             throw new IdentityServiceException(ORG_LESS_NEW_USER_ERROR_MSG);
         }
