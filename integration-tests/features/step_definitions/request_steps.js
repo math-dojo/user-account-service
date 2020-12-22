@@ -13,8 +13,9 @@ Given(/I generate a json payload called \'(.*)\'/, function (payloadIdentifier) 
 });
 
 
-When(/I make a (\w+) to the function at \'(.*)\'/, function (httpMethod, path) {
-  timeout: 100
+When(/I make a (\w+) to the function at \'(.*)\'/,{
+    timeout: 100
+}, function (httpMethod, path) {
   this.world.response = axios.request({
     url: path,
     baseURL: this.world.getFunctionBaseUri(),
