@@ -59,7 +59,7 @@ public class IdentityServiceTest {
                 return (User) invocation.getArguments()[0];
             }
         });
-        Mockito.when(userRepo.findById(PRECONDITIONED_KNOWN_USER_ID)).thenReturn(Optional.of(new User(PRECONDITIONED_KNOWN_USER_ID, false, "", "", PRECONDITIONED_KNOWN_ORG_ID)));
+        Mockito.lenient().when(userRepo.findById(PRECONDITIONED_KNOWN_USER_ID)).thenReturn(Optional.of(new User(PRECONDITIONED_KNOWN_USER_ID, false, "", "", PRECONDITIONED_KNOWN_ORG_ID)));
 
     }
 
