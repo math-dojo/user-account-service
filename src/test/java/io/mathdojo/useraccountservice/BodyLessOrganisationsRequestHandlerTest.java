@@ -1,6 +1,6 @@
 package io.mathdojo.useraccountservice;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -14,15 +14,15 @@ import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class BodyLessOrganisationsRequestHandlerTest {
     private ExecutionContext mockExecContext;
     private HttpRequestMessage mockMessage;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Logger testLogger = mock(Logger.class);
         mockExecContext = mock(ExecutionContext.class);
