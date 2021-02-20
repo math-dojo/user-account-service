@@ -1,29 +1,30 @@
 package io.mathdojo.useraccountservice.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.validation.ConstraintViolationException;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.microsoft.azure.functions.ExecutionContext;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-
-import com.microsoft.azure.functions.ExecutionContext;
 
 import io.mathdojo.useraccountservice.MathDojoUserRepository;
 import io.mathdojo.useraccountservice.model.Organisation;
@@ -31,7 +32,7 @@ import io.mathdojo.useraccountservice.model.User;
 import io.mathdojo.useraccountservice.model.primitives.UserPermission;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class IdentityServiceTest {
 
     @Mock
@@ -41,21 +42,24 @@ public class IdentityServiceTest {
     private MathDojoUserRepository userRepo;
 
     @InjectMocks
-    private IdentityService organisationService = new IdentityService();
+    private IdentityService organisationService;
 
     private String PRECONDITIONED_UNKNOWN_ORG_ID = "unknownOrganisationId";
     private String PRECONDITIONED_UNKNOWN_USER_ID = "unknownUserId";
+    private String PRECONDITIONED_KNOWN_USER_ID = "aKnownUser";
+    private String PRECONDITIONED_KNOWN_ORG_ID = "aKnownOrg";
 
-
-    @Before
+    @BeforeEach
     public void setUp() {
+    	
         Logger testLogger = mock(Logger.class);
-        Mockito.when(targetExecutionContext.getLogger()).thenReturn(testLogger);
-        Mockito.when(userRepo.save(Mockito.any(User.class))).thenAnswer(new Answer<User>() {
+        Mockito.lenient().when(targetExecutionContext.getLogger()).thenReturn(testLogger);
+        Mockito.lenient().when(userRepo.save(Mockito.any(User.class))).thenAnswer(new Answer<User>() {
             public User answer(InvocationOnMock invocation) {
                 return (User) invocation.getArguments()[0];
             }
         });
+        Mockito.lenient().when(userRepo.findById(PRECONDITIONED_KNOWN_USER_ID)).thenReturn(Optional.of(new User(PRECONDITIONED_KNOWN_USER_ID, false, "", "", PRECONDITIONED_KNOWN_ORG_ID)));
 
     }
 
@@ -234,19 +238,21 @@ public class IdentityServiceTest {
     }
 
     @Test
-    public void throwErrorIfAttemptToCreateVerifiedUser() {
+    public void allowCreationOfVerifiedUser() {
 
+        // Given 
         boolean accountVerified = true;
         String name = "fizz buzz";
         String profileImageLink = "https://domain.com/cool.png";
         AccountRequest userToCreate = new AccountRequest(accountVerified, name, profileImageLink);
 
-        IdentityServiceException exception = assertThrows(IdentityServiceException.class, () -> {
-            organisationService.createUserInOrg("randomParentOrgId", userToCreate);
-        });
+        // When
+        User createdUser = organisationService.createUserInOrg("randomParentOrgId", userToCreate);
 
-        String exceptionMessage = exception.getMessage();
-        assertEquals(IdentityService.NEW_ENTITY_CANNOT_BE_ALREADY_VERIFIED_ERROR_MSG, exceptionMessage);
+        // Then
+        assertEquals(accountVerified, createdUser.isAccountVerified());
+        assertEquals(name, createdUser.getName());
+        assertEquals(profileImageLink, createdUser.getProfileImageLink());
 
     }
 
@@ -303,12 +309,9 @@ public class IdentityServiceTest {
 
     @Test
     public void returnsUserWithMatchingIdIfPossibleToFindInOrg() {
-
         String expectedOrganisationId = "aKnownOrg";
-        String userId = "knownUserId";
-
+        String userId = "aKnownUser";
         User createdUser = organisationService.getUserInOrg(expectedOrganisationId, userId);
-
         assertEquals(expectedOrganisationId, createdUser.getBelongsToOrgWithId());
 
     }
@@ -345,12 +348,11 @@ public class IdentityServiceTest {
 
     @Test
     public void updateUserWithIdReturnsResultIfOrgAndAllParamsFilledAndValid() {
-        String orgId = "knownOrg";
+        String orgId = "aKnownOrg";
 
         AccountRequest accountCreationRequest = new AccountRequest(false, "aName iWillChange",
-                "https://my.custom.domain/image-i-dont-like.png");
+                "https://my.custom.domain/image-i-dont-like.png", "aKnownUser");
         User oldUser = organisationService.createUserInOrg(orgId, accountCreationRequest);
-
         String newName = "aName iWillNotChange";
         String newProfileImageLink = "https://my.custom.domain/image-i-like.png";
         AccountRequest accountModificationRequest = new AccountRequest(true, newName, newProfileImageLink);
@@ -366,7 +368,7 @@ public class IdentityServiceTest {
 
     // TODO: #18 Add unit test coverage for partial filling of user account modification params
 
-    @Ignore
+    @Disabled
     public void updateUserWithIdUpdatesOnlyNonNullFields() {
         String orgId = "knownOrg";
 
@@ -444,7 +446,7 @@ public class IdentityServiceTest {
 
     @Test
     public void throwsNoErrorIfDeletingForValidUserInValidOrgId() {
-        organisationService.deleteUserFromOrg("knownOrganisationId", "knownUserId");
+        organisationService.deleteUserFromOrg("aKnownOrg", "aKnownUser");
     }
 
     @Test
@@ -473,7 +475,7 @@ public class IdentityServiceTest {
             permissionsToSet.add(UserPermission.CONSUMER);
             permissionsToSet.add(UserPermission.CREATOR);
             permissionsToSet.add(UserPermission.ORG_ADMIN);
-        User modifiedUser = organisationService.updateUserPermissions("knownOrganisationId", "knownUserId",
+        User modifiedUser = organisationService.updateUserPermissions("aKnownOrg", "aKnownUser",
             permissionsToSet);
 
         Set<UserPermission> modifiedUserPermissions = modifiedUser.getPermissions();

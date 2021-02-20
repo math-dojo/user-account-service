@@ -7,18 +7,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Logger;
+
 
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.microsoft.azure.functions.ExecutionContext;
+import com.microsoft.azure.functions.HttpRequestMessage;
 
 import io.mathdojo.useraccountservice.model.DummyUser;
 import io.mathdojo.useraccountservice.model.Greeting;
@@ -32,14 +35,17 @@ import io.mathdojo.useraccountservice.services.IdentityService;
 import io.mathdojo.useraccountservice.services.IdentityServiceException;
 import io.mathdojo.useraccountservice.services.SystemService;
 
-@RunWith(SpringRunner.class)
+
+@ContextConfiguration(classes = TestConfig.class)
+@SuppressWarnings({"rawtypes","unchecked"})
+@ExtendWith(SpringExtension.class)
 public class UserAccountServiceApplicationTest {
 
         private ExecutionContext mockExecContext;
         private HttpRequestMessage mockMessage;
         private SystemService mockSystemService;
 
-        @Before
+        @BeforeEach
         public void setUp() {
                 Logger testLogger = mock(Logger.class);
                 mockExecContext = mock(ExecutionContext.class);
@@ -209,8 +215,8 @@ public class UserAccountServiceApplicationTest {
                 Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
 
                 when(mockExecContext.getFunctionName()).thenReturn("getUserInOrg");
-                String parentOrgId = "customOrgId";
-                String userId = "my coolName";
+                String parentOrgId = "aKnownOrg";
+                String userId = "aKnownUser";
                 User result = (User) handlerSpy.handleRequest(mockMessage,
                                 new AccountModificationRequest(userId, parentOrgId, false, null, null),
                                 mockExecContext);
@@ -232,11 +238,11 @@ public class UserAccountServiceApplicationTest {
                 Mockito.doReturn(mockSystemService).when(createUserHandlerSpy).getSystemService();
 
                 when(mockExecContext.getFunctionName()).thenReturn("createUserInOrg");
-                String parentOrgId = "customOrgId";
+                String parentOrgId = "aKnownOrg";
                 String name = "My Name";
                 String imageLink = "https://superdomain.com/cool.img";
                 User result = (User) createUserHandlerSpy.handleRequest(mockMessage,
-                                new AccountModificationRequest(null, parentOrgId, false, name, imageLink),
+                                new AccountModificationRequest("aKnownUser", parentOrgId, false, name, imageLink),
                                 mockExecContext);
                 createUserHandlerSpy.close();
                 assertThat(result.getBelongsToOrgWithId()).isEqualTo(parentOrgId);
@@ -274,8 +280,8 @@ public class UserAccountServiceApplicationTest {
                                 UserAccountServiceApplication.class);
                 HTTPRequestSignatureVerificationEnabledHandler<AccountModificationRequest, String> handlerSpy = Mockito.spy(handler);
                 Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
-                AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("someUserId",
-                        "someOrgId",false, null, null);
+                AccountModificationRequest accountDeletionRequest = new AccountModificationRequest("aKnownUser",
+                        "aKnownOrg",false, null, null);
                 when(mockExecContext.getFunctionName()).thenReturn("deleteUserFromOrg");
                 assertDoesNotThrow(() -> {
                         handlerSpy.handleRequest(mockMessage, accountDeletionRequest, mockExecContext);
@@ -313,8 +319,8 @@ public class UserAccountServiceApplicationTest {
                         ,UserPermission.ORG_ADMIN};
                 AccountModificationRequest permissionsModificationRequest = AccountModificationRequest
                         .Builder.createBuilder()
-                        .withAccountId("someValidUserId")
-                        .withParentOrgId("validOrgId")
+                        .withAccountId("aKnownUser")
+                        .withParentOrgId("aKnownOrg")
                         .withUserPermissions(permissionsToSet)
                         .build();
                 when(mockExecContext.getFunctionName()).thenReturn("updateUserPermissions");

@@ -18,25 +18,25 @@ import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.mathdojo.useraccountservice.UserAccountServiceApplication;
 import io.mathdojo.useraccountservice.model.Organisation;
 import io.mathdojo.useraccountservice.model.requestobjects.AccountRequest;
 import io.mathdojo.useraccountservice.services.SystemService;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class HTTPRequestSignatureVerificationEnabledHandlerTest {
 
     private ExecutionContext mockExecContext;
     private HttpRequestMessage mockMessage;
     private SystemService mockSystemService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Logger testLogger = mock(Logger.class);
         mockExecContext = mock(ExecutionContext.class);
