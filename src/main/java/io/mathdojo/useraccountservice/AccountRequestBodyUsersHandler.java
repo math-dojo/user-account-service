@@ -26,7 +26,7 @@ public class AccountRequestBodyUsersHandler
 
     @FunctionName("createUserInOrg")
     public HttpResponseMessage executePostForNewUserInOrg(@HttpTrigger(name = "request", methods = {
-            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}/users") HttpRequestMessage<Optional<AccountModificationRequest>> request,
+            HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId}/users") HttpRequestMessage<Optional<AccountModificationRequest>> request,
             @BindingName("orgId") String orgId, ExecutionContext context) {
 
         try {
@@ -51,7 +51,7 @@ public class AccountRequestBodyUsersHandler
 
     @FunctionName("getUserInOrg")
     public HttpResponseMessage executeGetForUserInOrg(@HttpTrigger(name = "request", methods = {
-            HttpMethod.GET }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}/users/{userId:alpha}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
+            HttpMethod.GET }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId}/users/{userId}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
             @BindingName("orgId") String orgId, @BindingName("userId") String userId, ExecutionContext context) {
 
         try {
@@ -74,7 +74,7 @@ public class AccountRequestBodyUsersHandler
 
     @FunctionName("updateUserInOrg")
     public HttpResponseMessage executePutUserInOrg(@HttpTrigger(name = "request", methods = {
-            HttpMethod.PUT }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}/users/{userId:alpha}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
+            HttpMethod.PUT }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId}/users/{userId}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
             @BindingName("orgId") String orgId, @BindingName("userId") String userId, ExecutionContext context) {
 
         try {

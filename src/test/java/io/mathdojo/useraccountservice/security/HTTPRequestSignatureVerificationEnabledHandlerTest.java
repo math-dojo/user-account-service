@@ -80,4 +80,62 @@ public class HTTPRequestSignatureVerificationEnabledHandlerTest {
         handler.close();
         assertThat(responseMessage.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
+
+    @Test
+    public void testUnauthorizedResponseIfNonLocalEnvAndKeyIdEnvVarIsNull() throws Exception {
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handler =
+                new HTTPRequestSignatureVerificationEnabledHandler<>(UserAccountServiceApplication.class);
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handlerSpy = Mockito.spy(handler);
+        Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+        when(mockSystemService.getFunctionEnv()).thenReturn("non-production");
+        // keyId is missing — should return 401 without NPE
+        when(mockSystemService.getVerifierPublicKeyId()).thenReturn(null);
+        when(mockSystemService.getVerifierPublicKey()).thenReturn("someKey");
+
+        HttpResponseMessage mockResponseMessage = mock(HttpResponseMessage.class);
+        HttpResponseMessage.Builder mockResponseMessageBuilder = mock(HttpResponseMessage.Builder.class);
+        when(mockMessage.getHeaders()).thenReturn(new HashMap<>());
+        when(mockMessage.getUri()).thenReturn(new URI("https", "my.server.com", "/path"));
+        when(mockMessage.getHttpMethod()).thenReturn(HttpMethod.GET);
+        when(mockMessage.createResponseBuilder(HttpStatus.UNAUTHORIZED)).thenReturn(mockResponseMessageBuilder);
+        when(mockResponseMessageBuilder.body(anyString())).thenReturn(mockResponseMessageBuilder);
+        when(mockResponseMessageBuilder.build()).thenReturn(mockResponseMessage);
+        when(mockResponseMessage.getStatus()).thenReturn(HttpStatus.UNAUTHORIZED);
+        when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
+
+        HttpResponseMessage responseMessage = (HttpResponseMessage) handlerSpy.handleRequest(
+                mockMessage, new AccountRequest(false, "foo", "https://img"), mockExecContext);
+        handler.close();
+        assertThat(responseMessage.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    public void testUnauthorizedResponseIfNonLocalEnvAndPublicKeyEnvVarIsNull() throws Exception {
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handler =
+                new HTTPRequestSignatureVerificationEnabledHandler<>(UserAccountServiceApplication.class);
+        HTTPRequestSignatureVerificationEnabledHandler<AccountRequest, Organisation> handlerSpy = Mockito.spy(handler);
+        Mockito.doReturn(mockSystemService).when(handlerSpy).getSystemService();
+
+        when(mockSystemService.getFunctionEnv()).thenReturn("non-production");
+        when(mockSystemService.getVerifierPublicKeyId()).thenReturn("some-keyId");
+        // public key is missing — should return 401 without NPE
+        when(mockSystemService.getVerifierPublicKey()).thenReturn(null);
+
+        HttpResponseMessage mockResponseMessage = mock(HttpResponseMessage.class);
+        HttpResponseMessage.Builder mockResponseMessageBuilder = mock(HttpResponseMessage.Builder.class);
+        when(mockMessage.getHeaders()).thenReturn(new HashMap<>());
+        when(mockMessage.getUri()).thenReturn(new URI("https", "my.server.com", "/path"));
+        when(mockMessage.getHttpMethod()).thenReturn(HttpMethod.GET);
+        when(mockMessage.createResponseBuilder(HttpStatus.UNAUTHORIZED)).thenReturn(mockResponseMessageBuilder);
+        when(mockResponseMessageBuilder.body(anyString())).thenReturn(mockResponseMessageBuilder);
+        when(mockResponseMessageBuilder.build()).thenReturn(mockResponseMessage);
+        when(mockResponseMessage.getStatus()).thenReturn(HttpStatus.UNAUTHORIZED);
+        when(mockExecContext.getFunctionName()).thenReturn("createOrganisation");
+
+        HttpResponseMessage responseMessage = (HttpResponseMessage) handlerSpy.handleRequest(
+                mockMessage, new AccountRequest(false, "foo", "https://img"), mockExecContext);
+        handler.close();
+        assertThat(responseMessage.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
 }

@@ -26,7 +26,7 @@ public class BodyLessOrganisationsRequestHandler
             name = "request", 
             methods = { HttpMethod.GET }, 
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "organisations/{orgId:alpha}"
+            route = "organisations/{orgId}"
         ) HttpRequestMessage<Optional<String>> request,
         @BindingName("orgId") String orgId,
         ExecutionContext context) {

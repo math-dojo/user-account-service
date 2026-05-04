@@ -26,6 +26,8 @@
         <functionAppRegion>uksouth</functionAppRegion>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
         <functionResourceGroup>math-dojo-hzprod-user-account-service</functionResourceGroup>
+        <!-- Override at deploy time: -DsubscriptionId=<id> -DfunctionResourceGroup=<rg> -->
+        <subscriptionId>5594cd6c-b674-4323-8517-5e859a399468</subscriptionId>
         <start-class>io.mathdojo.useraccountservice.UserAccountServiceApplication</start-class>
         <wrapper.version>1.0.25.RELEASE</wrapper.version>
     </properties>
@@ -141,7 +143,7 @@
                     <authentication>
                         <serverId>azure-auth</serverId>
                     </authentication>
-                    <subscriptionId>5594cd6c-b674-4323-8517-5e859a399468</subscriptionId>
+                    <subscriptionId><subscriptionId>ff4e6eef-cef6-4097-80f8-f30102e09691</subscriptionId></subscriptionId>
                 </configuration>
                 <executions>
                     <execution>

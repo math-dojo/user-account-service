@@ -25,7 +25,7 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
             name = "request", 
             methods = { HttpMethod.DELETE }, 
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "organisations/{orgId:alpha}"
+            route = "organisations/{orgId}"
         ) HttpRequestMessage<Optional<AccountModificationRequest>> request,
         @BindingName("orgId") String orgId,
         ExecutionContext context) {
@@ -59,7 +59,7 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
             name = "request", 
             methods = { HttpMethod.DELETE }, 
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "organisations/{orgId:alpha}/users/{userId:alpha}"
+            route = "organisations/{orgId}/users/{userId}"
             ) HttpRequestMessage<Optional<AccountModificationRequest>> request,
         @BindingName("orgId") String orgId,
         @BindingName("userId") String userId,
@@ -97,7 +97,7 @@ public class ConsumerRequestHandler extends HTTPRequestSignatureVerificationEnab
             name = "request", 
             methods = { HttpMethod.PUT }, 
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "organisations/{orgId:alpha}/users/{userId:alpha}/permissions"
+            route = "organisations/{orgId}/users/{userId}/permissions"
             ) HttpRequestMessage<Optional<AccountModificationRequest>> request,
         @BindingName("orgId") String orgId,
         @BindingName("userId") String userId,

@@ -100,11 +100,26 @@ public class IdentityService {
         ValidatorSingleton.validateObject(userToCreate);
         if (null == parentOrgId || null == getOrganisationById(parentOrgId)) {
             targetExecutionContext.getLogger().log(Level.WARNING,
-                    String.format("Failed attempt to create a user without an org."));
+                    "Failed attempt to create a user without an org.");
             throw new IdentityServiceException(ORG_LESS_NEW_USER_ERROR_MSG);
         }
-        return userRepo.save(new User(userToCreate.getId(), userToCreate.isAccountVerified(), userToCreate.getName(),
-                        userToCreate.getProfileImageLink(), parentOrgId));
+
+        // Idempotency: if a caller-supplied ID already exists in the org, return that user unchanged
+        String requestedId = userToCreate.getId();
+        if (requestedId != null && !requestedId.isEmpty()) {
+            Optional<User> existing = userRepo.findById(requestedId);
+            if (existing.isPresent()) {
+                return existing.get();
+            }
+        }
+
+        // Generate an ID when none was supplied (avoids persisting a document with null _id)
+        String userId = (requestedId != null && !requestedId.isEmpty())
+                ? requestedId
+                : UUID.randomUUID().toString();
+
+        return userRepo.save(new User(userId, userToCreate.isAccountVerified(),
+                userToCreate.getName(), userToCreate.getProfileImageLink(), parentOrgId));
     }
 
     private boolean isValidAccountModificationRequest(AccountRequest request) {

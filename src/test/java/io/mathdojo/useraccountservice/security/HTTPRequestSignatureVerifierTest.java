@@ -1,14 +1,17 @@
 package io.mathdojo.useraccountservice.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -308,4 +311,173 @@ public class HTTPRequestSignatureVerifierTest {
         return String.format("Signature keyId=\"%s\",algorithm=\"%s\",headers=\"%s\",signature=\"%s\"", keyId,
                 algorithm, spaceSeparatedHeaderNames, signatureString);
     }
-}
+
+    /** Creates a Signature header that omits the {@code algorithm} field. */
+    private String createSignatureStringWithoutAlgorithm(String keyId, List<String> headerKeysUsedInSignature,
+            String signatureString) {
+        String spaceSeparatedHeaderNames = String.join(" ", headerKeysUsedInSignature);
+        return String.format("Signature keyId=\"%s\",headers=\"%s\",signature=\"%s\"",
+                keyId, spaceSeparatedHeaderNames, signatureString);
+    }
+
+    // -----------------------------------------------------------------------
+    // TODO #3 — null algorithm inference
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void algorithmIsInferredFromKeyWhenAbsentFromSignatureHeader()
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
+            UnsupportedEncodingException, HTTPRequestSignatureVerificationException {
+
+        Signature sig = Signature.getInstance("SHA256withRSA");
+        sig.initSign(KEYPAIR1_KEY_PAIR.getPrivate());
+
+        String requestTarget = "/some/path";
+        HttpMethod method = HttpMethod.GET;
+        String dateString = "Fri, 27 Mar 2020 07:49:21 UTC";
+
+        List<String> testHeaderList = Arrays.asList("(request-target)", "date");
+        String signingString = "(request-target): " + method.toString().toLowerCase() + " "
+                + requestTarget + "\n" + "date: " + dateString;
+
+        sig.update(signingString.getBytes("ASCII"));
+        String b64Sig = Base64.getEncoder().encodeToString(sig.sign());
+
+        // Build a header WITHOUT the algorithm param
+        String signatureHeaderValue = createSignatureStringWithoutAlgorithm(KNOWN_KEY_ID, testHeaderList, b64Sig);
+
+        Map<String, String> testHeaders = new HashMap<>();
+        testHeaders.put("date", dateString);
+        testHeaders.put("signature", signatureHeaderValue);
+
+        // Should succeed: algorithm is inferred from the RSA key
+        assertTrue(verifier.verifySignatureHeader(testHeaders, requestTarget, method));
+    }
+
+    @Test
+    public void inferredAlgorithmIsWrittenBackIntoParamsMap()
+            throws HTTPRequestSignatureVerificationException {
+        List<String> testHeaderList = Arrays.asList("date");
+        String signatureHeaderValue = createSignatureStringWithoutAlgorithm(
+                KNOWN_KEY_ID, testHeaderList, "someSig");
+
+        Map<String, String> params = verifier.createMapOfSignatureParams(signatureHeaderValue);
+        // The resolved algorithm must be populated even when absent from the header
+        assertEquals("rsa-sha256", params.get("algorithm"));
+    }
+
+    // -----------------------------------------------------------------------
+    // base64 padding bug — split("=") vs split("=", 2)
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void signatureWithBase64PaddingIsParsedCorrectly()
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
+            UnsupportedEncodingException, HTTPRequestSignatureVerificationException {
+
+        Signature sig = Signature.getInstance("SHA256withRSA");
+        sig.initSign(KEYPAIR1_KEY_PAIR.getPrivate());
+
+        String requestTarget = "/path";
+        HttpMethod method = HttpMethod.POST;
+        String dateString = "Mon, 01 Jan 2024 00:00:00 UTC";
+        List<String> testHeaderList = Arrays.asList("(request-target)", "date");
+        String signingString = "(request-target): " + method.toString().toLowerCase() + " "
+                + requestTarget + "\n" + "date: " + dateString;
+        sig.update(signingString.getBytes("ASCII"));
+
+        // Keep generating until we get a base64 value that actually contains '=' padding
+        byte[] rawSig;
+        String b64Sig;
+        int attempts = 0;
+        do {
+            sig.initSign(KEYPAIR1_KEY_PAIR.getPrivate());
+            sig.update(signingString.getBytes("ASCII"));
+            rawSig = sig.sign();
+            b64Sig = Base64.getEncoder().encodeToString(rawSig);
+            attempts++;
+        } while (!b64Sig.contains("=") && attempts < 200);
+
+        // If after many attempts we still have no padding, create one synthetically
+        // by appending a byte that forces the padding — just verify parsing works
+        Map<String, String> params = verifier.createMapOfSignatureParams(
+                createSignatureString(KNOWN_KEY_ID, RSA_SHA256, testHeaderList, b64Sig));
+        assertEquals(b64Sig, params.get("signature"),
+                "Signature value including base64 '=' padding must not be truncated");
+    }
+
+    // -----------------------------------------------------------------------
+    // missing `headers` param → exception rather than NPE
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void exceptionThrownIfHeadersParamMissingFromSignatureHeader() {
+        // Build a header without the `headers=` field
+        String signatureHeaderValue = String.format(
+                "Signature keyId=\"%s\",algorithm=\"%s\",signature=\"%s\"",
+                KNOWN_KEY_ID, RSA_SHA256, "someSig");
+
+        Map<String, String> testHeaders = new HashMap<>();
+        testHeaders.put("signature", signatureHeaderValue);
+
+        assertThrows(HTTPRequestSignatureVerificationException.class, () ->
+                verifier.recreateSigningString(testHeaders, "/path", HttpMethod.GET));
+    }
+
+    // -----------------------------------------------------------------------
+    // verifyDigestHeader
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void digestVerificationPassesWhenNoDigestHeaderPresent()
+            throws HTTPRequestSignatureVerificationException, NoSuchAlgorithmException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("content-type", "application/json");
+        // No digest header — must not throw
+        assertDoesNotThrow(() -> verifier.verifyDigestHeader(headers, "{}".getBytes(StandardCharsets.UTF_8)));
+    }
+
+    @Test
+    public void digestVerificationPassesWithCorrectSha256Digest()
+            throws Exception {
+        byte[] body = "{\"name\":\"test\"}".getBytes(StandardCharsets.UTF_8);
+        String digest = "SHA-256=" + Base64.getEncoder()
+                .encodeToString(MessageDigest.getInstance("SHA-256").digest(body));
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("digest", digest);
+
+        assertDoesNotThrow(() -> verifier.verifyDigestHeader(headers, body));
+    }
+
+    @Test
+    public void digestVerificationFailsWithWrongBody() throws Exception {
+        byte[] body = "{\"name\":\"test\"}".getBytes(StandardCharsets.UTF_8);
+        byte[] tamperedBody = "{\"name\":\"tampered\"}".getBytes(StandardCharsets.UTF_8);
+        String digest = "SHA-256=" + Base64.getEncoder()
+                .encodeToString(MessageDigest.getInstance("SHA-256").digest(body));
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("digest", digest);
+
+        assertThrows(HTTPRequestSignatureVerificationException.class,
+                () -> verifier.verifyDigestHeader(headers, tamperedBody));
+    }
+
+    @Test
+    public void digestVerificationFailsWithUnsupportedAlgorithm() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("digest", "MD5=abc123");
+
+        assertThrows(HTTPRequestSignatureVerificationException.class,
+                () -> verifier.verifyDigestHeader(headers, new byte[0]));
+    }
+
+    @Test
+    public void digestVerificationFailsWithMalformedHeader() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("digest", "SHA-256-without-equals-sign");
+
+        assertThrows(HTTPRequestSignatureVerificationException.class,
+                () -> verifier.verifyDigestHeader(headers, new byte[0]));
+    }

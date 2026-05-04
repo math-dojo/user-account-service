@@ -3,6 +3,7 @@ package io.mathdojo.useraccountservice.security;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
@@ -111,34 +112,48 @@ public class HTTPRequestSignatureVerifier {
 	/** 
 	 * Verfies that the parameters found in the signature header meet certain criteria as described
 	 * by: https://tools.ietf.org/html/draft-cavage-http-signatures-12#section-2.1
-	 * @param signatureAlgorithm
-	 * @param keyIdToUse
-	 * @param extractedHTTPRequestSignature
+	 * <p>
+	 * When {@code signatureAlgorithm} is {@code null} (i.e. the header omits the {@code algorithm}
+	 * param), the algorithm is inferred from the registered public key for {@code keyIdToUse}
+	 * (resolves TODO #3).
+	 *
+	 * @return the resolved algorithm string — either the supplied value or the inferred one
 	 * @throws HTTPRequestSignatureVerificationException
 	 */
-	private void verifySignatureHeaderParams(String signatureAlgorithm, String keyIdToUse, String extractedHTTPRequestSignature)
-			throws HTTPRequestSignatureVerificationException {
-		// TODO #3: Allow Algorithms to be null but validate against algorithm of keyId's key otherwise
-		if (signatureAlgorithm == null) {
-			throw new HTTPRequestSignatureVerificationException(
-				"no algorithm was included in the signature header");
-		} else if(!SUPPORTED_MAP_OF_ALGORITHMS.containsKey(signatureAlgorithm)) {
-			throw new HTTPRequestSignatureVerificationException(
-				"algorithm in signature header is not supported by the verifier");
-		}
+	private String verifySignatureHeaderParams(String signatureAlgorithm, String keyIdToUse,
+			String extractedHTTPRequestSignature) throws HTTPRequestSignatureVerificationException {
 
+		// Validate keyId first — we need the key to infer the algorithm when it is absent
 		if (keyIdToUse == null) {
 			throw new HTTPRequestSignatureVerificationException(
 				"no keyId field found in value of signature header");
-		} else if(mapOfKeyIdAndPubKey.get(keyIdToUse) == null) {
+		}
+		PublicKey keyForId = mapOfKeyIdAndPubKey.get(keyIdToUse);
+		if (keyForId == null) {
 			throw new HTTPRequestSignatureVerificationException(
 				"keyId in signature header is unknown by the verifier");
 		}
 
+		if (signatureAlgorithm == null) {
+			// Infer from key type, e.g. "RSA" → "rsa-sha256" / "SHA256withRSA"
+			String keyAlgorithmName = keyForId.getAlgorithm();
+			signatureAlgorithm = SUPPORTED_MAP_OF_ALGORITHMS.entrySet().stream()
+				.filter(e -> e.getValue().toUpperCase().contains(keyAlgorithmName.toUpperCase()))
+				.map(Map.Entry::getKey)
+				.findFirst()
+				.orElseThrow(() -> new HTTPRequestSignatureVerificationException(
+					"no supported algorithm found for key type: " + keyAlgorithmName));
+		} else if (!SUPPORTED_MAP_OF_ALGORITHMS.containsKey(signatureAlgorithm)) {
+			throw new HTTPRequestSignatureVerificationException(
+				"algorithm in signature header is not supported by the verifier");
+		}
+
 		if (extractedHTTPRequestSignature == null) {
 			throw new HTTPRequestSignatureVerificationException(
-					"no signature field found in value of signature header");
+				"no signature field found in value of signature header");
 		}
+
+		return signatureAlgorithm;
 	}
 
 	
@@ -159,7 +174,8 @@ public class HTTPRequestSignatureVerifier {
 
 		try {
 			Arrays.stream(listOfSignatureValues).forEach(each -> {
-				String[] arrayOfSplitContents = each.split("=");
+				// Split on the FIRST '=' only so that base64 padding (==) in values is preserved
+				String[] arrayOfSplitContents = each.split("=", 2);
 				String signatureFieldName = arrayOfSplitContents[0];
 				String signatureValueWithQuotes = arrayOfSplitContents[1].replace("\"", "");
 				signatureValueContents.put(signatureFieldName, signatureValueWithQuotes);
@@ -170,14 +186,18 @@ public class HTTPRequestSignatureVerifier {
 		String signatureAlgorithm = signatureValueContents.get(ALGORITHM_SIGNATURE_PARAM_KEY);
 		String keyIdToUse = signatureValueContents.get(KEYID_SIGNATURE_PARAM_KEY);
 		String extractedHTTPRequestSignature = signatureValueContents.get(SIGNATURE_HEADER_KEY);
-		verifySignatureHeaderParams(signatureAlgorithm, keyIdToUse, extractedHTTPRequestSignature);
+
+		// resolvedAlgorithm may be inferred when null; write it back so callers always find it
+		String resolvedAlgorithm = verifySignatureHeaderParams(
+			signatureAlgorithm, keyIdToUse, extractedHTTPRequestSignature);
+		signatureValueContents.put(ALGORITHM_SIGNATURE_PARAM_KEY, resolvedAlgorithm);
+
 		return signatureValueContents;
 	}
 
 	
 	/** 
-	 * Reconstructs the signing string from the requests headers, method and path
-	 * <p>
+	 * Reconstructs the signing string from the requests headers, method and path	 * <p>
 	 * Construction follows spec:
 	 * https://tools.ietf.org/html/draft-cavage-http-signatures-12#section-2.3
 	 * @param headers
@@ -191,7 +211,14 @@ public class HTTPRequestSignatureVerifier {
 		String signatureHeaderValue = headers.get(SIGNATURE_HEADER_KEY);
 		Map<String, String> signatureValueContents = createMapOfSignatureParams(signatureHeaderValue);
 
-		String[] headerKeysForSigningString = signatureValueContents.get("headers").split(" ");
+		String[] headerKeysForSigningString = signatureValueContents.get("headers") != null
+				? signatureValueContents.get("headers").split(" ")
+				: new String[0];
+
+		if (headerKeysForSigningString.length == 0) {
+			throw new HTTPRequestSignatureVerificationException(
+				"no headers parameter found in signature header; cannot reconstruct signing string");
+		}
 
 		List<String> listOfSigningStringContents = Arrays.stream(headerKeysForSigningString).map(eachHeaderKey -> {
 			if (REQUEST_TARGET_SIGNATURE_PARAM_KEY.equals(eachHeaderKey)) {
@@ -202,6 +229,47 @@ public class HTTPRequestSignatureVerifier {
 		String recreatedSigningString = String.join("\n", listOfSigningStringContents);
 
 		return recreatedSigningString;
+	}
+
+	/**
+	 * Verifies the {@code Digest} header against the supplied request body bytes.
+	 * <p>
+	 * If no {@code Digest} header is present the method returns without error (the header is
+	 * optional per RFC 3230). Currently supports {@code SHA-256} only.
+	 *
+	 * @param headers          key-value map of request headers (lowercase keys expected)
+	 * @param requestBodyBytes raw bytes of the request body
+	 * @throws HTTPRequestSignatureVerificationException if the digest does not match or is malformed
+	 * @throws NoSuchAlgorithmException                  if SHA-256 is unavailable in this JVM
+	 */
+	public void verifyDigestHeader(Map<String, String> headers, byte[] requestBodyBytes)
+			throws HTTPRequestSignatureVerificationException, NoSuchAlgorithmException {
+		String digestHeader = headers.get("digest");
+		if (digestHeader == null) {
+			return; // Digest header is optional; nothing to verify
+		}
+
+		int separatorIndex = digestHeader.indexOf('=');
+		if (separatorIndex < 0) {
+			throw new HTTPRequestSignatureVerificationException(
+				"malformed Digest header: missing '=' separator");
+		}
+
+		String algorithm = digestHeader.substring(0, separatorIndex).trim();
+		String expectedDigest = digestHeader.substring(separatorIndex + 1).trim();
+
+		if (!"SHA-256".equalsIgnoreCase(algorithm)) {
+			throw new HTTPRequestSignatureVerificationException(
+				"unsupported digest algorithm: " + algorithm + " (only SHA-256 is supported)");
+		}
+
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		String actualDigest = Base64.getEncoder().encodeToString(md.digest(requestBodyBytes));
+
+		if (!actualDigest.equals(expectedDigest)) {
+			throw new HTTPRequestSignatureVerificationException(
+				"request body digest does not match Digest header");
+		}
 	}
 
 }

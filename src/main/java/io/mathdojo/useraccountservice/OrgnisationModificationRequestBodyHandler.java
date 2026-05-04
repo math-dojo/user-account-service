@@ -26,7 +26,7 @@ public class OrgnisationModificationRequestBodyHandler extends HTTPRequestSignat
 
     @FunctionName("updateOrganisationById")
     public HttpResponseMessage executePutForOrganisations(@HttpTrigger(name = "request", methods = {
-            HttpMethod.PUT }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId:alpha}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
+            HttpMethod.PUT }, authLevel = AuthorizationLevel.ANONYMOUS, route = "organisations/{orgId}") HttpRequestMessage<Optional<AccountModificationRequest>> request,
             @BindingName("orgId") String orgId, ExecutionContext context) {
 
         try {
