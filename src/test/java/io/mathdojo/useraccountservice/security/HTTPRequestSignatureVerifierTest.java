@@ -473,6 +473,7 @@ public class HTTPRequestSignatureVerifierTest {
                 () -> verifier.verifyDigestHeader(headers, new byte[0]));
     }
 
+}
     @Test
     public void digestVerificationFailsWithMalformedHeader() {
         Map<String, String> headers = new HashMap<>();
