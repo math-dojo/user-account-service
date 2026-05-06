@@ -43,7 +43,14 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "function-app-name=pr${{ github.event.number }}" >> "$GITHUB_OUTPUT"
           else
-            echo "function-app-name=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            BRANCH="${{ github.ref_name }}"
+            if [[ "$BRANCH" == "master" ]]; then
+              echo "function-app-name=pre-production" >> "$GITHUB_OUTPUT"
+            elif [[ "$BRANCH" == rl* ]]; then
+              echo "function-app-name=production" >> "$GITHUB_OUTPUT"
+            else
+              echo "function-app-name=non-production" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
   # ── 2. Build, unit-test, local integration test ────────────────────────────
