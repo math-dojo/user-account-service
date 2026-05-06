@@ -17,7 +17,8 @@ processes.useraccountservice = {
 };
 
 const paramsToWorld = JSON.parse(processArgs["world-parameters"]);
-const isLocalTest = (paramsToWorld.baseFunctionUri.includes('http://localhost') ?
+const isLocalTest = (paramsToWorld.baseFunctionUri.includes('http://localhost') ||
+  paramsToWorld.baseFunctionUri.includes('http://127.0.0.1') ?
   true : false);
 /** 
  * Start up the azure function. The timeout has been set to 
