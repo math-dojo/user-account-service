@@ -47,39 +47,54 @@ BeforeAll({
 
     processes.useraccountservice.functionapp
       .processEventEmitter = new spawn(command, args,azFunctionSpawnConfig);
-  
+
+    let stdoutBuffer = '';
+    let stderrBuffer = '';
+
+    const handleLine = (line) => {
+      if (/Host lock lease acquired by instance ID./.test(line)) {
+        console.log(`Function App: ${line}`);
+        processes.useraccountservice.functionapp.promiseResolved = true;
+
+        /* Close Process Streams as they are not needed */
+        processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
+        processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
+        processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
+
+        resolve("Function App Ready!");
+      } else if (/((Starting)|(istening))/.test(line)) {
+        console.log(`Function App: ${line}`);
+      } else if (
+        !processes.useraccountservice.functionapp.promiseResolved &&
+        /ERROR\]?/.test(line)
+      ) {
+        reject(line);
+      } else {
+        console.log(`Function App: ${line}`);
+      }
+    };
+
     processes.useraccountservice.functionapp
       .processEventEmitter.stdout.on('data', (data) => {
-        if (/Host lock lease acquired by instance ID./.test(data)) {
-          console.log(`Function App stdout: ${data}`);
-          processes.useraccountservice.functionapp.promiseResolved = true;
-
-          /* Close Process Streams as they are not needed */
-          processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
-          processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
-          processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
-
-          resolve("Function App Ready!");
-        } else if (/((Starting)|(istening))/.test(data)) {
-          console.log(`Function App stdout: ${data}`);
-        } else if (
-          !processes.useraccountservice.functionapp.promiseResolved &&
-          /ERROR\]?/.test(data)
-        ) {
-          reject(data);
-        } else {
-          console.log(`Function App stdout: ${data}`);
-        }
+        stdoutBuffer += data.toString();
+        const lines = stdoutBuffer.split('\n');
+        stdoutBuffer = lines.pop(); // keep the incomplete last chunk
+        lines.forEach(handleLine);
       });
       
     processes.useraccountservice.functionapp
       .processEventEmitter.stderr.on('data', (data) => {
-        if(/WARNING/.test(data)) {
-          console.warn(`Function App warning: ${data}`)
-        } else {
-          console.error(`Function App stderr: ${data}`);
-          reject(data);
-        }
+        stderrBuffer += data.toString();
+        const lines = stderrBuffer.split('\n');
+        stderrBuffer = lines.pop();
+        lines.forEach(line => {
+          if(/WARNING/.test(line)) {
+            console.warn(`Function App warning: ${line}`);
+          } else {
+            console.error(`Function App stderr: ${line}`);
+            reject(line);
+          }
+        });
       });
   })
   .catch(err => {
@@ -109,16 +124,26 @@ AfterAll(function() {
     resolve(process.kill(processes.useraccountservice.functionapp.processEventEmitter.pid));
   })
   .finally(() => {
-    processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
-    processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
-    processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
+    try {
+      processes.useraccountservice.functionapp.processEventEmitter.stderr.end();
+      processes.useraccountservice.functionapp.processEventEmitter.stdout.destroy();
+      processes.useraccountservice.functionapp.processEventEmitter.stdin.destroy();
+    } catch (e) {
+      console.info("Streams already closed, skipping stream teardown.");
+    }
     console.info("Attempting to clean-up any other processes using the function port");
-    if(process.platform == 'win32') {
-      const processName = execSync('netstat -ano | findstr :7071');
-      const processId = (processName.toString().match(/(?:LISTENING\s+)(\d+)/))[1];
-      execSync(`taskkill /F /PID ${processId}`);
-    } else {
-      execSync('kill $(lsof -t -i :7071)');
+    try {
+      if(process.platform == 'win32') {
+        const processName = execSync('netstat -ano | findstr :7071');
+        const processId = (processName.toString().match(/(?:LISTENING\s+)(\d+)/))[1];
+        execSync(`taskkill /F /PID ${processId}`);
+      } else {
+        // Use -sTCP:LISTEN to only match the process listening on 7071,
+        // not HTTP clients (including this Node process) connected to it.
+        execSync('kill $(lsof -t -i :7071 -sTCP:LISTEN)');
+      }
+    } catch (e) {
+      console.info(`Port cleanup completed (${e.message})`);
     }
   });
 });
