@@ -122,6 +122,9 @@ jobs:
           name: working-dir
           path: .
 
+      - name: Restore mvnw executable permission
+        run: chmod +x mvnw
+
       - uses: actions/setup-java@v4
         with:
           java-version: '8'
