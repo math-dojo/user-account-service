@@ -86,12 +86,12 @@ jobs:
           path: .
           retention-days: 1
 
-      - name: Install Azure Functions Core Tools v3
-        run: npm install -g azure-functions-core-tools@3 --unsafe-perm true
-
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
+
+      - name: Install Azure Functions Core Tools v4
+        run: npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
       - name: Run local integration tests
         working-directory: integration-tests
@@ -220,6 +220,6 @@ jobs:
         run: |
           npm run pretest
           npm test -- --world-parameters \
-            '{"baseFunctionUri":"https://mathdojoio.cloud.tyk.io/user-account-service-np-test/api","apiKey":"","xApiVersion":"${{ needs.resolve-env.outputs.function-app-name }}"}'
+            '{"baseFunctionUri":"https://user-account-service-${{ needs.resolve-env.outputs.function-app-name }}.azurewebsites.net/api","apiKey":"","xApiVersion":"${{ needs.resolve-env.outputs.function-app-name }}"}'
 
 
