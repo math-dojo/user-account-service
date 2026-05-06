@@ -81,6 +81,8 @@ stages:
             inputs:
               artifact: workingDir
               path: $(System.DefaultWorkingDirectory)
+          - script: chmod +x mvnw
+            displayName: Restore mvnw executable permission
           - task: AzureCLI@2
             displayName: "Deploy app"
             inputs:
