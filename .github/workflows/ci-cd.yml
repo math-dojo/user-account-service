@@ -132,15 +132,12 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Log in to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-
       - name: Deploy Azure Function
         env:
+          # DefaultAzureCredential picks these up as EnvironmentCredential (no az login needed)
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         run: |
           # Derive resource group from the resolved environment name: uas-<environment>
@@ -152,9 +149,17 @@ jobs:
             $EXTRA_ARGS \
             azure-functions:deploy
 
-
       - name: Set App Insights key
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         run: |
+          az login --service-principal \
+            --username "$AZURE_CLIENT_ID" \
+            --password "$AZURE_CLIENT_SECRET" \
+            --tenant "$AZURE_TENANT_ID" \
+            --output none
           az functionapp config appsettings set \
             --name "user-account-service-${{ needs.resolve-env.outputs.function-app-name }}" \
             --resource-group "uas-${{ needs.resolve-env.outputs.environment }}" \
@@ -170,14 +175,17 @@ jobs:
     environment: ${{ needs.resolve-env.outputs.environment }}
 
     steps:
-      - uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-
       - name: Set app configuration
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         run: |
+          az login --service-principal \
+            --username "$AZURE_CLIENT_ID" \
+            --password "$AZURE_CLIENT_SECRET" \
+            --tenant "$AZURE_TENANT_ID" \
+            --output none
           az functionapp config appsettings set \
             --name "user-account-service-${{ needs.resolve-env.outputs.function-app-name }}" \
             --resource-group "uas-${{ needs.resolve-env.outputs.environment }}" \
