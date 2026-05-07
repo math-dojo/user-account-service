@@ -132,31 +132,12 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Write Maven settings.xml (SP credentials)
-        env:
-          AZ_CLIENT: ${{ secrets.AZURE_CLIENT_ID }}
-          AZ_TENANT: ${{ secrets.AZURE_TENANT_ID }}
-          AZ_KEY: ${{ secrets.AZURE_CLIENT_SECRET }}
-        run: |
-          mkdir -p .mvn
-          cat > .mvn/settings.xml << EOF
-          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                                        https://maven.apache.org/xsd/settings-1.0.0.xsd">
-            <servers>
-              <server>
-                <id>azure-auth</id>
-                <configuration>
-                  <client>$AZ_CLIENT</client>
-                  <tenant>$AZ_TENANT</tenant>
-                  <key>$AZ_KEY</key>
-                  <environment>AZURE</environment>
-                </configuration>
-              </server>
-            </servers>
-          </settings>
-          EOF
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Deploy Azure Function
         env:
@@ -166,16 +147,11 @@ jobs:
           RESOURCE_GROUP="uas-${{ needs.resolve-env.outputs.environment }}"
           EXTRA_ARGS="-DfunctionResourceGroup=$RESOURCE_GROUP"
           [ -n "$AZURE_SUBSCRIPTION_ID" ] && EXTRA_ARGS="$EXTRA_ARGS -DsubscriptionId=$AZURE_SUBSCRIPTION_ID"
-          ./mvnw --settings .mvn/settings.xml --no-transfer-progress \
+          ./mvnw --no-transfer-progress \
             -DfunctionAppName=user-account-service-${{ needs.resolve-env.outputs.function-app-name }} \
             $EXTRA_ARGS \
             azure-functions:deploy
 
-      - uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Set App Insights key
         run: |
