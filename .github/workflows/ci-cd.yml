@@ -170,7 +170,6 @@ jobs:
             -DfunctionAppName=user-account-service-${{ needs.resolve-env.outputs.function-app-name }} \
             $EXTRA_ARGS \
             azure-functions:deploy
-            azure-functions:deploy
 
       - uses: azure/login@v2
         with:
@@ -182,7 +181,7 @@ jobs:
         run: |
           az functionapp config appsettings set \
             --name "user-account-service-${{ needs.resolve-env.outputs.function-app-name }}" \
-            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+            --resource-group "uas-${{ needs.resolve-env.outputs.environment }}" \
             --settings \
               "APPINSIGHTS_INSTRUMENTATIONKEY=${{ vars.APPINSIGHTS_INSTRUMENTATIONKEY }}" \
               "APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=${{ vars.APPINSIGHTS_INSTRUMENTATIONKEY }}"
@@ -205,7 +204,7 @@ jobs:
         run: |
           az functionapp config appsettings set \
             --name "user-account-service-${{ needs.resolve-env.outputs.function-app-name }}" \
-            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+            --resource-group "uas-${{ needs.resolve-env.outputs.environment }}" \
             --settings \
               "SPRING_DATA_MONGODB_URI=${{ secrets.MONGODB_URI }}" \
               "MATH_DOJO_ENV_NAME=${{ vars.MATH_DOJO_ENV_NAME }}" \
