@@ -92,11 +92,10 @@ stages:
               scriptType: ps
               scriptLocation: inlineScript
               inlineScript: |
-                $xmlcontent = ("<settings xmlns=`"http://maven.apache.org/SETTINGS/1.0.0`" xmlns:xsi=`"http://www.w3.org/2001/XMLSchema-instance`" xsi:schemaLocation=`"http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd`"><servers><server><id>azure-auth</id><configuration><client>$env:servicePrincipalId</client><tenant>$env:tenantId</tenant><key>$env:servicePrincipalKey</key><environment>AZURE</environment></configuration></server></servers></settings>")
-                $xmlcontent
-                New-Item -Path '.\.mvn\settings.xml' -ItemType "file" -Value "$xmlcontent"
-                cat .\.mvn\settings.xml
-                .\mvnw --settings .\.mvn\settings.xml --no-transfer-progress -DfunctionAppName=user-account-service-$(functionAppName) azure-functions:deploy
+                $env:AZURE_CLIENT_ID = $env:servicePrincipalId
+                $env:AZURE_CLIENT_SECRET = $env:servicePrincipalKey
+                $env:AZURE_TENANT_ID = $env:tenantId
+                .\mvnw --no-transfer-progress -DfunctionAppName=user-account-service-$(functionAppName) azure-functions:deploy
 
           - task: AzureCLI@2
             displayName: "Set app insights key"

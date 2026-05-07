@@ -140,9 +140,6 @@
                             <value>io.mathdojo.useraccountservice.UserAccountServiceApplication</value>
                         </property>
                     </appSettings>
-                    <authentication>
-                        <serverId>azure-auth</serverId>
-                    </authentication>
                     <subscriptionId>${subscriptionId}</subscriptionId>
                 </configuration>
                 <executions>
