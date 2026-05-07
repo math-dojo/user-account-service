@@ -92,6 +92,7 @@ jobs:
           name: working-dir
           path: .
           retention-days: 1
+          include-hidden-files: true
 
       - uses: actions/setup-node@v4
         with:
