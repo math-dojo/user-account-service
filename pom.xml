@@ -20,8 +20,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <azure.functions.maven.plugin.version>1.22.0</azure.functions.maven.plugin.version>
-        <azure.functions.java.library.version>1.4.0</azure.functions.java.library.version>
+        <azure.functions.maven.plugin.version>1.24.0</azure.functions.maven.plugin.version>
+        <azure.functions.java.library.version>3.1.0</azure.functions.java.library.version>
         <functionAppName>user-account-service-function</functionAppName>
         <functionAppRegion>uksouth</functionAppRegion>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
