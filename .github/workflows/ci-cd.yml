@@ -159,11 +159,17 @@ jobs:
           EOF
 
       - name: Deploy Azure Function
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         run: |
+          # Derive resource group from the resolved environment name: uas-<environment>
+          RESOURCE_GROUP="uas-${{ needs.resolve-env.outputs.environment }}"
+          EXTRA_ARGS="-DfunctionResourceGroup=$RESOURCE_GROUP"
+          [ -n "$AZURE_SUBSCRIPTION_ID" ] && EXTRA_ARGS="$EXTRA_ARGS -DsubscriptionId=$AZURE_SUBSCRIPTION_ID"
           ./mvnw --settings .mvn/settings.xml --no-transfer-progress \
             -DfunctionAppName=user-account-service-${{ needs.resolve-env.outputs.function-app-name }} \
-            -DfunctionResourceGroup=${{ vars.AZURE_RESOURCE_GROUP }} \
-            -DsubscriptionId=${{ vars.AZURE_SUBSCRIPTION_ID }} \
+            $EXTRA_ARGS \
+            azure-functions:deploy
             azure-functions:deploy
 
       - uses: azure/login@v2
